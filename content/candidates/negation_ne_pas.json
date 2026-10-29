@@ -1,0 +1,119 @@
+{
+  "query": "n'ai pas de",
+  "to": "cmn",
+  "fetched_at": "2026-10-18",
+  "source": {
+    "id": "tatoeba",
+    "license": "CC BY 2.0 FR",
+    "url": "https://tatoeba.org",
+    "note": "例句可改写使用，需署名；音频许可逐条不同，禁止直接使用。"
+  },
+  "total_matches": 153,
+  "candidates": [
+    {
+      "tatoeba_id": 12169789,
+      "fr": "Je n'ai pas de livre.",
+      "zh": [
+        "我没有书。"
+      ],
+      "words": 5,
+      "license": "CC BY 2.0 FR",
+      "contributor": "megamanenm",
+      "has_audio": false,
+      "audio_license": "unknown",
+      "url": "https://tatoeba.org/en/sentences/show/12169789"
+    },
+    {
+      "tatoeba_id": 9242633,
+      "fr": "Je n'ai pas de livres.",
+      "zh": [
+        "我没有书。"
+      ],
+      "words": 5,
+      "license": "CC BY 2.0 FR",
+      "contributor": "Adelpa",
+      "has_audio": false,
+      "audio_license": "unknown",
+      "url": "https://tatoeba.org/en/sentences/show/9242633"
+    },
+    {
+      "tatoeba_id": 5964179,
+      "fr": "Je n'ai pas de guitare.",
+      "zh": [
+        "我没有吉他。"
+      ],
+      "words": 5,
+      "license": "CC BY 2.0 FR",
+      "contributor": "Aiji",
+      "has_audio": false,
+      "audio_license": "unknown",
+      "url": "https://tatoeba.org/en/sentences/show/5964179"
+    },
+    {
+      "tatoeba_id": 5552408,
+      "fr": "Je n'ai pas de nom.",
+      "zh": [
+        "我没有名字。"
+      ],
+      "words": 5,
+      "license": "CC BY 2.0 FR",
+      "contributor": "sacredceltic",
+      "has_audio": true,
+      "audio_license": "unknown",
+      "url": "https://tatoeba.org/en/sentences/show/5552408"
+    },
+    {
+      "tatoeba_id": 4594745,
+      "fr": "Je n'ai pas de chien.",
+      "zh": [
+        "我没有狗。"
+      ],
+      "words": 5,
+      "license": "CC BY 2.0 FR",
+      "contributor": "sacredceltic",
+      "has_audio": false,
+      "audio_license": "unknown",
+      "url": "https://tatoeba.org/en/sentences/show/4594745"
+    },
+    {
+      "tatoeba_id": 3648423,
+      "fr": "Je n'ai pas de préjugé.",
+      "zh": [
+        "我没有偏见。"
+      ],
+      "words": 5,
+      "license": "CC BY 2.0 FR",
+      "contributor": "sacredceltic",
+      "has_audio": false,
+      "audio_license": "unknown",
+      "url": "https://tatoeba.org/en/sentences/show/3648423"
+    },
+    {
+      "tatoeba_id": 1626233,
+      "fr": "Je n'ai pas de mots.",
+      "zh": [
+        "我不知道應該說什麼才好。",
+        "我無語了。"
+      ],
+      "words": 5,
+      "license": "CC BY 2.0 FR",
+      "contributor": "Micsmithel",
+      "has_audio": false,
+      "audio_license": "unknown",
+      "url": "https://tatoeba.org/en/sentences/show/1626233"
+    },
+    {
+      "tatoeba_id": 1578548,
+      "fr": "Je n'ai pas de vélo.",
+      "zh": [
+        "我沒有腳踏車。"
+      ],
+      "words": 5,
+      "license": "CC BY 2.0 FR",
+      "contributor": "Rovo",
+      "has_audio": false,
+      "audio_license": "unknown",
+      "url": "https://tatoeba.org/en/sentences/show/1578548"
+    }
+  ]
+}

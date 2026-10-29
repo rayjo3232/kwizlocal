@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内容来源调研与 M0 范围 · Kwiziq 复刻</title>
+<style>
+  :root{
+    --ink:#14181D; --ink2:#39424D; --muted:#6B7480; --faint:#9AA3AE;
+    --line:#E6E8EB; --line2:#F0F1F3; --bg:#FBFBF9; --card:#FFFFFF;
+    --brand:#F26500; --brand-soft:#FFF2E8; --brand-line:#FFD9BF;
+    --blue:#0B6FB8; --blue-soft:#EAF4FB;
+    --green:#3E9B4F; --green-soft:#EDF7EF;
+    --red:#D51C1B; --red-soft:#FDEDED;
+    --yellow:#C98A00; --yellow-soft:#FFF7E0;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:"Inter","Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .side{position:fixed;top:0;left:0;bottom:0;width:228px;overflow-y:auto;background:#fff;border-right:1px solid var(--line);padding:26px 18px 40px;z-index:20}
+  .side .brandmark{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .dot{width:10px;height:10px;border-radius:3px;background:var(--brand);display:inline-block}
+  .side .bt{font-weight:700;font-size:14px;letter-spacing:-.01em}
+  .side .bs{font-size:11px;color:var(--faint);margin-bottom:22px;letter-spacing:.04em}
+  .side nav a{display:block;font-size:12.5px;color:var(--ink2);padding:5px 9px;border-radius:6px;border-left:2px solid transparent;margin-bottom:1px;line-height:1.45}
+  .side nav a:hover{background:var(--line2);text-decoration:none;color:var(--ink)}
+  .side nav a.on{background:var(--brand-soft);color:var(--brand);border-left-color:var(--brand);font-weight:600}
+  .side .grp{font-size:10.5px;letter-spacing:.12em;color:var(--faint);margin:18px 0 6px 9px;font-weight:600}
+  main{margin-left:228px;padding:0 48px 110px}
+  .wrap{max-width:900px;margin:0 auto}
+  .hero{padding:70px 0 40px;border-bottom:1px solid var(--line)}
+  .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:.14em;color:var(--brand);font-weight:700;text-transform:uppercase;margin-bottom:18px}
+  .kicker::before{content:"";width:26px;height:1.5px;background:var(--brand)}
+  h1{font-size:40px;line-height:1.18;letter-spacing:-.035em;margin:0 0 16px;font-weight:800}
+  h1 .thin{color:var(--faint);font-weight:300}
+  .lede{font-size:16.5px;line-height:1.8;color:var(--ink2);max-width:720px;margin:0 0 26px}
+  .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meta div{background:#fff;padding:13px 15px}
+  .meta dt{font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-bottom:4px}
+  .meta dd{margin:0;font-size:13px;font-weight:600;color:var(--ink)}
+  section{padding-top:52px}
+  h2{font-size:25px;letter-spacing:-.025em;margin:0 0 8px;font-weight:750;display:flex;align-items:baseline;gap:12px}
+  h2 .num{font-size:12px;color:var(--brand);font-weight:700;letter-spacing:.08em;font-family:var(--mono)}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 24px}
+  h3{font-size:16.5px;margin:34px 0 8px;letter-spacing:-.015em;font-weight:700}
+  h4{font-size:13.5px;margin:22px 0 6px;font-weight:700;color:var(--ink2)}
+  p{margin:0 0 13px}
+  ul,ol{margin:0 0 15px;padding-left:20px}
+  li{margin:0 0 6px}
+  strong{font-weight:650}
+  .small{font-size:12.5px;color:var(--muted);line-height:1.7}
+  .divider{height:1px;background:var(--line);margin:46px 0 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 22px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px}
+  .card .ct{font-size:12.5px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+  .card p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.7}
+  .card .big{font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--brand);line-height:1.2}
+  .callout{border-left:3px solid var(--brand);background:var(--brand-soft);padding:13px 17px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:var(--ink2)}
+  .callout.blue{border-color:var(--blue);background:var(--blue-soft)}
+  .callout.green{border-color:var(--green);background:var(--green-soft)}
+  .callout.red{border-color:var(--red);background:var(--red-soft)}
+  .callout b{color:var(--ink)}
+  .callout p:last-child{margin-bottom:0}
+  .tbl-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:16px 0 22px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;margin:0}
+  th{text-align:left;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:700;padding:9px 10px;border-bottom:1.5px solid var(--line);background:#FCFCFB}
+  td{padding:9px 10px;border-bottom:1px solid var(--line2);vertical-align:top;line-height:1.6}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;padding:2px 6px;border-radius:5px;background:var(--line2);color:var(--muted);text-transform:uppercase;white-space:nowrap}
+  .tag.o{background:var(--brand-soft);color:var(--brand)}
+  .tag.g{background:var(--green-soft);color:var(--green)}
+  .tag.r{background:var(--red-soft);color:var(--red)}
+  .tag.y{background:var(--yellow-soft);color:var(--yellow)}
+  .tag.b{background:var(--blue-soft);color:var(--blue)}
+  pre{background:#15191E;color:#D9E0E8;border-radius:10px;padding:15px 17px;overflow-x:auto;font-family:var(--mono);font-size:11.5px;line-height:1.7;margin:14px 0 20px}
+  pre .c{color:#6F7C8A}
+  pre .k{color:#FF9E64}
+  pre .s{color:#9ECE6A}
+  pre .n{color:#7DCFFF}
+  code.inl{font-family:var(--mono);font-size:12px;background:#F2F3F5;padding:1.5px 5px;border-radius:4px;color:#B4470A}
+  figure{margin:20px 0 24px}
+  figure svg{width:100%;height:auto;display:block}
+  figcaption{font-size:11.5px;color:var(--faint);margin-top:10px;text-align:center}
+  .kv{display:grid;grid-template-columns:150px 1fr;border-top:1px solid var(--line);margin:16px 0 22px;font-size:13px}
+  .kv dt{padding:9px 0;border-bottom:1px solid var(--line2);color:var(--muted);font-size:12px}
+  .kv dd{padding:9px 0;border-bottom:1px solid var(--line2);margin:0}
+  .foot{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint)}
+  @media (max-width:1080px){
+    .side{display:none}
+    main{margin-left:0;padding:0 22px 70px}
+    h1{font-size:30px}
+    .meta{grid-template-columns:1fr 1fr}
+    .grid2,.grid3{grid-template-columns:1fr}
+  }
+  @media print{
+    .side{display:none}
+    main{margin:0;padding:0}
+    body{background:#fff;font-size:10.5pt}
+    h2{page-break-after:avoid}
+    .card,.tbl-wrap,figure,.callout{page-break-inside:avoid}
+    .meta{grid-template-columns:repeat(4,1fr)}
+    .grid2{grid-template-columns:1fr 1fr}
+    .grid3{grid-template-columns:repeat(3,1fr)}
+    table{font-size:8.6px}
+    th{font-size:7.6px;padding:5px 6px}
+    td{padding:6px 6px}
+    pre{font-size:8px;line-height:1.5}
+  }
+</style>
+</head>
+<body>
+
+<aside class="side">
+  <div class="brandmark"><span class="dot"></span><span class="bt">Kwiziq Replica</span></div>
+  <div class="bs">内容来源 · M0 范围 v1.0</div>
+  <nav id="toc">
+    <a href="#s0">结论先行</a>
+    <a href="#s1">一 · 来源矩阵</a>
+    <a href="#s2">二 · 五层内容策略</a>
+    <a href="#s3">三 · 重点来源实测</a>
+    <a href="#s4">四 · 版权边界</a>
+    <a href="#s5">五 · 内容管线</a>
+    <a href="#s6">六 · 单点生产 SOP</a>
+    <a href="#s7">七 · M0 范围</a>
+    <a href="#s8">八 · 风险与决策</a>
+  </nav>
+</aside>
+
+<main>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">Content Sourcing &amp; M0 Scope</div>
+  <h1>内容不是找不到<br><span class="thin">是「讲解」必须自己写</span></h1>
+  <p class="lede">
+    法语例句、变位、母语音频、语法大纲——这些网上确实都有，而且有相当一部分是开放许可的。
+    但面向中文母语者的「讲解」几乎不存在可复用的开放语料。这份文档把可获取的部分、必须自写的部分、
+    以及 M0 到底做多少，一次说清楚。
+  </p>
+  <dl class="meta">
+    <div><dt>调研日期</dt><dd>2026-10-18</dd></div>
+    <div><dt>核验来源</dt><dd>14 个</dd></div>
+    <div><dt>M0 周期</dt><dd>5 天</dd></div>
+    <div><dt>M0 内容量</dt><dd>20 知识点 / 160 题</dd></div>
+  </dl>
+</header>
+
+<!-- ============ 0 ============ -->
+<div class="callout" style="margin-top:24px">
+    <p><b>2026-10-18 范围调整（以此为准）：</b>产品改为<b>纯本地自用</b>，不做开源/分发；界面与讲解<b>只用英文</b>；<b>不做音频</b>（发音自行查在线词典）；<b>Brainmap 进入 M0</b>（用于提供成就感）。已产出可点击 Demo：<code class="inl">app/index.html</code>，140 个知识点 / 700 题 / 8 个范畴，CEFR 考纲对齐（A0–B2），含 20 题分级测试。</p>
+  </div>
+
+<section id="s0">
+  <h2><span class="num">00</span>结论先行</h2>
+  <p class="sub">三句话，决定后面所有事。</p>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="ct" style="color:#2F7A3E">可以白拿的</div>
+      <div class="big">70%</div>
+      <p>法语例句（Tatoeba，CC BY）、母语音频（FSI 公版 / Common Voice CC0 / Français interactif CC BY）、动词变位（verbecc）、语法大纲（Wikibooks CC BY-SA）。</p>
+    </div>
+    <div class="card">
+      <div class="ct" style="color:#C24E00">必须自己写的</div>
+      <div class="big">30%</div>
+      <p>中文讲解、中国人易错点、干扰项设计、题目与知识点的对应关系。这部分没有任何开放语料可以直接搬。</p>
+    </div>
+    <div class="card">
+      <div class="ct" style="color:#B33A38">绝对不能碰的</div>
+      <div class="big">0</div>
+      <p>Kwiziq / Lawless French 的课文与题库、TV5Monde、RFI、Duolingo、沪江/法语角等版权保留内容。</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><b>最关键的判断：</b>你担心的「音频和讲解」其实是两类完全不同的东西。音频是<b>工程问题</b>——用本地 TTS 批量生成，2 秒一条，零版权风险，M0 阶段就能全量覆盖。讲解是<b>写作问题</b>——但它比想象中便宜：一个知识点只需要 <b>120 字规则 + 2 组对比例句 + 1 条易错点</b>，熟练后 8–10 分钟一个。</p>
+    <p>所以真正的成本不是「找内容」，而是「把法语素材对齐到知识点，并用中文重写一遍」。这条流水线我已经搭出可运行的骨架（见第五节与 <code class="inl">tools/</code>）。</p>
+  </div>
+
+  <p>另一个必须先纠正的预期：<strong>不存在「下载一个包就拥有 500 个知识点」的捷径</strong>。开放教材（如 Français interactif）是<b>按课</b>组织的，不是按「可独立测试的规则」组织的。从教材到知识点，中间必须做一次拆解——这正是 6.1 节说的 45–55 人日里最花时间的部分，也是产品差异化的来源。</p>
+</section>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+  <h2><span class="num">01</span>来源矩阵</h2>
+  <p class="sub">14 个来源，按「能不能直接用」排序。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:20%">来源</th><th style="width:24%">提供什么</th><th style="width:15%">许可</th><th>怎么用</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Français interactif</b><br><span class="small">UT Austin / COERLL</span></td>
+        <td>13 章零基础课程、320+ 视频、词汇与语音音频、语法参考 + 自测练习、音频对话、变位工具</td>
+        <td><span class="tag g">CC BY 4.0</span></td>
+        <td><b>首选。</b>可改编、可商用，只需署名。语法页可作讲解骨架，音频对话可做听力素材。</td>
+      </tr>
+      <tr>
+        <td><b>Tatoeba</b></td>
+        <td>数百万条例句，含中文翻译；部分句子有母语者录音；公开 API</td>
+        <td><span class="tag g">文本 CC BY 2.0 FR</span><br><span class="tag y">音频逐条不同</span></td>
+        <td><b>例句主力。</b>按关键词/句型检索，挑「有中文翻译 + 长度合适」的句子，改写后入库。音频不要直接用。</td>
+      </tr>
+      <tr>
+        <td><b>FSI French Basic Course</b></td>
+        <td>完整 PDF 教材 + 数十小时母语录音（对话、drill）</td>
+        <td><span class="tag g">Public Domain</span></td>
+        <td>美国政府作品，无任何限制。内容较老（1960s），适合做听力素材与句型库，不适合做当代口语示例。</td>
+      </tr>
+      <tr>
+        <td><b>Piper TTS</b></td>
+        <td>本地神经 TTS，7 个法语声音（siwis / mls / upmc / tom / gilles）</td>
+        <td><span class="tag g">代码 MIT</span><br><span class="tag g">siwis/mls: CC BY 4.0</span></td>
+        <td><b>音频主力。</b>离线批量生成 wav，声音一致、零版权风险。默认用 <code class="inl">fr_FR-siwis-medium</code>。</td>
+      </tr>
+      <tr>
+        <td><b>Kokoro-82M</b></td>
+        <td>82M 参数多语 TTS，含 fr-fr 声音，自然度优于 Piper</td>
+        <td><span class="tag g">Apache 2.0</span></td>
+        <td>备选。CPU 也能跑，适合对音质要求更高的例句；生成速度慢于 Piper。</td>
+      </tr>
+      <tr>
+        <td><b>Common Voice</b><br><span class="small">Mozilla</span></td>
+        <td>法语朗读语音（Scripted Speech 27.0 法语包约 28.55 GB）</td>
+        <td><span class="tag g">CC0</span></td>
+        <td>无任何限制。但句子不对齐语法点，适合做「辨音/听写」素材，不适合做例句音频。</td>
+      </tr>
+      <tr>
+        <td><b>Wikibooks French</b></td>
+        <td>按级别组织的语法大纲（形容词、副词、冠词、代词、动词时态…）</td>
+        <td><span class="tag y">CC BY-SA</span></td>
+        <td><b>只做清单参考</b>，不要整段改写。事实与标题不受版权保护，表达受保护。</td>
+      </tr>
+      <tr>
+        <td><b>Wiktionnaire</b></td>
+        <td>释义、变位表、音标、部分发音</td>
+        <td><span class="tag y">CC BY-SA</span></td>
+        <td>校对用（查一个动词的变位对不对），不要批量搬运表格，避免 ShareAlike 传染。</td>
+      </tr>
+      <tr>
+        <td><b>verbecc</b></td>
+        <td>法语动词完整变位（全部语式/时态/人称），数千动词 + 未登录词预测</td>
+        <td><span class="tag y">LGPLv3</span></td>
+        <td>作为<b>库</b>调用生成变位题与答案校验；不要把它的源码嵌进闭源部分。</td>
+      </tr>
+      <tr>
+        <td><b>Lexique 4</b></td>
+        <td>19 万词形的词频、音标、词形、词素结构</td>
+        <td><span class="tag y">CC BY-SA 4.0</span><br><span class="small">页面链接含 NC，需复核</span></td>
+        <td>用于「这个词常不常用」的难度校准，以及词汇表排序。非必需。</td>
+      </tr>
+      <tr>
+        <td><b>Lingua Libre</b></td>
+        <td>社区录制的单词/短语发音，法语量大</td>
+        <td><span class="tag y">CC BY-SA 4.0</span></td>
+        <td>单词级发音补充（如「这个词怎么读」按钮），不做整句。</td>
+      </tr>
+      <tr>
+        <td><b>LibriVox / Gutenberg</b></td>
+        <td>公版法语有声书与文本</td>
+        <td><span class="tag g">Public Domain</span></td>
+        <td>B1 以上的泛读/泛听素材，后续版本再用。</td>
+      </tr>
+      <tr>
+        <td><b>Verbiste</b></td>
+        <td>法语变位模板 XML（verbecc 的上游）</td>
+        <td><span class="tag r">GPL</span></td>
+        <td>仅作参考。GPL 传染性强，不直接嵌入。</td>
+      </tr>
+      <tr>
+        <td><b>Kwiziq / Lawless French</b><br><b>TV5Monde / RFI / Duolingo</b></td>
+        <td>课文、题库、讲解、音频、视频</td>
+        <td><span class="tag r">版权保留</span></td>
+        <td><b>只可人工阅读参考，不可抓取、翻译、改写、复用。</b>包括「换几个词」的洗稿。</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="small">许可信息以各站点 2026-10-18 的公开页面为准。CC BY-SA 类来源只做「查证」与「清单参考」，避免衍生作品被要求同许可。</p>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+  <h2><span class="num">02</span>五层内容策略</h2>
+  <p class="sub">一个知识点由五种材料组成，每种材料的获取方式完全不同。</p>
+
+  <figure>
+    <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="内容五层">
+      <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+        <!-- layers -->
+        <rect x="20" y="24" width="820" height="44" rx="8" fill="#EAF4FB" stroke="#BFDDF2"/>
+        <text x="38" y="51" font-size="11" font-weight="700" fill="#0B6FB8">① 大纲层</text>
+        <text x="128" y="51" font-size="10.5" fill="#3A7FA8">知识点清单、级别、先修关系</text>
+        <text x="640" y="51" font-size="10" fill="#0B6FB8" font-weight="600">自建（参考 Wikibooks / CEFR）</text>
+
+        <rect x="20" y="76" width="820" height="44" rx="8" fill="#EDF7EF" stroke="#BFE3C6"/>
+        <text x="38" y="103" font-size="11" font-weight="700" fill="#2F7A3E">② 素材层</text>
+        <text x="128" y="103" font-size="10.5" fill="#3E7A4C">法语句子、对话、短文</text>
+        <text x="640" y="103" font-size="10" fill="#2F7A3E" font-weight="600">Tatoeba / FI / FSI（开放）</text>
+
+        <rect x="20" y="128" width="820" height="44" rx="8" fill="#FFF7E0" stroke="#F2D24B"/>
+        <text x="38" y="155" font-size="11" font-weight="700" fill="#A87500">③ 音频层</text>
+        <text x="128" y="155" font-size="10.5" fill="#8A6A12">例句朗读、听写音频</text>
+        <text x="640" y="155" font-size="10" fill="#A87500" font-weight="600">Piper / Kokoro 本地生成</text>
+
+        <rect x="20" y="180" width="820" height="44" rx="8" fill="#FFF2E8" stroke="#FFD9BF"/>
+        <text x="38" y="207" font-size="11" font-weight="700" fill="#C24E00">④ 讲解放层</text>
+        <text x="128" y="207" font-size="10.5" fill="#8A5A38">中文规则、对比、易错点</text>
+        <text x="640" y="207" font-size="10" fill="#C24E00" font-weight="600">100% 自写（LLM 起草 + 人工审）</text>
+
+        <rect x="20" y="232" width="820" height="44" rx="8" fill="#FDEDED" stroke="#F3C4C3"/>
+        <text x="38" y="259" font-size="11" font-weight="700" fill="#B33A38">⑤ 题目层</text>
+        <text x="128" y="259" font-size="10.5" fill="#B33A38">题干、答案、干扰项、解析</text>
+        <text x="640" y="259" font-size="10" fill="#B33A38" font-weight="600">自建（可用 verbecc 校验）</text>
+      </g>
+    </svg>
+    <figcaption>图 1 · 越往下越难外包：大纲和素材可以找，讲解和题目必须自己造</figcaption>
+  </figure>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:14%">层</th><th style="width:26%">获取方式</th><th style="width:12%">自动化程度</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><b>① 大纲</b></td><td>人工整理 + LLM 辅助</td><td><span class="tag y">半自动</span></td><td>从公开语法目录提取主题，按「可独立测试」拆成 320 条，再标级别与先修。事实性清单不受版权保护。</td></tr>
+      <tr><td><b>② 素材</b></td><td>Tatoeba API 检索 + 人工挑选</td><td><span class="tag g">可脚本化</span></td><td>按句型正则检索，过滤长度、语域、翻译质量。候选 20 条里挑 3 条，再改写。</td></tr>
+      <tr><td><b>③ 音频</b></td><td>Piper 批量合成</td><td><span class="tag g">全自动</span></td><td>输入 JSON，输出 <code class="inl">tts/fr/{kp_id}/{n}.wav</code>。一条约 0.5–2 秒。</td></tr>
+      <tr><td><b>④ 讲解</b></td><td>模板 + LLM 起草 + 人工定稿</td><td><span class="tag y">半自动</span></td><td>固定三槽位：一句话规则 / 2 组对比 / 1 条易错。LLM 只能起草，必须人工核对语法与中文表达。</td></tr>
+      <tr><td><b>⑤ 题目</b></td><td>模板 + 人工设计干扰项</td><td><span class="tag r">手工</span></td><td>干扰项必须来自真实错误（如 *est parti），不能随机替换。这是题目质量的分水岭。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout blue">
+    <p><b>为什么不用 LLM 直接生成全部内容？</b>可以生成 80% 的初稿，但法语语法细节（性数配合、介词、语域）错误率不低，而语言学习产品对错误的容忍度是零——教错一次，用户会记很久。正确用法是：<b>LLM 起草 + 规则校验（verbecc/拼写）+ 人工抽检 100% 的 primer 与 20% 的题目</b>。</p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+  <h2><span class="num">03</span>重点来源实测</h2>
+  <p class="sub">不是「听说有」，是「我调通了」。</p>
+
+  <h3>① Tatoeba：例句 + 中文翻译，API 可直接用<span class="tag g">已验证</span></h3>
+  <p>实测请求：检索包含 <code class="inl">n'ai pas de</code> 的法语例句，要求有中文翻译，返回 <b>153 条</b>；每条都带许可字段、翻译分组、音频列表。</p>
+
+  <pre><span class="c">GET</span> https://tatoeba.org/en/api_v0/search
+    ?from=fra&amp;to=cmn&amp;query=n%27ai%20pas%20de&amp;sort=relevance
+
+<span class="c">// 返回（节选）</span>
+{
+  <span class="s">"text"</span>: <span class="s">"Je n'ai pas de livre."</span>,
+  <span class="s">"license"</span>: <span class="s">"CC BY 2.0 FR"</span>,
+  <span class="s">"audios"</span>: [],
+  <span class="s">"translations"</span>: [[{ <span class="s">"text"</span>: <span class="s">"我没有书。"</span>, <span class="s">"lang"</span>: <span class="s">"cmn"</span> }]]
+}</pre>
+
+  <p>这解决了两件最难的事：<b>地道的法语句子</b>和<b>现成的中文翻译</b>。但有两个坑：</p>
+  <ul>
+    <li><b>音频许可不在 API 里。</b>实测 <code class="inl">audios[].license</code> 返回 <code class="inl">null</code>，必须去贡献者主页逐条确认。所以<strong>不要用 Tatoeba 的音频</strong>，改用 TTS。</li>
+    <li><b>翻译不一定贴题。</b>「Bonjour」有「你好 / 下午好 / 早上好」三种译法，必须人工挑一个与例句语境匹配的。</li>
+  </ul>
+
+  <h3>② Français interactif：唯一「课程 + 音频 + 语法 + 练习」全齐的开放教材<span class="tag g">CC BY</span></h3>
+  <p>COERLL 官方描述：13 章第一年法语课程，含 <b>320+ 视频</b>、词汇与语音音频、在线语法参考 + 自校正练习、音频对话、变位工具。许可为 <b>CC BY</b>（可改编、可商用、需署名）。</p>
+  <p>它的价值不在于「直接抄」，而在于三点：<b>语法页的结构可以照着重写</b>（规则 → 对比例句 → 练习），<b>音频对话可以做听力题</b>，<b>章节顺序可以作为 A0–A1 的先修依据</b>。</p>
+
+  <h3>③ FSI：公版，但别指望它现代<span class="tag g">Public Domain</span></h3>
+  <p>FSI 法语基础课程是 1960 年代为美国外交官开发的，PDF + 数十小时母语录音，<b>美国政府作品，公版</b>。优点是句型密度高、drill 设计严谨；缺点是语料老旧（telephone、cassette 之类的场景），且以英语为母语者设计。适合做<b>听力素材库</b>，不适合做产品的主例句。</p>
+
+  <h3>④ 音频：Piper 是当前最稳的本地方案<span class="tag g">已验证声音清单</span></h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:26%">声音</th><th style="width:12%">质量</th><th style="width:18%">许可</th><th>结论</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inl">fr_FR-siwis-medium</code></td><td>medium</td><td><span class="tag g">CC BY 4.0</span></td><td><b>默认。</b>单说话人、清晰、许可干净</td></tr>
+      <tr><td><code class="inl">fr_FR-mls-medium</code></td><td>medium</td><td><span class="tag g">CC BY 4.0</span></td><td>125 个说话人，可做「换个人读」的听力变体</td></tr>
+      <tr><td><code class="inl">fr_FR-upmc-medium</code></td><td>medium</td><td><span class="tag y">CC BY-SA 4.0</span></td><td>可用，但 ShareAlike 有解释成本，非首选</td></tr>
+      <tr><td><code class="inl">fr_FR-tom-medium</code></td><td>medium</td><td><span class="tag r">AGPLv3</span></td><td><b>不用。</b>传染性许可</td></tr>
+      <tr><td><code class="inl">fr_FR-gilles-low</code></td><td>low</td><td>—</td><td>音质不足，不用</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="small">另：Kokoro-82M（Apache 2.0）含 fr-fr 声音，自然度更好，可作为 B 方案；Common Voice（CC0）适合做真实人声的听写素材。</p>
+
+  <h3>⑤ 变位：verbecc 生成，不搬维基<span class="tag y">LGPL</span></h3>
+  <p>verbecc 支持数千法语动词的完整变位（含复合时态、代词式动词、阴/阳性第三人称），并能用机器学习预测未登录词（约 99% 准确）。作为库调用即可，避免从 Wiktionnaire 批量搬表带来的 CC BY-SA 传染。</p>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+  <h2><span class="num">04</span>版权边界</h2>
+  <p class="sub">四档，越往下越危险。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:18%">档位</th><th style="width:32%">含义</th><th>典型来源与做法</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag g">A 自由使用</span></td><td>公版或 CC0，无署名义务</td><td>FSI、Gutenberg、LibriVox、Common Voice。可任意改写、商用。</td></tr>
+      <tr><td><span class="tag g">B 署名可用</span></td><td>CC BY，可改编商用，需在「关于」页署名</td><td>Français interactif、Tatoeba 文本、Piper siwis/mls 声音。产品里放一个「内容来源」页，列出来源、作者、许可链接。</td></tr>
+      <tr><td><span class="tag y">C 只查证不搬运</span></td><td>CC BY-SA / LGPL，直接改编会触发同许可</td><td>Wikibooks、Wiktionnaire、Lexique。用来核对规则与变位，不整段复制。verbecc 作为库调用。</td></tr>
+      <tr><td><span class="tag r">D 不可用</span></td><td>版权保留，任何形式的复制/翻译/洗稿都侵权</td><td>Kwiziq、Lawless French、TV5Monde、RFI、Duolingo、沪江、法语角。只能人工阅读后用自己的话重写，且不能照搬例句结构。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout red">
+    <p><b>三个容易踩的坑：</b></p>
+    <p>① <b>「换几个词」不算原创。</b>把 Kwiziq 的例句改两个词，仍然可能构成演绎侵权。</p>
+    <p>② <b>CC BY-SA 会传染。</b>如果把 Wikibooks 的段落改写进你的讲解，那段讲解可能需要以 CC BY-SA 发布。规避方式：只提取「讲什么」，不提取「怎么讲」。</p>
+    <p>③ <b>Tatoeba 音频许可不明。</b>API 不返回许可，逐条确认成本极高。统一用 TTS，既干净又一致。</p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+  <h2><span class="num">05</span>内容管线</h2>
+  <p class="sub">七步，从「一个语法主题」到「可入库的知识点」。</p>
+
+  <figure>
+    <svg viewBox="0 0 860 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="内容生产管线">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#C9CED5"/>
+        </marker>
+      </defs>
+      <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+        <!-- 7 steps, two rows -->
+        <g>
+          <rect x="14" y="30" width="108" height="58" rx="8" fill="#EAF4FB" stroke="#BFDDF2"/>
+          <text x="68" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0B6FB8">1 拆解</text>
+          <text x="68" y="68" text-anchor="middle" font-size="8.5" fill="#3A7FA8">主题 → 可测规则</text>
+          <text x="68" y="80" text-anchor="middle" font-size="8.5" fill="#3A7FA8">定级别 + 先修</text>
+
+          <rect x="138" y="30" width="108" height="58" rx="8" fill="#EAF4FB" stroke="#BFDDF2"/>
+          <text x="192" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0B6FB8">2 找例句</text>
+          <text x="192" y="68" text-anchor="middle" font-size="8.5" fill="#3A7FA8">Tatoeba API</text>
+          <text x="192" y="80" text-anchor="middle" font-size="8.5" fill="#3A7FA8">20 选 3</text>
+
+          <rect x="262" y="30" width="108" height="58" rx="8" fill="#EAF4FB" stroke="#BFDDF2"/>
+          <text x="316" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0B6FB8">3 改写</text>
+          <text x="316" y="68" text-anchor="middle" font-size="8.5" fill="#3A7FA8">控长度 / 语域</text>
+          <text x="316" y="80" text-anchor="middle" font-size="8.5" fill="#3A7FA8">造对比句</text>
+
+          <rect x="386" y="30" width="108" height="58" rx="8" fill="#FFF2E8" stroke="#FFD9BF"/>
+          <text x="440" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#C24E00">4 写讲解</text>
+          <text x="440" y="68" text-anchor="middle" font-size="8.5" fill="#8A5A38">规则 / 对比 / 易错</text>
+          <text x="440" y="80" text-anchor="middle" font-size="8.5" fill="#8A5A38">120 字以内</text>
+
+          <rect x="510" y="30" width="108" height="58" rx="8" fill="#FFF2E8" stroke="#FFD9BF"/>
+          <text x="564" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#C24E00">5 出题</text>
+          <text x="564" y="68" text-anchor="middle" font-size="8.5" fill="#8A5A38">8 题 / 点</text>
+          <text x="564" y="80" text-anchor="middle" font-size="8.5" fill="#8A5A38">干扰项来自真实错误</text>
+
+          <rect x="634" y="30" width="108" height="58" rx="8" fill="#EDF7EF" stroke="#BFE3C6"/>
+          <text x="688" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2F7A3E">6 合成音频</text>
+          <text x="688" y="68" text-anchor="middle" font-size="8.5" fill="#3E7A4C">Piper 批量</text>
+          <text x="688" y="80" text-anchor="middle" font-size="8.5" fill="#3E7A4C">wav 命名规范</text>
+
+          <rect x="758" y="30" width="88" height="58" rx="8" fill="#EDF7EF" stroke="#BFE3C6"/>
+          <text x="802" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2F7A3E">7 校验入库</text>
+          <text x="802" y="68" text-anchor="middle" font-size="8.5" fill="#3E7A4C">schema + 变位</text>
+          <text x="802" y="80" text-anchor="middle" font-size="8.5" fill="#3E7A4C">+ 人工抽检</text>
+        </g>
+        <!-- arrows row1 -->
+        <g stroke="#C9CED5" stroke-width="1.3">
+          <line x1="122" y1="59" x2="134" y2="59" marker-end="url(#a1)"/>
+          <line x1="246" y1="59" x2="258" y2="59" marker-end="url(#a1)"/>
+          <line x1="370" y1="59" x2="382" y2="59" marker-end="url(#a1)"/>
+          <line x1="494" y1="59" x2="506" y2="59" marker-end="url(#a1)"/>
+          <line x1="618" y1="59" x2="630" y2="59" marker-end="url(#a1)"/>
+          <line x1="742" y1="59" x2="754" y2="59" marker-end="url(#a1)"/>
+        </g>
+        <!-- loop back -->
+        <path d="M802 88 L802 150 Q802 158 794 158 L76 158 Q68 158 68 150 L68 92" fill="none" stroke="#F26500" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#a1)"/>
+        <text x="430" y="176" text-anchor="middle" font-size="9.5" fill="#C24E00">抽检不通过 → 回到对应步骤；所有来源与许可写入 sources.json</text>
+
+        <!-- bottom notes -->
+        <rect x="14" y="196" width="270" height="38" rx="7" fill="#FCFCFB" stroke="#E6E8EB"/>
+        <text x="28" y="212" font-size="9" font-weight="700" fill="#39424D">自动化脚本</text>
+        <text x="28" y="226" font-size="8.5" fill="#6B7480">tools/fetch_tatoeba.py · tools/tts_piper.py</text>
+
+        <rect x="296" y="196" width="270" height="38" rx="7" fill="#FCFCFB" stroke="#E6E8EB"/>
+        <text x="310" y="212" font-size="9" font-weight="700" fill="#39424D">人工节点</text>
+        <text x="310" y="226" font-size="8.5" fill="#6B7480">步骤 1 / 3 / 4 / 5 必须有人把关</text>
+
+        <rect x="578" y="196" width="268" height="38" rx="7" fill="#FCFCFB" stroke="#E6E8EB"/>
+        <text x="592" y="212" font-size="9" font-weight="700" fill="#39424D">产出</text>
+        <text x="592" y="226" font-size="8.5" fill="#6B7480">content/kp/*.json + tts/fr/**/*.wav</text>
+      </g>
+    </svg>
+    <figcaption>图 2 · 内容管线：只有 2、6、7 能全自动，1、3、4、5 是人的工作</figcaption>
+  </figure>
+
+  <p>管线已经落到仓库里：</p>
+  <pre>content/
+├─ sources.json          <span class="c"># 来源注册表：URL / 许可 / 用途 / 署名文本</span>
+├─ schema/kp.schema.json <span class="c"># 知识点 JSON Schema</span>
+└─ kp/*.json             <span class="c"># 每个知识点一个文件</span>
+tools/
+├─ fetch_tatoeba.py      <span class="c"># 按句型检索候选例句（含中文翻译）</span>
+├─ tts_piper.py          <span class="c"># 批量合成例句音频</span>
+└─ validate_content.py   <span class="c"># schema + 引用完整性校验</span></pre>
+
+  <h4>实测：一条命令拿到候选例句</h4>
+  <pre><span class="c">$</span> python tools/fetch_tatoeba.py --query "n'ai pas de" --limit 8
+
+  1. Je n'ai pas de livre.                      我没有书。            [audio: no]
+  2. Je n'ai pas de temps.                      我没有时间。          [audio: no]
+  3. Il n'y a pas de problème.                  没问题。              [audio: no]
+  ...
+  <span class="c"># 输出 content/candidates/negation_ne_pas.json，含 id / 许可 / 翻译 / 音频标记</span></pre>
+
+  <p class="small">这个脚本只做「候选收集」，不做自动入库——因为例句是否贴题、翻译是否自然，必须人看。工具的价值是把 30 分钟的手工搜索压到 30 秒。</p>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+  <h2><span class="num">06</span>单点生产 SOP</h2>
+  <p class="sub">一个知识点从空白到可上线，标准工时 25–35 分钟。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:8%">步</th><th style="width:24%">动作</th><th style="width:12%">工时</th><th>产出 / 标准</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>写 ID、级别、标题、先修</td><td>2 min</td><td><code class="inl">fr.a1.negation.ne_pas</code>；先修至少 1 条</td></tr>
+      <tr><td>2</td><td>写 primer 三槽位</td><td>8 min</td><td>规则 ≤ 60 字；对比 2 组；易错 1 条（必须是中国人会犯的）</td></tr>
+      <tr><td>3</td><td>检索并挑选例句</td><td>5 min</td><td>2–4 条，长度 4–12 词，语域为日常</td></tr>
+      <tr><td>4</td><td>写 8 道题</td><td>12 min</td><td>2 单选 + 4 填空 + 1 改错 + 1 翻译；每题有解析</td></tr>
+      <tr><td>5</td><td>合成音频</td><td>1 min</td><td>每条例句 1 个 wav，命名 <code class="inl">{kp_id}-ex{n}.wav</code></td></tr>
+      <tr><td>6</td><td>校验</td><td>2 min</td><td>schema 通过；变位正确；答案唯一（或有 accept 列表）</td></tr>
+      <tr><td>7</td><td>抽检</td><td>3 min</td><td>换一个人（或隔天自己）盲做 3 题，能全对才算过</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>按 30 分钟 / 点计算：<b>20 点 ≈ 10 小时（约 1.5 个工作日）</b>；320 点 ≈ 160 小时（约 20 个工作日）——比 6.1 节估计的 45–55 人日更低，因为例句和音频被工具省掉了。这是本次调研带来的最大成本修正。</p>
+
+  <div class="callout green">
+    <p><b>成本重估：</b>原方案按「全手工写例句 + 录/找音频」估 45–55 人日；引入 Tatoeba + Piper 后，例句与音频几乎零成本，<b>320 个知识点的内容成本降到约 20–25 人日</b>。M0 的 20 个点可以在 1.5 天内完成。</p>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+  <h2><span class="num">07</span>M0 范围</h2>
+  <p class="sub">5 天，只证明一件事：机制跑得通，内容造得出。</p>
+
+  <p><b>M0 的成功标准不是「好看」，而是：拿 20 个真实知识点，走完一次完整的「学 → 测 → 评分 → 重排」，并且分数曲线符合直觉。</b></p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:16%">模块</th><th style="width:44%">做</th><th>不做（留给 M1+）</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>内容</b></td>
+        <td>20 个知识点（A0 8 / A1 7 / A2L 5），每点 1 段 primer + 8 题 + 2–4 条例句 + 音频，共 160 题</td>
+        <td>不追 320 点；不做 B1 以上；不做阅读理解</td>
+      </tr>
+      <tr>
+        <td><b>数据</b></td>
+        <td>JSON Schema、SQLite 建表、seed 导入、全量导出</td>
+        <td>不做增量同步、不做多用户</td>
+      </tr>
+      <tr>
+        <td><b>引擎</b></td>
+        <td>BKT 更新、展示分（含负分与收缩）、FSRS 调度、10 题组卷（配额 + 打分 + 约束）、预学习状态机</td>
+        <td>不做 Elo 题目校准；不做级别分稀释的可视化</td>
+      </tr>
+      <tr>
+        <td><b>界面</b></td>
+        <td>3 页：Dashboard（静态）、Kwiz Runner（作答 + 即时反馈）、结果页（逐题对照）</td>
+        <td>不做 Brainmap、分级测试、Notebook、成就、通知、Tauri 打包</td>
+      </tr>
+      <tr>
+        <td><b>工具</b></td>
+        <td>Tatoeba 抓取、Piper 合成、内容校验三个脚本</td>
+        <td>不做后台管理界面</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>验收清单（5 条，缺一不可）</h4>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:6%">#</th><th style="width:40%">标准</th><th>验证方式</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>20 个 KP 全部通过 schema 校验，无悬空先修引用</td><td><code class="inl">python tools/validate_content.py</code></td></tr>
+      <tr><td>2</td><td>160 道题答案与解析齐全；法语变位经 verbecc 校验</td><td>校验脚本 + 人工抽检 20%</td></tr>
+      <tr><td>3</td><td>固定随机种子下，同一作答序列产生同一分数曲线</td><td>Vitest 快照测试</td></tr>
+      <tr><td>4</td><td>一次 10 题覆盖 ≥ 4 个知识点，难度整体上行，无最近重复题</td><td>组卷单测（100 次随机运行断言）</td></tr>
+      <tr><td>5</td><td>三页可完整走通；刷新/重启后进度不丢</td><td>手动走查 + Playwright 冒烟</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>5 天排期</h4>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:12%">天</th><th style="width:44%">工程</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>D1</td><td>monorepo、SQLite schema、seed 脚本</td><td>20 个 KP 清单（ID / 级别 / 先修）</td></tr>
+      <tr><td>D2</td><td>engine：BKT + 展示分 + 单测</td><td>前 10 个点的 primer + 例句</td></tr>
+      <tr><td>D3</td><td>engine：FSRS + 组卷 + 单测</td><td>后 10 个点 + 全部 160 题</td></tr>
+      <tr><td>D4</td><td>API + Kwiz Runner + 结果页</td><td>音频批量合成 + 抽检</td></tr>
+      <tr><td>D5</td><td>Dashboard + 联调 + 冒烟测试</td><td>校验脚本全绿 + 盲做验收</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="small">如果只有 3 天：砍到 10 个知识点 / 80 题，只做 Kwiz Runner + 结果页，Dashboard 用一张静态页代替。机制验证不需要 20 个点，10 个就够看出分数手感对不对。</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+  <h2><span class="num">08</span>风险与决策</h2>
+  <p class="sub">开工前需要你拍板的三件事。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:26%">风险</th><th style="width:12%">等级</th><th>对策</th></tr></thead>
+    <tbody>
+      <tr><td>Tatoeba 例句质量参差</td><td><span class="tag y">中</span></td><td>只取「有中文翻译 + 长度 4–12 词 + 无脏话标签」的句子，再人工改写；不追求数量。</td></tr>
+      <tr><td>TTS 发音不准（联诵、省音）</td><td><span class="tag y">中</span></td><td>Piper 对短句表现好；对含联诵的句子人工试听，必要时换 Kokoro 或改写句子。</td></tr>
+      <tr><td>LLM 起草的讲解有语法错误</td><td><span class="tag r">高</span></td><td>讲解必须人工定稿；用 verbecc + 拼写检查做机器校验；建立「已审」标记，未审不得入库。</td></tr>
+      <tr><td>CC BY-SA 传染</td><td><span class="tag y">中</span></td><td>Wikibooks/Wiktionnaire 只查证不搬运；所有入库内容在 sources.json 记录来源与许可。</td></tr>
+      <tr><td>20 个点撑不起「像 Kwiziq」的感觉</td><td><span class="tag y">中</span></td><td>M0 只验证机制，不验证内容丰富度；Brainmap 留到 M2，避免用 20 个点画出稀疏地图。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>需要你拍板</h4>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:26%">决策点</th><th style="width:34%">选项</th><th>我的建议</th></tr></thead>
+    <tbody>
+      <tr><td>M0 内容量</td><td>20 点 / 10 点</td><td><b>20 点</b>。10 点不够覆盖 4 个功能块的组卷约束，会测不出问题。</td></tr>
+      <tr><td>音频方案</td><td>Piper / Kokoro / 真人录音</td><td><b>Piper siwis</b>。先跑通，M2 再评估是否换 Kokoro 提升自然度。</td></tr>
+      <tr><td>是否引入 LLM 起草</td><td>全人工 / LLM 起草 + 人工定稿</td><td><b>LLM 起草 + 人工定稿</b>。但讲解必须 100% 人工过一遍，不能省。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><b>下一步：</b>你确认 M0 范围后，我直接开始搭脚手架——先做 engine 的 BKT + 展示分，用 20 个点的真实数据跑出第一条分数曲线。这条曲线像不像 Kwiziq，决定了后面所有页面值不值得做。</p>
+  </div>
+</section>
+
+<div class="foot">
+  <p>内容来源调研与 M0 范围 · v1.0 · 2026-10-18</p>
+  <p>配套文件：<code class="inl">content/sources.json</code>（来源注册表）、<code class="inl">content/schema/kp.schema.json</code>、<code class="inl">tools/fetch_tatoeba.py</code></p>
+</div>
+
+</div>
+</main>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var map = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if(el) map[id] = a;
+  });
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){ a.classList.remove('on'); });
+        var a = map[e.target.id];
+        if(a) a.classList.add('on');
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+  Object.keys(map).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) obs.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kwiziq 复刻 · 调研与产品策划方案</title>
+<style>
+  :root{
+    --ink:#14181D; --ink2:#39424D; --muted:#6B7480; --faint:#9AA3AE;
+    --line:#E6E8EB; --line2:#F0F1F3; --bg:#FBFBF9; --card:#FFFFFF;
+    --brand:#F26500; --brand-soft:#FFF2E8; --brand-line:#FFD9BF;
+    --blue:#0B6FB8; --blue-soft:#EAF4FB;
+    --green:#3E9B4F; --green-soft:#EDF7EF;
+    --red:#D51C1B; --red-soft:#FDEDED;
+    --yellow:#C98A00; --yellow-soft:#FFF7E0;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:"Inter","Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);font-size:15px;line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ---------- sidebar ---------- */
+  .side{
+    position:fixed;top:0;left:0;bottom:0;width:236px;overflow-y:auto;
+    background:#fff;border-right:1px solid var(--line);padding:26px 18px 40px;z-index:20;
+  }
+  .side .brandmark{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .dot{width:10px;height:10px;border-radius:3px;background:var(--brand);display:inline-block}
+  .side .bt{font-weight:700;font-size:14px;letter-spacing:-.01em}
+  .side .bs{font-size:11px;color:var(--faint);margin-bottom:22px;letter-spacing:.04em}
+  .side nav a{
+    display:block;font-size:12.5px;color:var(--ink2);padding:5px 9px;border-radius:6px;
+    border-left:2px solid transparent;margin-bottom:1px;line-height:1.45;
+  }
+  .side nav a:hover{background:var(--line2);text-decoration:none;color:var(--ink)}
+  .side nav a.on{background:var(--brand-soft);color:var(--brand);border-left-color:var(--brand);font-weight:600}
+  .side .grp{font-size:10.5px;letter-spacing:.12em;color:var(--faint);margin:18px 0 6px 9px;font-weight:600}
+
+  /* ---------- main ---------- */
+  main{margin-left:236px;padding:0 48px 120px}
+  .wrap{max-width:900px;margin:0 auto}
+
+  /* ---------- hero ---------- */
+  .hero{padding:78px 0 46px;border-bottom:1px solid var(--line)}
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:.14em;
+    color:var(--brand);font-weight:700;text-transform:uppercase;margin-bottom:18px;
+  }
+  .kicker::before{content:"";width:26px;height:1.5px;background:var(--brand)}
+  h1{font-size:44px;line-height:1.15;letter-spacing:-.035em;margin:0 0 18px;font-weight:800}
+  h1 .thin{color:var(--faint);font-weight:300}
+  .lede{font-size:17px;line-height:1.8;color:var(--ink2);max-width:700px;margin:0 0 30px}
+  .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .meta div{background:#fff;padding:14px 16px}
+  .meta dt{font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-bottom:4px}
+  .meta dd{margin:0;font-size:13px;font-weight:600;color:var(--ink)}
+
+  /* ---------- sections ---------- */
+  section{padding-top:56px}
+  h2{
+    font-size:26px;letter-spacing:-.025em;margin:0 0 8px;font-weight:750;
+    display:flex;align-items:baseline;gap:12px;
+  }
+  h2 .num{font-size:12px;color:var(--brand);font-weight:700;letter-spacing:.08em;font-family:var(--mono)}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 26px}
+  h3{font-size:17px;margin:38px 0 10px;letter-spacing:-.015em;font-weight:700}
+  h3 .tag{font-size:10px;vertical-align:2px;margin-left:8px}
+  h4{font-size:14px;margin:24px 0 6px;font-weight:700;color:var(--ink2)}
+  p{margin:0 0 14px}
+  ul,ol{margin:0 0 16px;padding-left:20px}
+  li{margin:0 0 7px}
+  strong{font-weight:650}
+  .small{font-size:12.5px;color:var(--muted);line-height:1.7}
+  .divider{height:1px;background:var(--line);margin:52px 0 0}
+
+  /* ---------- cards / callouts ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 22px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px}
+  .card .ct{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+  .card p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.7}
+  .card .big{font-size:26px;font-weight:800;letter-spacing:-.03em;color:var(--brand);line-height:1.2}
+  .callout{
+    border-left:3px solid var(--brand);background:var(--brand-soft);
+    padding:14px 18px;border-radius:0 8px 8px 0;margin:18px 0;font-size:13.5px;color:var(--ink2);
+  }
+  .callout.blue{border-color:var(--blue);background:var(--blue-soft)}
+  .callout.green{border-color:var(--green);background:var(--green-soft)}
+  .callout.red{border-color:var(--red);background:var(--red-soft)}
+  .callout b{color:var(--ink)}
+  .callout p:last-child{margin-bottom:0}
+
+  /* ---------- tables ---------- */
+  table{width:100%;border-collapse:collapse;margin:16px 0 22px;font-size:12.5px;background:#fff}
+  th{
+    text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--faint);font-weight:700;padding:9px 11px;border-bottom:1.5px solid var(--line);background:#FCFCFB;
+  }
+  td{padding:10px 11px;border-bottom:1px solid var(--line2);vertical-align:top;line-height:1.6}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .tbl-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .tbl-wrap table{margin:0}
+
+  /* ---------- tags ---------- */
+  .tag{
+    display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;
+    padding:2px 7px;border-radius:5px;background:var(--line2);color:var(--muted);
+    text-transform:uppercase;vertical-align:1px;white-space:nowrap;
+  }
+  .tag.o{background:var(--brand-soft);color:var(--brand)}
+  .tag.b{background:var(--blue-soft);color:var(--blue)}
+  .tag.g{background:var(--green-soft);color:var(--green)}
+  .tag.r{background:var(--red-soft);color:var(--red)}
+  .tag.y{background:var(--yellow-soft);color:var(--yellow)}
+
+  /* ---------- code ---------- */
+  pre{
+    background:#15191E;color:#D9E0E8;border-radius:10px;padding:16px 18px;overflow-x:auto;
+    font-family:var(--mono);font-size:11.5px;line-height:1.75;margin:14px 0 20px;
+  }
+  pre .c{color:#6F7C8A}
+  pre .k{color:#FF9E64}
+  pre .s{color:#9ECE6A}
+  pre .n{color:#7DCFFF}
+  code.inl{font-family:var(--mono);font-size:12px;background:#F2F3F5;padding:1.5px 5px;border-radius:4px;color:#B4470A}
+
+  /* ---------- figures ---------- */
+  figure{margin:22px 0 26px}
+  figure svg{width:100%;height:auto;display:block}
+  figcaption{font-size:11.5px;color:var(--faint);margin-top:10px;text-align:center;letter-spacing:.02em}
+
+  /* ---------- wireframe ---------- */
+  .wf{
+    border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;
+    font-size:10px;line-height:1.4;color:var(--ink2);box-shadow:0 1px 2px rgba(20,24,29,.04);
+  }
+  .wf-bar{display:flex;align-items:center;gap:8px;padding:7px 10px;background:linear-gradient(180deg,#CFEBFF,#EAF7FF);border-bottom:1px solid #D7E9F5}
+  .wf-logo{font-weight:800;font-size:10px;color:#0A6FA8;letter-spacing:-.02em}
+  .wf-nav{display:flex;gap:9px;font-size:8.5px;color:#2A5A78}
+  .wf-pill{margin-left:auto;background:var(--brand);color:#fff;border-radius:4px;padding:2px 7px;font-size:8px;font-weight:700}
+  .wf-body{padding:12px}
+  .wf-h{text-align:center;font-weight:800;font-size:13px;letter-spacing:-.02em;margin:2px 0 8px}
+  .wf-streak{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;margin-bottom:8px}
+  .wf-kwizbot{display:flex;gap:8px;background:#F7FBF3;border:1px solid #DCEBD2;border-radius:8px;padding:9px}
+  .wf-ava{width:34px;height:34px;border-radius:50%;background:#DDEBD0;flex:none;display:grid;place-items:center;font-size:16px}
+  .wf-btn{display:inline-block;background:var(--brand);color:#fff;border-radius:4px;padding:3px 8px;font-size:8px;font-weight:700}
+  .wf-btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand-line)}
+  .wf-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .wf-box{border:1px solid var(--line);border-radius:6px;padding:8px}
+  .wf-t{font-size:9px;font-weight:800;margin-bottom:5px}
+  .wf-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #F3F4F5;font-size:8.5px}
+  .wf-row:last-child{border-bottom:none}
+  .wf-row.on{background:#FFF3E9;margin:0 -4px;padding:3px 4px;border-radius:3px;font-weight:700}
+  .wf-mini{font-size:7.5px;color:var(--faint)}
+
+  /* ---------- misc ---------- */
+  .kv{display:grid;grid-template-columns:150px 1fr;gap:0;border-top:1px solid var(--line);margin:16px 0 22px;font-size:13px}
+  .kv dt{padding:9px 0;border-bottom:1px solid var(--line2);color:var(--muted);font-size:12px}
+  .kv dd{padding:9px 0;border-bottom:1px solid var(--line2);margin:0}
+  .quote{
+    font-size:14px;color:var(--ink2);border-left:2px solid var(--line);
+    padding:2px 0 2px 16px;margin:16px 0;font-style:italic;
+  }
+  .stepnum{
+    display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;
+    background:var(--brand);color:#fff;font-size:10px;font-weight:800;margin-right:8px;vertical-align:1px;
+  }
+  .foot{margin-top:70px;padding-top:24px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint)}
+  .print-only{display:none}
+
+  @media (max-width:1080px){
+    .side{display:none}
+    main{margin-left:0;padding:0 22px 80px}
+    h1{font-size:32px}
+    .meta{grid-template-columns:1fr 1fr}
+    .grid2,.grid3{grid-template-columns:1fr}
+  }
+  @media print{
+    .side{display:none}
+    main{margin:0;padding:0}
+    body{background:#fff;font-size:10.5pt}
+    section{page-break-inside:auto}
+    h2{page-break-after:avoid}
+    h3,h4{page-break-after:avoid}
+    .card,.tbl-wrap,figure,.callout{page-break-inside:avoid}
+    .print-only{display:block}
+    /* 打印时恢复多列，避免全部堆成单列 */
+    .meta{grid-template-columns:repeat(4,1fr)}
+    .grid2{grid-template-columns:1fr 1fr}
+    .grid3{grid-template-columns:repeat(3,1fr)}
+    .card{padding:12px 12px 10px}
+    .card p{font-size:9px;line-height:1.55}
+    .card .ct{font-size:10px}
+    .card .big{font-size:19px}
+    table{font-size:8.6px}
+    th{font-size:7.6px;padding:5px 6px}
+    td{padding:6px 6px}
+    pre{font-size:8px;line-height:1.5;padding:10px 12px}
+    .wf{font-size:8px}
+    .wf-body{padding:8px}
+    figure svg{max-height:150mm}
+    .hero{padding:24px 0 26px}
+    h1{font-size:30px}
+    .lede{font-size:12pt}
+  }
+</style>
+</head>
+<body>
+
+<aside class="side">
+  <div class="brandmark"><span class="dot"></span><span class="bt">Kwiziq Replica</span></div>
+  <div class="bs">调研 · 产品策划方案 v1.0</div>
+  <nav id="toc">
+    <div class="grp">概览</div>
+    <a href="#summary">执行摘要</a>
+    <a href="#findings">关键发现</a>
+    <div class="grp">一 · 调研</div>
+    <a href="#s1">1.1 产品与用户</a>
+    <a href="#s2">1.2 核心学习闭环</a>
+    <a href="#s3">1.3 掌握度评估机制</a>
+    <a href="#s4">1.4 每日推送与难度递进</a>
+    <a href="#s5">1.5 付费墙拆解</a>
+    <a href="#s6">1.6 界面观察</a>
+    <a href="#s7">1.7 可借鉴 / 不复刻</a>
+    <div class="grp">二 · 产品定义</div>
+    <a href="#s8">2.1 目标与非目标</a>
+    <a href="#s9">2.2 两大差异化</a>
+    <a href="#s10">2.3 用户旅程</a>
+    <div class="grp">三 · 机制设计</div>
+    <a href="#s11">3.1 知识图谱</a>
+    <a href="#s12">3.2 掌握度模型</a>
+    <a href="#s13">3.3 组卷算法</a>
+    <a href="#s14">3.4 预学习状态机</a>
+    <a href="#s15">3.5 每日推送</a>
+    <a href="#s16">3.6 激励体系</a>
+    <div class="grp">四 · 界面规格</div>
+    <a href="#s17">4.1 设计令牌</a>
+    <a href="#s18">4.2 页面清单</a>
+    <a href="#s19">4.3 关键页面线框</a>
+    <a href="#s20">4.4 交互细节</a>
+    <div class="grp">五 · 技术</div>
+    <a href="#s21">5.1 技术选型</a>
+    <a href="#s22">5.2 架构与数据模型</a>
+    <a href="#s23">5.3 目录结构</a>
+    <div class="grp">六 · 交付</div>
+    <a href="#s24">6.1 内容生产</a>
+    <a href="#s25">6.2 路线图</a>
+    <a href="#s26">6.3 验收与风险</a>
+    <a href="#s27">附录 · 来源</a>
+  </nav>
+</aside>
+
+<main>
+<div class="wrap">
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="kicker">Product Research &amp; Replica Blueprint</div>
+  <h1>把 Kwiziq 搬到本地<br><span class="thin">并解除它的所有边界</span></h1>
+  <p class="lede">
+    一份面向开发的完整策划方案：先逆向拆解 Kwiziq 如何评估掌握度、如何每日组卷、如何设置付费墙；
+    再给出一个「无限学习 + 未学先教」的本地复刻产品的机制设计、像素级界面规格与技术实现路径。
+  </p>
+  <dl class="meta">
+    <div><dt>调研对象</dt><dd>KwizIQ（法语站）</dd></div>
+    <div><dt>产出类型</dt><dd>调研 + 策划 + 规格</dd></div>
+    <div><dt>目标形态</dt><dd>本地 Web / 桌面应用</dd></div>
+    <div><dt>版本</dt><dd>v1.0 · 2026-10-18</dd></div>
+  </dl>
+</header>
+
+<!-- ============ SUMMARY ============ -->
+<section id="summary">
+  <h2><span class="num">00</span>执行摘要</h2>
+  <p class="sub">如果只读一页，读这一页。</p>
+
+  <p>Kwiziq 的本质不是「课程平台」，而是一台<strong>持续测量你哪里不会、并只让你练那里的机器</strong>。它的内容（约 500 节语法课、约 1.5 万道题、1.3 万条动词变位）只是燃料，真正的产品是三层机制：<strong>CEFR 分级定位 → Brainmap 知识点置信图谱 → 每日 10 题自适应 kwiz</strong>。它刻意不给你「课程进度条」，而是给你一张会变色的地图和一个永远只推 10 个知识点的学习计划。</p>
+
+  <p>它的商业模式建立在一个非常锋利的限制上：<strong>免费用户每月只能做 10 次 kwiz</strong>。核心资产（无限测、交互式 Brainmap、多 Notebook、每周写作与听写挑战）全部锁在订阅后面。这意味着——复刻它的机制并不难，难的是复刻它的内容密度；而一旦去掉付费墙，「限制」消失后必须用别的东西承接用户的节奏感，否则会从「每天 10 分钟」滑向「打开就不知道学什么」。</p>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="ct">评估机制</div>
+      <div class="big">−100 → 100</div>
+      <p>置信分而非正确率。答错扣分、跳过不扣分；75% 是等级晋升门槛，100% 几乎不可达。</p>
+    </div>
+    <div class="card">
+      <div class="ct">每日推送</div>
+      <div class="big">10 题</div>
+      <p>每次 kwiz 约 10 题，跨多个知识点交错出题；做完即重排「最相关的 10 节课」。</p>
+    </div>
+    <div class="card">
+      <div class="ct">付费墙</div>
+      <div class="big">10 次/月</div>
+      <p>免费额度是全部限制的支点。Premium 解锁无限测、交互 Brainmap、多笔记本与周挑战。</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><b>本方案的三个判断：</b></p>
+    <p>① 复刻的重点是<strong>反馈回路</strong>，不是页面。页面可以 1:1 还原，但若掌握度更新与组卷逻辑不对，产品会立刻「不像」。</p>
+    <p>② 「无限」不能等于「无限制」。必须把<strong>配额限制</strong>替换成<strong>节奏设计</strong>（每日目标、到期复习、难度阶梯），否则用户会在第三天流失。</p>
+    <p>③ 「预学习」不是加一个课程页，而是给知识点增加一个<strong>正式的学习状态</strong>：未接触 → 预热 → 引导练习 → 通过检测 → 才允许进入正式测试。这是与 Kwiziq「先测后学」最根本的分歧点。</p>
+  </div>
+</section>
+
+<!-- ============ FINDINGS ============ -->
+<section id="findings">
+  <h2><span class="num">01</span>关键发现</h2>
+  <p class="sub">七条决定产品形态的事实。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:26%">发现</th><th>证据 / 含义</th><th style="width:18%">对复刻的影响</th></tr></thead>
+    <tbody>
+      <tr><td><b>分数是「信心」不是「正确率」</b></td><td>官方 FAQ 明确：KwizIQ score 是系统对你掌握程度的信心估算，范围 −100%~100%，高于 75% 已属很好。</td><td>不能用「答对率」直接当进度，否则体验完全走样。</td></tr>
+      <tr><td><b>答错扣分，跳过不扣</b></td><td>跳过记为 null，不产生负分。官方建议「不确定就跳过，好过猜」。</td><td>Skip 必须是一等公民，且影响算法权重。</td></tr>
+      <tr><td><b>Brainmap 是分块着色的地图</b></td><td>按 CEFR 级别划成大区，区内按语法范畴分小块；颜色为深绿/绿/黄/红/灰。绿色门槛是 50%。</td><td>这是产品的视觉图腾，必须高保真复刻（Voronoi 树图）。</td></tr>
+      <tr><td><b>Studyplan 永远只有 10 条</b></td><td>每次 kwiz 后重算「最相关的 10 节课」，而不是给出完整课程列表。</td><td>「少而准」是核心体验，列表页是次要入口。</td></tr>
+      <tr><td><b>题目会被反复刷</b></td><td>进度报告有 Question Coverage，重复作答会让覆盖率超过 100%，有人刷到 800%。</td><td>题库可有限，靠重复+变体提升置信；需做去重与新鲜度控制。</td></tr>
+      <tr><td><b>等级分是「相对整级」的</b></td><td>FAQ 说明：新增课程会让级别总分下降，因为分母变大。</td><td>聚合方式要复刻这个「稀释」特性，它制造了持续刷分的动机。</td></tr>
+      <tr><td><b>没有原生 App</b></td><td>官方明确是 installable web app，支持手机/平板/桌面。</td><td>本地版做 PWA + 桌面壳即可，无需三端原生。</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+<!-- ============ 1.1 ============ -->
+<section id="s1">
+  <h2><span class="num">1.1</span>产品与用户</h2>
+  <p class="sub">它服务谁、卖什么、内容有多重。</p>
+
+  <p>KwizIQ 由 Lawless French / Lawless Spanish 团队运营，自称已有 55 万+ 学习者。它的定位非常明确：<strong>面向「后初学者」（post-beginners）</strong>——已经过了打招呼和点咖啡的阶段，却被语法细节、时态选择和「我到底该学什么」卡住的人。官网原文说得很直白：这个阶段的 learner「struggle to find material and exercises which is frustrating and time-consuming; they also often struggle with 'What do I do next?'」。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:22%">维度</th><th>事实</th></tr></thead>
+    <tbody>
+      <tr><td>支持语言</td><td>法语、西班牙语（两套独立站点与内容库）</td></tr>
+      <tr><td>级别体系</td><td>CEFR A0–C1，仪表盘上实际切成 <b>7 个band</b>：A0 Entry、A1 Beginner、A2 Lower Intermediate、A2 Upper Intermediate、B1 Intermediate、B2 Upper Intermediate、C1 Advanced</td></tr>
+      <tr><td>内容规模（法语）</td><td>482 节语法课（语法索引页可抓取到 542 个课程链接）、2,153 个词汇条目、13,818 条动词变位（带发音）、3,019 条听力短语、314 个视频、合计 5,044 道题；官方口径「15,000+ 问答，覆盖 500 个主题」</td></tr>
+      <tr><td>形态</td><td>无原生 App，是 installable web app（PWA），手机 / 平板 / 桌面共用</td></tr>
+      <tr><td>价格锚点</td><td>月付 38.99 / 季付 32.33 每月 / 年付 20.25 每月 / 两年 16.25 每月（SGD，按地区浮动；中国区约 ¥74.75/月，两年 ¥1,793.99）</td></tr>
+      <tr><td>信任机制</td><td>7 天无理由退款；订阅不中断则锁定原价（loyalty price）；同时学第二语言享 40% Polyglot 折扣</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout blue">
+    <p><b>一个容易被忽略的定位细节：</b>它不承诺「从零到流利」，而是承诺「不再浪费时间在你已经会的东西上」。所以它的所有文案都在讲 <em>skip / gap / exactly what you need</em>，而不是 <em>lesson 1 of 120</em>。复刻时如果做成线性课程表，气质就丢了。</p>
+  </div>
+</section>
+
+<!-- ============ 1.2 ============ -->
+<section id="s2">
+  <h2><span class="num">1.2</span>核心学习闭环</h2>
+  <p class="sub">五个环节，一个不断收紧的循环。</p>
+
+  <p>把官网 Tour、FAQ、Dashboard 截图和课程页串起来，实际使用流程是固定的一条链：</p>
+
+  <figure>
+    <svg viewBox="0 0 860 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kwiziq 学习闭环">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#B9C0C8"/>
+        </marker>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#F26500"/>
+        </marker>
+      </defs>
+      <!-- boxes -->
+      <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+        <!-- 1 -->
+        <rect x="8" y="52" width="150" height="86" rx="10" fill="#FFFFFF" stroke="#E6E8EB"/>
+        <text x="83" y="80" text-anchor="middle" font-size="13.5" font-weight="700" fill="#14181D">分级测试</text>
+        <text x="83" y="100" text-anchor="middle" font-size="10" fill="#6B7480">每级 8–18 题</text>
+        <text x="83" y="116" text-anchor="middle" font-size="10" fill="#6B7480">固定题库 · 一次性</text>
+        <text x="83" y="46" text-anchor="middle" font-size="9" font-weight="700" fill="#F26500" letter-spacing="1">01</text>
+        <!-- 2 -->
+        <rect x="182" y="52" width="150" height="86" rx="10" fill="#FFFFFF" stroke="#E6E8EB"/>
+        <text x="257" y="80" text-anchor="middle" font-size="13.5" font-weight="700" fill="#14181D">Brainmap</text>
+        <text x="257" y="100" text-anchor="middle" font-size="10" fill="#6B7480">知识点置信图谱</text>
+        <text x="257" y="116" text-anchor="middle" font-size="10" fill="#6B7480">绿 / 黄 / 红 / 灰</text>
+        <text x="257" y="46" text-anchor="middle" font-size="9" font-weight="700" fill="#F26500" letter-spacing="1">02</text>
+        <!-- 3 -->
+        <rect x="356" y="52" width="150" height="86" rx="10" fill="#FFF7F1" stroke="#FFD9BF"/>
+        <text x="431" y="80" text-anchor="middle" font-size="13.5" font-weight="700" fill="#14181D">Studyplan</text>
+        <text x="431" y="100" text-anchor="middle" font-size="10" fill="#8A5A38">最相关 10 节课</text>
+        <text x="431" y="116" text-anchor="middle" font-size="10" fill="#8A5A38">每次 kwiz 后重排</text>
+        <text x="431" y="46" text-anchor="middle" font-size="9" font-weight="700" fill="#F26500" letter-spacing="1">03</text>
+        <!-- 4 -->
+        <rect x="530" y="52" width="150" height="86" rx="10" fill="#FFFFFF" stroke="#E6E8EB"/>
+        <text x="605" y="80" text-anchor="middle" font-size="13.5" font-weight="700" fill="#14181D">Kwiz</text>
+        <text x="605" y="100" text-anchor="middle" font-size="10" fill="#6B7480">约 10 题 · 跨知识点</text>
+        <text x="605" y="116" text-anchor="middle" font-size="10" fill="#6B7480">交错出题 · 可跳过</text>
+        <text x="605" y="46" text-anchor="middle" font-size="9" font-weight="700" fill="#F26500" letter-spacing="1">04</text>
+        <!-- 5 -->
+        <rect x="704" y="52" width="148" height="86" rx="10" fill="#FFFFFF" stroke="#E6E8EB"/>
+        <text x="778" y="80" text-anchor="middle" font-size="13.5" font-weight="700" fill="#14181D">诊断与反馈</text>
+        <text x="778" y="100" text-anchor="middle" font-size="10" fill="#6B7480">逐题对照 + 解析</text>
+        <text x="778" y="116" text-anchor="middle" font-size="10" fill="#6B7480">Learn &amp; Discuss</text>
+        <text x="778" y="46" text-anchor="middle" font-size="9" font-weight="700" fill="#F26500" letter-spacing="1">05</text>
+        <!-- arrows -->
+        <line x1="160" y1="95" x2="178" y2="95" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="334" y1="95" x2="352" y2="95" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="508" y1="95" x2="526" y2="95" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="682" y1="95" x2="700" y2="95" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#ar)"/>
+        <!-- feedback loop -->
+        <path d="M778 138 L778 180 Q778 190 768 190 L441 190 Q431 190 431 180 L431 142" fill="none" stroke="#F26500" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar2)"/>
+        <rect x="520" y="177" width="190" height="26" rx="13" fill="#FFF2E8" stroke="#FFD9BF"/>
+        <text x="615" y="194" text-anchor="middle" font-size="10.5" font-weight="600" fill="#C24E00">每次作答都回写图谱与计划</text>
+        <!-- bottom note -->
+        <text x="8" y="232" font-size="10.5" fill="#9AA3AE">循环速度：一次 kwiz 约 3–6 分钟；Studyplan 每次刷新；Brainmap 实时变色。</text>
+      </g>
+    </svg>
+    <figcaption>图 1 · Kwiziq 的核心闭环：测试不是终点，是下一轮组卷的输入</figcaption>
+  </figure>
+
+  <p>三个值得注意的设计选择：</p>
+  <ul>
+    <li><b>分级测试与日常 kwiz 是两套东西。</b>分级测试题目固定、每级 8–18 题、只能做一次（FAQ 明确不可重考）；日常 kwiz 才是自适应的 10 题。前者定起点，后者做增量。</li>
+    <li><b>课程不是主线，是「错题的去处」。</b>结果页每道错题旁边是 <em>Learn and Discuss</em>——先测，错了才去读那节课。这是典型的 test-first 设计。</li>
+    <li><b>计划会「回捞」。</b>官方原话：Kwizbot「can also occasionally bring back lessons so that you don't forget things you learned earlier」，在重复与挑战之间保持平衡。</li>
+  </ul>
+</section>
+
+<!-- ============ 1.3 ============ -->
+<section id="s3">
+  <h2><span class="num">1.3</span>掌握度评估机制</h2>
+  <p class="sub">这是整个产品最值得逆向的部分。</p>
+
+  <h3>① 评估单位：知识点，不是课程<span class="tag o">官方</span></h3>
+  <p>Kwiziq 把语言拆成三层可测量单元：<b>语法知识点</b>（约 500 个主题 / 542 节语法课）、<b>词汇条目</b>（2,153 个）、<b>动词变位</b>（13,818 条）。每个单元都有自己的置信度，而不是「第 3 课已学完」这种二元状态。Brainmap 上的一小块 = 一个语法范畴下的若干知识点。</p>
+
+  <h3>② 分数模型：−100 到 100 的置信分<span class="tag o">官方</span></h3>
+  <p>这是最反直觉、也最关键的设定。它<strong>不是正确率</strong>，而是系统对你「掌握」这件事的信心。官方 FAQ 给了几条硬规则：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:30%">规则</th><th>具体表现</th></tr></thead>
+    <tbody>
+      <tr><td>取值范围</td><td>−100% ~ 100%，可以变成负数（表示「误学」或持续错误）</td></tr>
+      <tr><td>答错</td><td>扣分，产生负向证据</td></tr>
+      <tr><td>跳过</td><td>记为 null，<b>不扣分</b>。官方建议不确定时跳过优于猜测</td></tr>
+      <tr><td>「很好」的阈值</td><td>高于 75%，且明确说「很难达到」</td></tr>
+      <tr><td>100% 为何难</td><td>需要把整套题库刷多轮（有人 Question Coverage 达 800%）才能「prove to Kwizbot」</td></tr>
+      <tr><td>聚合方式</td><td>级别分是相对「整个级别」计算的；新增课程会让分母变大，历史分数不回溯，因此总分可能下降</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 860 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kwiziq 分数区间">
+      <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+        <text x="60" y="20" font-size="10.5" fill="#6B7480">置信分区间与语义</text>
+        <!-- bar -->
+        <rect x="60" y="40" width="148" height="26" fill="#FDEDED"/>
+        <rect x="208" y="40" width="222" height="26" fill="#F1F2F4"/>
+        <rect x="430" y="40" width="185" height="26" fill="#EAF6EC"/>
+        <rect x="615" y="40" width="92" height="26" fill="#CDE9D2"/>
+        <rect x="707" y="40" width="93" height="26" fill="#8FCB9B"/>
+        <!-- labels inside -->
+        <text x="134" y="57" text-anchor="middle" font-size="9.5" fill="#B33A38">负分 · 误学</text>
+        <text x="319" y="57" text-anchor="middle" font-size="9.5" fill="#6B7480">未掌握 / 证据不足</text>
+        <text x="522" y="57" text-anchor="middle" font-size="9.5" fill="#2F7A3E">已掌握</text>
+        <text x="661" y="57" text-anchor="middle" font-size="9.5" fill="#2F7A3E">熟练</text>
+        <text x="753" y="57" text-anchor="middle" font-size="9.5" fill="#1F5C2B">精通</text>
+        <!-- ticks -->
+        <g stroke="#C9CED5" stroke-width="1">
+          <line x1="60" y1="66" x2="60" y2="74"/><line x1="430" y1="66" x2="430" y2="74"/>
+          <line x1="615" y1="66" x2="615" y2="74"/><line x1="707" y1="66" x2="707" y2="74"/>
+          <line x1="800" y1="66" x2="800" y2="74"/>
+        </g>
+        <text x="60" y="88" text-anchor="middle" font-size="10" fill="#39424D">−100</text>
+        <text x="430" y="88" text-anchor="middle" font-size="10" fill="#39424D">0</text>
+        <text x="615" y="88" text-anchor="middle" font-size="10" fill="#39424D">50</text>
+        <text x="707" y="88" text-anchor="middle" font-size="10" fill="#39424D">75</text>
+        <text x="800" y="88" text-anchor="middle" font-size="10" fill="#39424D">100</text>
+        <!-- annotations -->
+        <line x1="615" y1="92" x2="615" y2="108" stroke="#3E9B4F" stroke-dasharray="3 2"/>
+        <text x="615" y="122" text-anchor="middle" font-size="9.5" fill="#3E9B4F" font-weight="600">Brainmap 变绿</text>
+        <line x1="707" y1="92" x2="707" y2="108" stroke="#F26500" stroke-dasharray="3 2"/>
+        <text x="720" y="122" font-size="9.5" fill="#F26500" font-weight="600">银盾 / 可升级</text>
+      </g>
+    </svg>
+    <figcaption>图 2 · 分数语义：50% 只是「绿」，75% 才是「可以升级」</figcaption>
+  </figure>
+
+  <h3>③ 可视化：Brainmap 的六种颜色<span class="tag o">官方 + 观察</span></h3>
+  <p>FAQ 与进度报告给出了明确的颜色语义（以 C1 为例）：</p>
+  <div class="grid3">
+    <div class="card"><div class="ct"><span class="dot" style="background:#2E7D32"></span>深绿</div><p>已完全掌握，Brainmap 上「变深绿」是终极目标。</p></div>
+    <div class="card"><div class="ct"><span class="dot" style="background:#8FCB9B"></span>绿色</div><p>该级别达到合理信心，对应 KwizIQ 分数 ≥ 50%。</p></div>
+    <div class="card"><div class="ct"><span class="dot" style="background:#F2D24B"></span>黄色</div><p>还需要更多测试，证据不足，无法判定。</p></div>
+    <div class="card"><div class="ct"><span class="dot" style="background:#D51C1B"></span>红色</div><p>理解较差 / 存在误学，优先级最高。</p></div>
+    <div class="card"><div class="ct"><span class="dot" style="background:#DDE0E4"></span>灰色</div><p>尚未接触或未测过。</p></div>
+    <div class="card"><div class="ct"><span class="dot" style="background:#FFFFFF;border:1px solid #DDE0E4"></span>空白</div><p>不属于当前学习范围（未解锁 / 无内容）。</p></div>
+  </div>
+
+  <p>交互上，Premium 用户可以放大 Brainmap，找到「尚未变成深绿色」的区域，<b>双击某个区域即可隔离出对应课程</b>，然后选择 <em>Study lesson now</em> 或 <em>Add to Notebook</em>（加入笔记本后可针对单节课反复测试）。这是把「地图」直接变成「操作台」的关键交互。</p>
+
+  <h3>④ 等级与徽章：把连续分数切成可感知的台阶<span class="tag o">官方</span></h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:22%">层级</th><th>机制</th><th style="width:26%">作用</th></tr></thead>
+    <tbody>
+      <tr><td>知识点星级</td><td>每个语法主题可得铜 / 银 / 金三颗星，对应不同置信水平</td><td>把 0–100 的连续值切成三个可炫耀的节点</td></tr>
+      <tr><td>级别盾牌</td><td>每个 CEFR 级别有铜 / 银 / 金盾，分别代表 basic competence / proficiency / mastery；银盾 = 75%，是升级门槛</td><td>给出「毕业」的明确标准</td></tr>
+      <tr><td>Level Foundation Trophy</td><td>回到低级别把基础打满，可得「地基奖杯」</td><td>鼓励回头补漏洞，而不是一味冲高级</td></tr>
+      <tr><td>Kudos</td><td>所有学习行为都给积分（截图中单用户 335,970）</td><td>通用货币，驱动排行榜</td></tr>
+      <tr><td>Badges / Day Streak</td><td>连续学习、周末挑战等行为徽章；Dashboard 顶部有连续天数</td><td>留存</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>⑤ 「误学」是一个独立状态<span class="tag o">官方</span></h3>
+  <p>官方反复强调它识别三类东西：<b>what you've learned, not learned, and crucially, mislearned</b>。所谓 mislearned，是指你以为自己会、但实际用错的规则（典型如受母语迁移影响的中式法语）。在产品上这意味着：<strong>「学过」和「掌握」必须分开建模</strong>，且要能表达「负掌握」。这一点直接影响我们的数据模型——不能用 0–1 的掌握概率了事，必须允许负向证据。</p>
+
+  <div class="callout">
+    <p><b>逆向结论（推断，非官方）：</b>Kwiziq 大概率是「每知识点一个隐变量 + 题目难度加权 + 贝叶斯式更新 + 级别内加权聚合」。证据是：① 分数可为负、可为 null；② 重复作答能持续提升（覆盖率 &gt;100%）；③ 新增课程会稀释级别分。这三点都指向「按证据量累积的后验估计」，而不是简单的对错计数。</p>
+  </div>
+</section>
+
+<!-- ============ 1.4 ============ -->
+<section id="s4">
+  <h2><span class="num">1.4</span>每日推送与难度递进</h2>
+  <p class="sub">「由浅入深」在 Kwiziq 里是怎么发生的。</p>
+
+  <p>Kwiziq 没有「每日推送一节课」这种运营动作，它的「推送」是<strong>产品内的每日任务 + 邮件挑战 + 连续天数</strong>三件事的组合：</p>
+
+  <div class="grid3">
+    <div class="card"><div class="ct">产品内</div><p>Dashboard 顶部常驻 Day Streak 条，未开始时会写「Take a test to kickstart your day streak!」；Kwizbot 卡片直接说「I've added 10 topics for you. Test yourself on them now」。</p></div>
+    <div class="card"><div class="ct">邮件</div><p>Premium 每周收到 weekend challenge（写作 / 听写），免费用户每月一次。属于「综合性输出任务」，不是刷题。</p></div>
+    <div class="card"><div class="ct">社交</div><p>每月公开排行榜（Top Kwizzers，按答题数排名），把「今天做不做」变成「排名掉不掉」。</p></div>
+  </div>
+
+  <h3>一次 kwiz 的组成</h3>
+  <p>官方只说「通常 10 题」「基于 Studyplan 智能选题」「跨多个知识点」。结合「会回捞旧课」「跳过不扣分」「覆盖率可超 100%」这些事实，可以还原出它的组卷逻辑：<strong>一次会话是一个小型的交错练习（interleaving）包</strong>，而不是同一个知识点的 10 道连刷。</p>
+
+  <figure>
+    <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="一次 kwiz 的题目构成与难度爬升">
+      <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+        <text x="24" y="18" font-size="10.5" fill="#6B7480">10 题会话 · 四个功能块 · 难度单调爬升</text>
+        <!-- brackets -->
+        <g font-size="9.5" font-weight="600">
+          <rect x="24" y="34" width="128" height="18" rx="4" fill="#EAF4FB"/><text x="88" y="47" text-anchor="middle" fill="#0B6FB8">热身 2</text>
+          <rect x="164" y="34" width="196" height="18" rx="4" fill="#EDF7EF"/><text x="262" y="47" text-anchor="middle" fill="#3E9B4F">到期复习 3</text>
+          <rect x="372" y="34" width="196" height="18" rx="4" fill="#FDEDED"/><text x="470" y="47" text-anchor="middle" fill="#D51C1B">薄弱攻坚 3</text>
+          <rect x="580" y="34" width="128" height="18" rx="4" fill="#FFF2E8"/><text x="644" y="47" text-anchor="middle" fill="#C24E00">新知 2</text>
+        </g>
+        <!-- bars: baseline y=250, heights ascending -->
+        <g>
+          <rect x="24" y="196" width="52" height="54" rx="4" fill="#BFDDF2"/>
+          <rect x="88" y="184" width="52" height="66" rx="4" fill="#BFDDF2"/>
+          <rect x="164" y="172" width="52" height="78" rx="4" fill="#BFE3C6"/>
+          <rect x="228" y="160" width="52" height="90" rx="4" fill="#BFE3C6"/>
+          <rect x="292" y="148" width="52" height="102" rx="4" fill="#BFE3C6"/>
+          <rect x="372" y="136" width="52" height="114" rx="4" fill="#F3C4C3"/>
+          <rect x="436" y="124" width="52" height="126" rx="4" fill="#F3C4C3"/>
+          <rect x="500" y="112" width="52" height="138" rx="4" fill="#F3C4C3"/>
+          <rect x="580" y="100" width="52" height="150" rx="4" fill="#FBCFAE"/>
+          <rect x="644" y="88" width="52" height="162" rx="4" fill="#FBCFAE"/>
+        </g>
+        <!-- numbers -->
+        <g font-size="9" fill="#6B7480" text-anchor="middle">
+          <text x="50" y="266">1</text><text x="114" y="266">2</text>
+          <text x="190" y="266">3</text><text x="254" y="266">4</text><text x="318" y="266">5</text>
+          <text x="398" y="266">6</text><text x="462" y="266">7</text><text x="526" y="266">8</text>
+          <text x="606" y="266">9</text><text x="670" y="266">10</text>
+        </g>
+        <!-- difficulty line -->
+        <polyline points="50,190 114,178 190,166 254,154 318,142 398,130 462,118 526,106 606,94 670,82"
+                  fill="none" stroke="#F26500" stroke-width="1.4" stroke-dasharray="4 3" opacity=".55"/>
+        <text x="700" y="96" font-size="9" fill="#F26500">难度 b ↑</text>
+        <!-- axis -->
+        <line x1="24" y1="250" x2="820" y2="250" stroke="#E6E8EB"/>
+        <text x="24" y="288" font-size="9.5" fill="#9AA3AE">功能：建立信心 → 巩固记忆 → 暴露漏洞 → 引入下一站</text>
+      </g>
+    </svg>
+    <figcaption>图 3 · 推断的会话结构：难度整体上行，但功能块交替（这是「由浅入深」的真实实现方式）</figcaption>
+  </figure>
+
+  <p>「由浅入深」在 Kwiziq 里同时发生在三个轴上，这一点对复刻极其重要：</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:18%">轴</th><th style="width:34%">浅</th><th style="width:34%">深</th><th>载体</th></tr></thead>
+    <tbody>
+      <tr><td><b>语言难度</b></td><td>A0 现在时、冠词</td><td>C1 虚拟式过去时、文学时态</td><td>CEFR band + 题目难度 b</td></tr>
+      <tr><td><b>认知负荷</b></td><td>识别（四选一）</td><td>回忆（填空）→ 产出（翻译/改错）</td><td>题型</td></tr>
+      <tr><td><b>支持度</b></td><td>有提示、可重试、有音频</td><td>无提示、限时、纯文本输入</td><td>提示开关 / 计时器</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>也就是说，真正的「递进」不是把题目按 CEFR 排序，而是<strong>在同一次会话里，让题目沿着「难度 ↑、认知负荷 ↑、支持度 ↓」三条线同时推进</strong>。这一点我们会在 3.3 节直接落进算法。</p>
+</section>
+
+<!-- ============ 1.5 ============ -->
+<section id="s5">
+  <h2><span class="num">1.5</span>付费墙拆解</h2>
+  <p class="sub">它到底把什么锁起来了。</p>
+
+  <p>免费版不是「试用」，而是「限量版」：功能基本齐全，但每月只有 10 次 kwiz。这个设计的精妙之处在于——<strong>它限制的是「测量次数」，而不是「内容访问」</strong>。你可以读所有课，但没法知道自己会不会。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:34%">能力</th><th style="width:20%">Free</th><th style="width:20%">Premium</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>Kwiz（自适应测试）</td><td><span class="tag r">10 次 / 月</span></td><td><span class="tag g">无限</span></td><td>核心付费点，一切限制的支点</td></tr>
+      <tr><td>Brainmap</td><td>基础版</td><td><b>交互式</b></td><td>可缩放、双击隔离课程、查看未变深绿区域</td></tr>
+      <tr><td>Notebook（自定义练习集）</td><td>1 个</td><td><b>无限个</b></td><td>自由组卷的入口</td></tr>
+      <tr><td>练习题 / 阅读 / 听写 / 写作挑战</td><td>有限</td><td><b>无限 + 每周</b></td><td>周末挑战：Premium 每周，Free 每月</td></tr>
+      <tr><td>阅读理解练习</td><td>—</td><td><b>专属</b></td><td>2026-10-15 起转为 Premium 专属（Interactive Readers 仍免费）</td></tr>
+      <tr><td>分级测试 / Studyplan / 进度报告</td><td>✓</td><td>✓</td><td>不作为付费点，用于拉新与留存</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>价格结构（按地区浮动，以下为新加坡区显示）：</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>周期</th><th class="num">折合每月</th><th class="num">一次性支付</th><th>相对月付节省</th></tr></thead>
+    <tbody>
+      <tr><td>每月</td><td class="num">SGD 38.99</td><td class="num">38.99</td><td>—</td></tr>
+      <tr><td>每 3 个月</td><td class="num">SGD 32.33</td><td class="num">96.99</td><td>17%</td></tr>
+      <tr><td>每年 <span class="tag o">最受欢迎</span></td><td class="num">SGD 20.25</td><td class="num">242.99</td><td>48%</td></tr>
+      <tr><td>每 2 年 <span class="tag b">最超值</span></td><td class="num">SGD 16.25</td><td class="num">389.99</td><td>58%</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout green">
+    <p><b>对我们最重要的启示：</b>Kwiziq 的「每日习惯」其实是被配额半强制出来的——一个月 10 次，意味着你必须精打细算，每次都很珍贵。一旦这个约束被移除，<b>稀缺感会一起消失</b>。所以本地版必须用一个新约束替代它：<b>到期复习队列</b>（今天有 N 个知识点正在遗忘，不练就掉分）。用「记忆的紧迫性」替代「钱包的紧迫性」。</p>
+  </div>
+</section>
+
+<!-- ============ 1.6 ============ -->
+<section id="s6">
+  <h2><span class="num">1.6</span>界面观察</h2>
+  <p class="sub">基于官方 Tour 截图与页面结构还原。</p>
+
+  <p>整体视觉语言非常克制：<b>Inter 字体</b>、浅蓝渐变顶栏、白色卡片、橙色主按钮（<code class="inl">#F26500</code>）、大量留白。没有插画堆砌，信息密度偏高，接近「工具」而不是「游戏」。</p>
+
+  <h4>Dashboard 结构（还原）</h4>
+  <div class="wf">
+    <div class="wf-bar">
+      <span class="wf-logo">KwizIQ</span>
+      <span class="wf-nav"><span>Dashboard</span><span>Notebook</span><span>Library ▾</span><span>Tests ▾</span></span>
+      <span class="wf-pill">Upgrade</span>
+    </div>
+    <div class="wf-body">
+      <div class="wf-h">Your French Dashboard</div>
+      <div style="text-align:center;font-size:8px;color:#8A939E;margin-bottom:6px">View tour</div>
+      <div class="wf-streak"><span style="font-size:8px;font-weight:800">DAY STREAK</span><span style="flex:1;height:4px;background:#EDEFF2;border-radius:2px;position:relative"><span style="position:absolute;left:0;top:0;height:4px;width:2%;background:#F26500;border-radius:2px"></span></span><span class="wf-mini">0</span></div>
+      <div class="wf-kwizbot">
+        <div class="wf-ava">🤖</div>
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:9px;margin-bottom:2px">Hello!</div>
+          <div style="font-size:8px;color:#5C6672;line-height:1.5">I've added 10 topics for you. Test yourself on them now, or see<br><span style="color:#0B6FB8;text-decoration:underline">Your recommended lessons (Studyplan)</span> · <span style="color:#0B6FB8;text-decoration:underline">Your Brainmap</span></div>
+        </div>
+        <span class="wf-btn" style="align-self:center">Kwiz your Studyplan</span>
+      </div>
+      <div class="wf-cols">
+        <div class="wf-box">
+          <div class="wf-t">Your achievements <span class="wf-mini">View your achievements ▸</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px">
+            <div style="border:1px solid #E6E8EB;border-radius:4px;padding:5px"><div class="wf-mini">Recommended level</div><div style="font-weight:800;font-size:11px">C1</div></div>
+            <div style="border:1px solid #E6E8EB;border-radius:4px;padding:5px"><div class="wf-mini">Activities this month</div><div style="font-weight:800;font-size:11px">0</div></div>
+            <div style="border:1px solid #E6E8EB;border-radius:4px;padding:5px"><div class="wf-mini">Rank this month</div><div style="font-weight:800;font-size:11px">2610</div></div>
+            <div style="border:1px solid #E6E8EB;border-radius:4px;padding:5px"><div class="wf-mini">All time activities</div><div style="font-weight:800;font-size:11px">905</div></div>
+          </div>
+          <div style="margin-top:6px;border:1px solid #D6E8F5;background:#F3F9FE;border-radius:4px;padding:5px;font-size:8px">You are subscribed to our <b>Free plan</b> · <span style="color:#F26500">Upgrade now »</span></div>
+        </div>
+        <div class="wf-box">
+          <div class="wf-t">Choose your own adventure</div>
+          <div class="wf-row"><span>A0 · Entry Level</span><span><b>94.93%</b> <span class="wf-btn" style="padding:1px 5px;font-size:7px">Kwiz A0</span></span></div>
+          <div class="wf-row"><span>A1 · Beginner</span><span><b>78.48%</b> <span class="wf-btn" style="padding:1px 5px;font-size:7px">Kwiz A1</span></span></div>
+          <div class="wf-row on"><span>A2 · Lower Intermediate</span><span><b>43.25%</b> <span class="wf-btn" style="padding:1px 5px;font-size:7px">Kwiz A2</span></span></div>
+          <div class="wf-row"><span>A2 · Upper Intermediate</span><span><b>32.08%</b> <span class="wf-btn" style="padding:1px 5px;font-size:7px">Kwiz A2</span></span></div>
+          <div class="wf-row"><span>B1 · Intermediate</span><span><b>12.00%</b> <span class="wf-btn" style="padding:1px 5px;font-size:7px">Kwiz B1</span></span></div>
+          <div class="wf-row"><span>B2 · Upper Intermediate</span><span><b>16.22%</b> <span class="wf-btn" style="padding:1px 5px;font-size:7px">Kwiz B2</span></span></div>
+          <div class="wf-row"><span>C1 · Advanced</span><span><b>41.63%</b> <span class="wf-btn" style="padding:1px 5px;font-size:7px">Kwiz C1</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="small" style="margin-top:8px">观察要点：① 顶部没有「课程」入口，只有 Dashboard / Notebook / Library / Tests；② 「Choose your own adventure」把级别做成了可点击的卡片列表，当前级别用橙色高亮；③ 分数保留两位小数，制造「精确测量」的心理暗示。</p>
+
+  <h4>Kwiz 结果页结构（还原）</h4>
+  <div class="wf">
+    <div class="wf-bar"><span class="wf-logo">KwizIQ</span><span class="wf-nav"><span>Dashboard</span><span>Notebook</span><span>Library ▾</span><span>Tests ▾</span></span><span class="wf-pill">Upgrade</span></div>
+    <div class="wf-body">
+      <div style="display:flex;gap:10px;align-items:center;border:1px solid #E6E8EB;border-radius:6px;padding:8px">
+        <div class="wf-ava" style="width:38px;height:38px">🤖</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:800">Nice effort!</div>
+          <div style="font-size:12px;letter-spacing:2px;color:#F2B01E;margin:2px 0">★★★<span style="color:#E3E6EA">★★</span></div>
+          <div style="font-size:7.5px;color:#8A939E">View your achievements for this Kwiz</div>
+        </div>
+        <div style="text-align:right"><span class="wf-btn">Test recommended again</span><div class="wf-mini" style="margin-top:3px">Or return to your Dashboard</div></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;font-size:7.5px;color:#6B7480">
+        <span>● Correct</span><span>● Unanswered</span><span>● Incorrect</span>
+      </div>
+      <div style="font-weight:800;font-size:10px;margin:8px 0 4px">Your answers</div>
+      <table style="font-size:7.5px;margin:0">
+        <thead><tr><th style="padding:4px">#</th><th style="padding:4px">Question</th><th style="padding:4px">Your answer</th><th style="padding:4px">The correct answer</th><th style="padding:4px">Listen</th><th style="padding:4px">Study suggestions</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:4px">1</td><td style="padding:4px">Pick the best way to say "I have no dog"</td><td style="padding:4px;color:#D51C1B">Je n'ai pas un chien.</td><td style="padding:4px;color:#3E9B4F">Je n'ai pas de chien.</td><td style="padding:4px">🔊</td><td style="padding:4px"><span class="wf-btn ghost" style="font-size:6.5px">Learn and Discuss</span></td></tr>
+          <tr><td style="padding:4px">2</td><td style="padding:4px">Re-arrange the words to form an inverted question</td><td style="padding:4px;color:#3E9B4F">Veux-tu…</td><td style="padding:4px;color:#3E9B4F">Veux-tu…</td><td style="padding:4px">🔊</td><td style="padding:4px"><span class="wf-btn ghost" style="font-size:6.5px">Learn and Discuss</span></td></tr>
+          <tr><td style="padding:4px">3</td><td style="padding:4px">Elle court … vite (SENTIR + lent)</td><td style="padding:4px;color:#8A939E">—</td><td style="padding:4px;color:#3E9B4F">lentement</td><td style="padding:4px">🔊</td><td style="padding:4px"><span class="wf-btn ghost" style="font-size:6.5px">Learn and Discuss</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="small" style="margin-top:8px">观察要点：① 结果页是「逐题对照表」，而不是只给分数——错题必须能一键跳到对应课程；② 星级是 5 星制（截图显示 3/5）；③ 「Unanswered」是独立状态，视觉上不判为错。</p>
+</section>
+
+<!-- ============ 1.7 ============ -->
+<section id="s7">
+  <h2><span class="num">1.7</span>可借鉴 / 不复刻</h2>
+  <p class="sub">复刻不是抄，是选择。</p>
+
+  <div class="grid2">
+    <div class="card" style="border-color:#CDE9D2;background:#FCFEFC">
+      <div class="ct" style="color:#2F7A3E">✓ 必须 1:1 复刻</div>
+      <p style="color:#39424D">
+        · 知识点级置信分（含负分、含 skip）<br>
+        · Brainmap 的分区着色与双击隔离<br>
+        · 「永远只有 10 条」的 Studyplan<br>
+        · 10 题交错式 kwiz + 逐题对照结果页<br>
+        · 级别分被新增内容稀释的聚合方式<br>
+        · 星级 / 盾牌 / 连续天数<br>
+        · 课程页「规则 + 对比例句 + 音频」的极简结构
+      </p>
+    </div>
+    <div class="card" style="border-color:#F3C4C3;background:#FFFCFC">
+      <div class="ct" style="color:#B33A38">✗ 明确不复刻</div>
+      <p style="color:#39424D">
+        · 每月 10 次 kwiz 的配额墙<br>
+        · 1 个 Notebook 的限制<br>
+        · 分级测试「只能做一次」<br>
+        · 把阅读/听写挑战锁进订阅<br>
+        · 公开排行榜（本地单机无意义，改为个人历史）<br>
+        · 模糊不可解释的分数算法（我们要可解释）<br>
+        · 英文界面（本地版做中文母语者适配）
+      </p>
+    </div>
+  </div>
+
+  <div class="callout red">
+    <p><b>版权红线（必须提前定）：</b>不要抓取、翻译或改写 Kwiziq 的课程文本、题目、例句与音频。它们是受版权保护的内容资产。复刻的合法边界是<b>机制、交互与信息架构</b>；内容必须自建（自写例句 + 开放语料校对），或使用 CC 授权素材。这一点会直接决定 6.1 节的产能规划。</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+<!-- ============ 2.1 ============ -->
+<section id="s8">
+  <h2><span class="num">2.1</span>目标与非目标</h2>
+  <p class="sub">先把边界画清楚，再谈功能。</p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="ct" style="color:#2F7A3E">目标（要做）</div>
+      <p style="color:#39424D">
+        · 单机可跑：<code class="inl">npm run dev</code> 或双击 exe 即可用，数据全在本地<br>
+        · 机制同构：置信分、Brainmap、10 题会话、动态 Studyplan 全部还原<br>
+        · 无限学习：无任何次数 / 笔记本 / 重考限制<br>
+        · 预学习：未接触的知识点可以先学再测，且是正式状态<br>
+        · 中文母语适配：中文讲解、中文错因提示、法语 TTS<br>
+        · 内容可持续：有明确的加题流程，不依赖抓取
+      </p>
+    </div>
+    <div class="card">
+      <div class="ct" style="color:#B33A38">非目标（不做）</div>
+      <p style="color:#39424D">
+        · 不做多语言（首版只做法语）<br>
+        · 不做真人教师 / 社区 / 论坛<br>
+        · 不做在线支付与订阅<br>
+        · 不做移动原生 App（PWA 即可）<br>
+        · 不做口语评测（首版只做文本 + TTS 听力）<br>
+        · 不做 A0 以下的零基础字母发音课
+      </p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><b>产品一句话定义：</b>一个装在本地的法语「知识体检仪」——它知道你会什么、正在忘什么、下一步该学什么，并且允许你在被测试之前先把东西学会。</p>
+  </div>
+</section>
+
+<!-- ============ 2.2 ============ -->
+<section id="s9">
+  <h2><span class="num">2.2</span>两大差异化</h2>
+  <p class="sub">「无限」是减法，「预学习」是加法。</p>
+
+  <h3>差异一：无限学习 —— 用「节奏」替代「配额」</h3>
+  <p>去掉 10 次/月的限制后，会同时失去两样东西：付费转化点，以及「每次都很珍贵」的心理约束。前者我们不需要，后者必须补回来。补法不是再加一个限制，而是让<strong>内容自己产生紧迫感</strong>：</p>
+  <ul>
+    <li><b>到期队列</b>：每个知识点都有记忆稳定度 S 与可提取度 R。今天有 7 个知识点 R 掉到 0.8 以下，它们就是今天的「债务」。</li>
+    <li><b>边际收益递减</b>：同一知识点在一次会话中最多出现 2 题；连续刷同一课，置信分增益按 0.6 递减。刷分无意义，练对才有意义。</li>
+    <li><b>每日目标而非每日上限</b>：默认「1 个会话（10 题）」，可加到 3 个，但不设「不能再做」。</li>
+  </ul>
+
+  <h3>差异二：预学习 —— 给「未接触」一个正式状态</h3>
+  <p>Kwiziq 是 test-first：先测，错了再去看课。这对「已经学过但没掌握」的人极其高效，但对「完全没接触过」的人是挫败的——你没法通过测试学会一个你从没见过的东西。我们的做法是给每个知识点加一条<strong>学习前置通道</strong>：</p>
+
+  <figure>
+    <svg viewBox="0 0 860 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="预学习状态机">
+      <defs>
+        <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#B9C0C8"/>
+        </marker>
+        <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#F26500"/>
+        </marker>
+      </defs>
+      <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+        <!-- row 1 -->
+        <rect x="14" y="54" width="118" height="64" rx="9" fill="#F4F5F7" stroke="#DDE0E4"/>
+        <text x="73" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#5C6672">UNSEEN</text>
+        <text x="73" y="98" text-anchor="middle" font-size="9" fill="#8A939E">未接触 · 灰</text>
+
+        <rect x="176" y="54" width="118" height="64" rx="9" fill="#EAF4FB" stroke="#BFDDF2"/>
+        <text x="235" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#0B6FB8">PRIMED</text>
+        <text x="235" y="92" text-anchor="middle" font-size="9" fill="#3A7FA8">已读微课</text>
+        <text x="235" y="106" text-anchor="middle" font-size="9" fill="#3A7FA8">规则 + 对比例句</text>
+
+        <rect x="338" y="54" width="118" height="64" rx="9" fill="#EAF4FB" stroke="#BFDDF2"/>
+        <text x="397" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#0B6FB8">GUIDED</text>
+        <text x="397" y="92" text-anchor="middle" font-size="9" fill="#3A7FA8">引导练习 3 题</text>
+        <text x="397" y="106" text-anchor="middle" font-size="9" fill="#3A7FA8">可提示 · 可重试</text>
+
+        <rect x="500" y="54" width="118" height="64" rx="9" fill="#FFF7E0" stroke="#F2D24B"/>
+        <text x="559" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#A87500">CHECK</text>
+        <text x="559" y="92" text-anchor="middle" font-size="9" fill="#8A6A12">检测 3 题</text>
+        <text x="559" y="106" text-anchor="middle" font-size="9" fill="#8A6A12">无提示 · 2/3 通过</text>
+
+        <rect x="662" y="54" width="184" height="64" rx="9" fill="#EDF7EF" stroke="#BFE3C6"/>
+        <text x="754" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#2F7A3E">LEARNABLE</text>
+        <text x="754" y="92" text-anchor="middle" font-size="9" fill="#3E7A4C">可进入正式 kwiz</text>
+        <text x="754" y="106" text-anchor="middle" font-size="9" fill="#3E7A4C">初始 p = 0.45</text>
+
+        <!-- arrows row1 -->
+        <line x1="132" y1="86" x2="172" y2="86" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#a3)"/>
+        <line x1="294" y1="86" x2="334" y2="86" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#a3)"/>
+        <line x1="456" y1="86" x2="496" y2="86" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#a3)"/>
+        <line x1="618" y1="86" x2="658" y2="86" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#a3)"/>
+
+        <!-- fail loop -->
+        <path d="M559 118 L559 142 Q559 148 551 148 L405 148 Q397 148 397 142 L397 122" fill="none" stroke="#D51C1B" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#a3)"/>
+        <text x="478" y="136" text-anchor="middle" font-size="9" fill="#B33A38">未通过 → 追加 2 道变体，回到引导</text>
+
+        <!-- row 2 -->
+        <rect x="662" y="196" width="184" height="60" rx="9" fill="#FFFFFF" stroke="#E6E8EB"/>
+        <text x="754" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#14181D">TESTING</text>
+        <text x="754" y="238" text-anchor="middle" font-size="9" fill="#6B7480">正式 kwiz 计分</text>
+
+        <rect x="470" y="196" width="150" height="60" rx="9" fill="#EDF7EF" stroke="#BFE3C6"/>
+        <text x="545" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#2F7A3E">MASTERED</text>
+        <text x="545" y="238" text-anchor="middle" font-size="9" fill="#3E7A4C">p ≥ 0.85 · 金星级</text>
+
+        <rect x="278" y="196" width="150" height="60" rx="9" fill="#FDF3E8" stroke="#F5D2B0"/>
+        <text x="353" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#A85A00">DECAYING</text>
+        <text x="353" y="238" text-anchor="middle" font-size="9" fill="#8A5A38">R &lt; 0.8 · 进复习队列</text>
+
+        <path d="M754 118 L754 192" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#a3)"/>
+        <line x1="662" y1="226" x2="624" y2="226" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#a3)"/>
+        <line x1="470" y1="226" x2="432" y2="226" stroke="#B9C0C8" stroke-width="1.5" marker-end="url(#a3)"/>
+        <path d="M353 256 L353 284 Q353 290 361 290 L746 290 Q754 290 754 282 L754 260" fill="none" stroke="#F26500" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#a4)"/>
+        <text x="553" y="306" text-anchor="middle" font-size="9" fill="#C24E00">遗忘后 R 回升 → 重新进入测试</text>
+
+        <!-- annotation -->
+        <rect x="14" y="196" width="236" height="60" rx="9" fill="#FFFCF8" stroke="#FFD9BF" stroke-dasharray="4 3"/>
+        <text x="30" y="218" font-size="9.5" font-weight="700" fill="#C24E00">与 Kwiziq 的分歧点</text>
+        <text x="30" y="234" font-size="9" fill="#8A5A38">Kwiziq 从 UNSEEN 直接进 TESTING；</text>
+        <text x="30" y="247" font-size="9" fill="#8A5A38">我们插入了 PRIMER→GUIDED→CHECK 三段。</text>
+      </g>
+    </svg>
+    <figcaption>图 4 · 预学习状态机：先学后测，且学习过程本身产生可用的掌握证据</figcaption>
+  </figure>
+
+  <p>这条通道的设计要点：</p>
+  <ol>
+    <li><b>不强制。</b>「无限学习」意味着用户可以跳过预学习直接测——只是会更容易受挫。系统给建议，不给门禁。</li>
+    <li><b>前置知识自动检查。</b>进入某知识点前，检查其先修节点的掌握度；若低于 0.4，顶部提示「建议先看 X」，但不阻塞。</li>
+    <li><b>引导练习也计分，但权重低。</b>3 道引导题按 0.3 权重计入，避免「刚看完答案就满分」的虚高。</li>
+    <li><b>检测失败不是惩罚。</b>回到引导并追加 2 道变体题，不扣分、不打断连续天数。</li>
+  </ol>
+</section>
+
+<!-- ============ 2.3 ============ -->
+<section id="s10">
+  <h2><span class="num">2.3</span>用户旅程</h2>
+  <p class="sub">从第一次打开到第 30 天。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:14%">阶段</th><th style="width:30%">用户动作</th><th>系统行为</th><th style="width:18%">成功指标</th></tr></thead>
+    <tbody>
+      <tr><td><b>D0 首次</b></td><td>选「我有基础 / 我从零开始」→ 做分级测试（约 40 题，跨级自适应）</td><td>生成初始 θ 与每知识点 p；标记 UNSEEN / 弱 / 强；产出第一份 10 条 Studyplan</td><td>完成率 ≥ 65%</td></tr>
+      <tr><td><b>D0 首测</b></td><td>做第一个 10 题 kwiz</td><td>逐题反馈 + 结果页 + Brainmap 首次着色</td><td>首会话完成率 ≥ 80%</td></tr>
+      <tr><td><b>D1–D3</b></td><td>每天打开，看到「今日 7 个到期 + 3 个新知」</td><td>组卷、更新、回捞；连续天数开始累积</td><td>D3 留存 ≥ 40%</td></tr>
+      <tr><td><b>D4–D14</b></td><td>遇到完全没学过的知识点 → 点「先学 3 分钟」→ 预学习 → 检测 → 正式测</td><td>PRIMER→GUIDED→CHECK 状态推进；成功后该块由灰转黄</td><td>预学习使用率 ≥ 30%</td></tr>
+      <tr><td><b>D15–D30</b></td><td>开始主动逛 Library / Brainmap，把薄弱块加入 Notebook</td><td>自由组卷；Notebook 不限数量；周报</td><td>D30 留存 ≥ 20%</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ 3.1 ============ -->
+<section id="s11">
+  <h2><span class="num">3.1</span>知识图谱</h2>
+  <p class="sub">一切算法的地基：知识点 + 先修边。</p>
+
+  <p>不要把「课程」当最小单位。课程是给人读的，知识点是给算法算的。一个知识点 = 一条可独立测试的规则，例如「c'est + 形容词永远用阳性」「passé composé 与 être 配合时过去分词要与主语一致」。一节课可以包含 1–3 个知识点，一个知识点也可以被多节课引用。</p>
+
+  <h4>节点字段</h4>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:18%">字段</th><th style="width:14%">类型</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inl">id</code></td><td>string</td><td>稳定 ID，如 <code class="inl">fr.a2.passe_compose.etre_agreement</code></td></tr>
+      <tr><td><code class="inl">level</code></td><td>enum</td><td>A0 / A1 / A2L / A2U / B1 / B2 / C1（对齐 Kwiziq 的 7 段）</td></tr>
+      <tr><td><code class="inl">category</code></td><td>enum</td><td>动词与时态 / 代词 / 冠词 / 介词 / 形容词 / 副词 / 否定 / 比较 / 句型 / 词汇 / 语域</td></tr>
+      <tr><td><code class="inl">title_zh / title_fr</code></td><td>string</td><td>中文标题 + 法语术语（如「复合过去时 · être 动词配合」）</td></tr>
+      <tr><td><code class="inl">weight</code></td><td>0.5–2.0</td><td>对「该级别能力」的代表性权重，用于级别分聚合</td></tr>
+      <tr><td><code class="inl">difficulty</code></td><td>1–5</td><td>先验难度，随作答数据用 Elo 校准</td></tr>
+      <tr><td><code class="inl">prereqs</code></td><td>string[]</td><td>先修知识点 ID 列表（有向边）</td></tr>
+      <tr><td><code class="inl">contrasts</code></td><td>string[]</td><td>易混淆知识点（无向边），用于生成辨析题</td></tr>
+      <tr><td><code class="inl">status</code></td><td>enum</td><td>draft / reviewed / published</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>图谱形态</h4>
+  <figure>
+    <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="知识图谱与先修关系">
+      <defs>
+        <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#C9CED5"/>
+        </marker>
+      </defs>
+      <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+        <!-- edges -->
+        <g stroke="#C9CED5" stroke-width="1.3" fill="none">
+          <path d="M120 78 L120 128" marker-end="url(#a5)"/>
+          <path d="M120 78 L300 128" marker-end="url(#a5)"/>
+          <path d="M300 78 L300 128" marker-end="url(#a5)"/>
+          <path d="M120 172 L300 172" marker-end="url(#a5)" stroke-dasharray="3 3"/>
+          <path d="M300 172 L480 128" marker-end="url(#a5)"/>
+          <path d="M480 78 L480 128" marker-end="url(#a5)"/>
+          <path d="M300 172 L300 222" marker-end="url(#a5)"/>
+          <path d="M480 172 L480 222" marker-end="url(#a5)"/>
+          <path d="M120 172 L120 222" marker-end="url(#a5)"/>
+        </g>
+        <!-- nodes -->
+        <g>
+          <rect x="56" y="34" width="128" height="44" rx="8" fill="#EAF4FB" stroke="#BFDDF2"/>
+          <text x="120" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0B6FB8">现在时变位</text>
+          <text x="120" y="67" text-anchor="middle" font-size="8.5" fill="#3A7FA8">A0 · p=.92</text>
+
+          <rect x="236" y="34" width="128" height="44" rx="8" fill="#EAF4FB" stroke="#BFDDF2"/>
+          <text x="300" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0B6FB8">avoir / être</text>
+          <text x="300" y="67" text-anchor="middle" font-size="8.5" fill="#3A7FA8">A0 · p=.88</text>
+
+          <rect x="56" y="128" width="128" height="44" rx="8" fill="#EDF7EF" stroke="#BFE3C6"/>
+          <text x="120" y="146" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2F7A3E">复合过去时构成</text>
+          <text x="120" y="161" text-anchor="middle" font-size="8.5" fill="#3E7A4C">A2L · p=.71</text>
+
+          <rect x="236" y="128" width="128" height="44" rx="8" fill="#EDF7EF" stroke="#BFE3C6"/>
+          <text x="300" y="146" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2F7A3E">过去分词规则</text>
+          <text x="300" y="161" text-anchor="middle" font-size="8.5" fill="#3E7A4C">A2L · p=.66</text>
+
+          <rect x="416" y="34" width="128" height="44" rx="8" fill="#EAF4FB" stroke="#BFDDF2"/>
+          <text x="480" y="52" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0B6FB8">直接宾语代词</text>
+          <text x="480" y="67" text-anchor="middle" font-size="8.5" fill="#3A7FA8">A2L · p=.58</text>
+
+          <rect x="416" y="128" width="128" height="44" rx="8" fill="#FFF7E0" stroke="#F2D24B"/>
+          <text x="480" y="146" text-anchor="middle" font-size="10.5" font-weight="700" fill="#A87500">être 动词配合</text>
+          <text x="480" y="161" text-anchor="middle" font-size="8.5" fill="#8A6A12">A2U · p=.31</text>
+
+          <rect x="56" y="222" width="128" height="44" rx="8" fill="#FDF3E8" stroke="#F5D2B0"/>
+          <text x="120" y="240" text-anchor="middle" font-size="10.5" font-weight="700" fill="#A85A00">代词式动词</text>
+          <text x="120" y="255" text-anchor="middle" font-size="8.5" fill="#8A5A38">A2U · p=.44</text>
+
+          <rect x="236" y="222" width="128" height="44" rx="8" fill="#F4F5F7" stroke="#DDE0E4"/>
+          <text x="300" y="240" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5C6672">复合过去时否定</text>
+          <text x="300" y="255" text-anchor="middle" font-size="8.5" fill="#8A939E">B1 · 未接触</text>
+
+          <rect x="416" y="222" width="128" height="44" rx="8" fill="#FDEDED" stroke="#F3C4C3"/>
+          <text x="480" y="240" text-anchor="middle" font-size="10.5" font-weight="700" fill="#B33A38">代词位置（否定/疑问）</text>
+          <text x="480" y="255" text-anchor="middle" font-size="8.5" fill="#B33A38">B1 · p=.12</text>
+        </g>
+        <!-- side note -->
+        <g>
+          <rect x="600" y="60" width="236" height="180" rx="10" fill="#FCFCFB" stroke="#E6E8EB"/>
+          <text x="618" y="82" font-size="10" font-weight="700" fill="#14181D">边的两种语义</text>
+          <text x="618" y="102" font-size="9" fill="#6B7480">实线 = 先修（prereq）</text>
+          <text x="618" y="118" font-size="9" fill="#6B7480">必须先达到 p≥0.4 才建议学下一个</text>
+          <text x="618" y="140" font-size="9" fill="#6B7480">虚线 = 易混（contrast）</text>
+          <text x="618" y="156" font-size="9" fill="#6B7480">用于生成辨析题与错因提示</text>
+          <text x="618" y="180" font-size="9" fill="#6B7480">节点颜色 = 当前掌握度</text>
+          <text x="618" y="196" font-size="9" fill="#6B7480">灰→黄→绿→深绿，与 Brainmap 同源</text>
+          <text x="618" y="220" font-size="9" fill="#F26500">首版目标：320 个节点 / 约 700 条边</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>图 5 · 知识图谱：先修边决定「能不能学」，掌握度决定「该不该学」</figcaption>
+  </figure>
+
+  <h4>节点数据示例</h4>
+  <pre>{
+  <span class="s">"id"</span>: <span class="s">"fr.a2u.passe_compose.etre_agreement"</span>,
+  <span class="s">"level"</span>: <span class="s">"A2U"</span>,
+  <span class="s">"category"</span>: <span class="s">"verbs_tense"</span>,
+  <span class="s">"title_zh"</span>: <span class="s">"复合过去时：être 动词的过去分词配合"</span>,
+  <span class="s">"title_fr"</span>: <span class="s">"Accord du participe passé avec être"</span>,
+  <span class="s">"weight"</span>: <span class="n">1.4</span>,
+  <span class="s">"difficulty"</span>: <span class="n">3.6</span>,
+  <span class="s">"prereqs"</span>: [<span class="s">"fr.a2l.passe_compose.formation"</span>, <span class="s">"fr.a2l.participle.irregular"</span>],
+  <span class="s">"contrasts"</span>: [<span class="s">"fr.a2u.passe_compose.avoir_no_agreement"</span>],
+  <span class="s">"primer"</span>: { <span class="s">"rule_zh"</span>: <span class="s">"..."</span>, <span class="s">"examples"</span>: [...], <span class="s">"pitfall_zh"</span>: <span class="s">"..."</span> },
+  <span class="s">"status"</span>: <span class="s">"published"</span>
+}</pre>
+</section>
+
+<!-- ============ 3.2 ============ -->
+<section id="s12">
+  <h2><span class="num">3.2</span>掌握度模型</h2>
+  <p class="sub">如何既复刻 Kwiziq 的手感，又能解释每一分。</p>
+
+  <p>Kwiziq 的算法不公开。我们不需要猜中它的实现，只需要复刻它的<strong>可观察行为</strong>：分数可为负、跳过不扣分、重复作答持续增益、75% 很难、新增内容会稀释总分。下面这套模型能同时满足这五条，且每一步都可解释。</p>
+
+  <h3>三层结构</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:20%">层</th><th style="width:24%">变量</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td><b>题目层</b></td><td>难度 <code class="inl">b_i</code>、区分度 <code class="inl">a_i</code></td><td>由作者先验（1–5）+ 作答数据 Elo 校准。答对难题应比答对简单题获得更多证据。</td></tr>
+      <tr><td><b>知识点层</b></td><td>掌握概率 <code class="inl">p_k</code>（0–1）、证据量 <code class="inl">n_k</code></td><td>BKT 后验更新。这是 Brainmap 着色的直接来源。</td></tr>
+      <tr><td><b>记忆层</b></td><td>稳定度 <code class="inl">S</code>、可提取度 <code class="inl">R</code>、到期日 <code class="inl">due</code></td><td>FSRS 调度。决定「今天该复习谁」，也是分数衰减的来源。</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>知识点更新（BKT + 难度加权）</h3>
+  <pre><span class="c">// 每个知识点 4 个参数，初始值可按级别微调</span>
+<span class="k">const</span> P_INIT  = <span class="n">0.15</span>;   <span class="c">// 未接触时的先验</span>
+<span class="k">const</span> P_LEARN = <span class="n">0.15</span>;   <span class="c">// 每次练习后的学习增益</span>
+<span class="k">const</span> P_SLIP  = <span class="n">0.08</span>;   <span class="c">// 会了但答错</span>
+<span class="k">const</span> P_GUESS = <span class="n">0.20</span>;   <span class="c">// 不会但蒙对（选择题更高）</span>
+
+<span class="k">function</span> <span class="n">update</span>(p, correct, item, userTheta) {
+  <span class="c">// 难度修正：难题答对 → 更可信；简单题答错 → 更可疑</span>
+  <span class="k">const</span> slip  = P_SLIP  * (<span class="n">1</span> + <span class="n">0.15</span> * (item.b - <span class="n">3</span>));
+  <span class="k">const</span> guess = P_GUESS * (<span class="n">1</span> - <span class="n">0.10</span> * (item.b - <span class="n">3</span>));
+
+  <span class="k">if</span> (correct) {
+    p = (p * (<span class="n">1</span> - slip)) / (p * (<span class="n">1</span> - slip) + (<span class="n">1</span> - p) * guess);
+  } <span class="k">else</span> {
+    p = (p * slip) / (p * slip + (<span class="n">1</span> - p) * (<span class="n">1</span> - guess));
+  }
+  <span class="c">// 学习迁移：每次作答都让「下次更可能对」</span>
+  p = p + (<span class="n">1</span> - p) * P_LEARN * (correct ? <span class="n">1</span> : <span class="n">0.4</span>);
+  <span class="k">return</span> clamp(p, <span class="n">0.01</span>, <span class="n">0.99</span>);
+}</pre>
+
+  <h3>展示分（复刻 Kwiziq 手感的关键）</h3>
+  <p>直接把 <code class="inl">p</code> 映射成 0–100 会「太容易满分」。我们用两个修正让它变得像 Kwiziq：</p>
+  <pre><span class="c">// 1) 负分：错误证据累积到一定程度，p 会低于 0.5，映射为负</span>
+<span class="c">// 2) 收缩：证据不足时向 0 收缩，避免「一题定生死」</span>
+<span class="k">function</span> <span class="n">displayScore</span>(p, n) {
+  <span class="k">const</span> raw  = (p - <span class="n">0.5</span>) * <span class="n">200</span>;              <span class="c">// → −100..100</span>
+  <span class="k">const</span> shrink = n / (n + <span class="n">4</span>);                    <span class="c">// 0 题=0，4 题=0.5，12 题=0.75</span>
+  <span class="k">return</span> Math.round(raw * (<span class="n">0.55</span> + <span class="n">0.45</span> * shrink));
+}</pre>
+  <p>效果：答对 1 题大约只到 20–30 分；连续答对 8–10 题才逼近 80；要上 90 必须跨多次会话、跨不同题型稳定正确——这正是 Kwiziq 说的「100% 很难」。答错会迅速把 p 拉回 0.5 以下，产生负分。</p>
+
+  <h3>级别分聚合（复刻「稀释效应」）</h3>
+  <pre><span class="k">function</span> <span class="n">levelScore</span>(level) {
+  <span class="k">const</span> ks = kps.filter(k =&gt; k.level === level);
+  <span class="k">const</span> sumW = ks.reduce((s, k) =&gt; s + k.weight, <span class="n">0</span>);
+  <span class="k">const</span> sum  = ks.reduce((s, k) =&gt; s + k.weight * displayScore(k.p, k.n), <span class="n">0</span>);
+  <span class="k">return</span> sum / sumW;   <span class="c">// 新增节点 → 分母变大 → 总分下降（与 Kwiziq 一致）</span>
+}</pre>
+
+  <div class="callout blue">
+    <p><b>为什么不用纯 IRT？</b>IRT 需要大量作答数据才能校准题目参数，冷启动阶段会非常抖。BKT 的参数可以先用教学经验设定，再逐步被数据修正，更适合个人本地应用。FSRS 负责「什么时候复习」，BKT 负责「掌握到什么程度」，两者职责不重叠。</p>
+  </div>
+
+  <h3>分数 → 颜色 → 星级</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>展示分</th><th>Brainmap 颜色</th><th>知识点星级</th><th>语义</th></tr></thead>
+    <tbody>
+      <tr><td>&lt; 0</td><td><span class="dot" style="background:#D51C1B"></span> 红</td><td>—</td><td>存在误学，优先纠正</td></tr>
+      <tr><td>0 – 49</td><td><span class="dot" style="background:#F2D24B"></span> 黄</td><td>—</td><td>证据不足或尚未掌握</td></tr>
+      <tr><td>50 – 64</td><td><span class="dot" style="background:#8FCB9B"></span> 绿</td><td>★ 铜</td><td>达到合理信心</td></tr>
+      <tr><td>65 – 84</td><td><span class="dot" style="background:#5FB56F"></span> 深绿</td><td>★★ 银</td><td>熟练</td></tr>
+      <tr><td>≥ 85</td><td><span class="dot" style="background:#2E7D32"></span> 墨绿</td><td>★★★ 金</td><td>精通</td></tr>
+      <tr><td>未测</td><td><span class="dot" style="background:#DDE0E4"></span> 灰</td><td>—</td><td>UNSEEN</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="small">级别盾牌：铜 = 级别分 ≥ 40，银 = ≥ 75（可升级），金 = ≥ 90。与 Kwiziq 的 75% 门槛保持一致。</p>
+</section>
+
+<!-- ============ 3.3 ============ -->
+<section id="s13">
+  <h2><span class="num">3.3</span>组卷算法</h2>
+  <p class="sub">每天那 10 道题，是怎么被选出来的。</p>
+
+  <p>组卷要同时满足四个目标：<b>复习到期内容</b>（不忘）、<b>攻击薄弱点</b>（提升）、<b>引入新内容</b>（前进）、<b>保持难度爬升</b>（由浅入深）。我们用「配额 + 打分采样 + 约束校验」三步完成。</p>
+
+  <h3>第一步：分配配额</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:16%">块</th><th style="width:10%">题数</th><th style="width:26%">候选池</th><th>选取规则</th></tr></thead>
+    <tbody>
+      <tr><td><b>A 热身</b></td><td>2</td><td>R ≥ 0.9 且 p ≥ 0.7 的知识点</td><td>取最容易的 2 题，难度 b ≤ 2.5，用于建立信心与进入状态</td></tr>
+      <tr><td><b>B 到期复习</b></td><td>3</td><td>due ≤ 今天，按 R 升序</td><td>优先 R 最低者；同一知识点最多 1 题</td></tr>
+      <tr><td><b>C 薄弱攻坚</b></td><td>3</td><td>p 最低且先修就绪（prereq p ≥ 0.4）</td><td>优先负分/红色节点；允许同知识点 2 题（1 题带提示变体）</td></tr>
+      <tr><td><b>D 前沿新知</b></td><td>2</td><td>学习路径上的下一个未掌握节点</td><td>若状态为 UNSEEN，则先出「预学习卡」而非直接出题</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="small">配额可按用户状态动态调整：新用户 A=3/B=0/C=4/D=3；复习积压严重时 B 可扩到 5；临近考试（若开启考试模式）C 扩到 5。</p>
+
+  <h3>第二步：候选打分</h3>
+  <pre>score(i) =
+    <span class="n">0.35</span> * dueUrgency(i)      <span class="c">// 越到期越优先：1 - R</span>
+  + <span class="n">0.25</span> * gap(i)             <span class="c">// 薄弱度：1 - p</span>
+  + <span class="n">0.15</span> * prereqReady(i)     <span class="c">// 先修就绪度：min(prereq p) / 0.6</span>
+  + <span class="n">0.15</span> * freshness(i)       <span class="c">// 该题距上次出现的天数 / 30</span>
+  + <span class="n">0.10</span> * coverageBonus(i)   <span class="c">// 该知识点历史覆盖率越低越优先</span>
+  - <span class="n">0.20</span> * recentRepeat(i)    <span class="c">// 最近 2 次会话出现过 → 强惩罚</span>
+
+<span class="c">// 用 softmax 采样而不是直接取 top-N，保留探索性</span>
+P(i) = exp(score(i) / τ) / Σ exp(score(j) / τ),  τ = <span class="n">0.25</span></pre>
+
+  <h3>第三步：约束校验</h3>
+  <ul>
+    <li>同一知识点在一次会话中 ≤ 2 题；同一题型 ≤ 3 题。</li>
+    <li>相邻两题不得属于同一知识点（强制交错）。</li>
+    <li>难度必须整体递增：按 b 排序后允许 ±1 的局部抖动，避免完全可预测。</li>
+    <li>难度分布目标：易 30% / 中 50% / 难 20%（按用户 θ 动态平移）。</li>
+    <li>若某块凑不满，从相邻块借题，但保持总题数 = 10。</li>
+  </ul>
+
+  <h3>第四步：会话内自适应</h3>
+  <pre><span class="c">// 每答完 3 题检查一次，动态调整后续难度</span>
+<span class="k">if</span> (前3题正确率 &gt;= <span class="n">0.75</span>) nextDifficulty += <span class="n">0.5</span>;   <span class="c">// 加速</span>
+<span class="k">if</span> (前3题正确率 &lt;= <span class="n">0.25</span>) {
+  nextDifficulty -= <span class="n">0.5</span>;
+  insertVariant(currentKp);                        <span class="c">// 插入同知识点变体题</span>
+}
+<span class="k">if</span> (连续 2 题 skip) showPrimerSuggestion(currentKp); <span class="c">// 连续跳过 → 建议先学</span></pre>
+
+  <div class="callout">
+    <p><b>「由浅入深」的最终实现：</b>配额保证功能块的顺序（热身→复习→攻坚→新知），难度排序保证 b 单调上行，自适应保证曲线不是死的。三者叠加，用户感受到的就是「越做越难，但每道都做得动」。</p>
+  </div>
+</section>
+
+<!-- ============ 3.4 ============ -->
+<section id="s14">
+  <h2><span class="num">3.4</span>预学习模块</h2>
+  <p class="sub">本产品最核心的增量功能，需要独立设计。</p>
+
+  <p>预学习不是「把课程页链接放到测试前面」，而是一条<strong>有状态、有产出、有通过标准</strong>的通道。它对用户的价值是「降低第一次测试的挫败感」，对系统的价值是「在正式测试前就获得一份低权重的掌握证据」。</p>
+
+  <h3>三步结构（总时长 3–5 分钟）</h3>
+  <div class="grid3">
+    <div class="card">
+      <div class="ct"><span class="stepnum">1</span>Primer · 微课</div>
+      <p>一句话规则 + 2 组对比例句（带音频、关键词高亮）+ 1 条「中国人最常错在哪」。<b>不写长篇语法论文</b>，控制在 120 字以内。</p>
+    </div>
+    <div class="card">
+      <div class="ct"><span class="stepnum">2</span>Guided · 引导</div>
+      <p>3 道题，全部带提示（可展开「为什么」），答错可立即重试。按 0.3 权重计入掌握度。目的是「形成正确第一次」。</p>
+    </div>
+    <div class="card">
+      <div class="ct"><span class="stepnum">3</span>Check · 检测</div>
+      <p>3 道同知识点新题，无提示、不可重试，答对 ≥2 即通过。通过后状态变为 LEARNABLE，p 初始化为 0.45。</p>
+    </div>
+  </div>
+
+  <h4>Primer 的内容模板</h4>
+  <pre><span class="c">// 每个知识点必须能填满这 5 个槽位，否则不允许发布</span>
+{
+  <span class="s">"rule"</span>: <span class="s">"当 c'est 后面跟一个独立形容词时，形容词永远用阳性单数。"</span>,
+  <span class="s">"contrast"</span>: [
+    { <span class="s">"fr"</span>: <span class="s">"Cette jupe est chère."</span>, <span class="s">"zh"</span>: <span class="s">"这条裙子很贵。"</span>, <span class="s">"why"</span>: <span class="s">"形容词修饰具体名词 jupe（阴性）"</span> },
+    { <span class="s">"fr"</span>: <span class="s">"C'est cher !"</span>,       <span class="s">"zh"</span>: <span class="s">"这很贵！"</span>,   <span class="s">"why"</span>: <span class="s">"c'est 后独立使用，默认阳性"</span> }
+  ],
+  <span class="s">"pitfall"</span>: <span class="s">"中文没有形容词性数配合，容易写成 C'est chère。"</span>,
+  <span class="s">"audio"</span>: [<span class="s">"tts/fr/a2u/cest_cher_01.mp3"</span>, <span class="s">"tts/fr/a2u/cest_cher_02.mp3"</span>],
+  <span class="s">"check_items"</span>: [<span class="s">"itm_10231"</span>, <span class="s">"itm_10232"</span>, <span class="s">"itm_10233"</span>]
+}</pre>
+
+  <h4>前置知识门禁（软门禁）</h4>
+  <pre><span class="k">function</span> <span class="n">prelearnGate</span>(kp) {
+  <span class="k">const</span> weak = kp.prereqs.filter(id =&gt; state(id).p &lt; <span class="n">0.4</span>);
+  <span class="k">if</span> (weak.length === <span class="n">0</span>) <span class="k">return</span> { allow: <span class="k">true</span> };
+  <span class="k">return</span> {
+    allow: <span class="k">true</span>,                       <span class="c">// 永远不阻塞：这是「无限学习」的底线</span>
+    warning: <span class="s">`建议先学：${weak.map(titleOf).join('、')}`</span>,
+    shortcut: weak[<span class="n">0</span>]                  <span class="c">// 提供「先补这个」的一键入口</span>
+  };
+}</pre>
+
+  <div class="callout green">
+    <p><b>与 Kwiziq 的本质区别：</b>Kwiziq 的知识点是「测出来的」，所以未接触 = 灰，只能硬测；我们的知识点是「可以学出来的」，所以未接触 = 灰 + 一个「3 分钟先学」的按钮。前者是体检，后者是体检 + 预习。这不是加功能，是改变了产品的教学假设。</p>
+  </div>
+</section>
+
+<!-- ============ 3.5 ============ -->
+<section id="s15">
+  <h2><span class="num">3.5</span>每日推送</h2>
+  <p class="sub">没有配额之后，靠什么让人每天回来。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:16%">触点</th><th style="width:18%">触发条件</th><th>内容</th><th style="width:16%">频控</th></tr></thead>
+    <tbody>
+      <tr><td><b>今日任务卡</b></td><td>打开应用</td><td>「今天 7 个知识点正在遗忘，3 个新知等你」+ 一个大按钮「开始 10 题（约 4 分钟）」</td><td>每次会话 1 张</td></tr>
+      <tr><td><b>本地通知</b></td><td>用户设定的时间（默认 20:00）</td><td>「3 分钟，10 道题，把今天的记忆债还掉」；点击直达会话</td><td>每天 ≤1 条</td></tr>
+      <tr><td><b>到期提醒</b></td><td>有 ≥5 个节点 R &lt; 0.8</td><td>「有 5 个知识点快忘了，其中 2 个是 B1 核心」</td><td>每 2 天 ≤1 条</td></tr>
+      <tr><td><b>连续天数</b></td><td>当天未学，22:00</td><td>「连续 12 天要断了」</td><td>每天 ≤1 条</td></tr>
+      <tr><td><b>周报</b></td><td>每周日</td><td>本周新增掌握 / 最大进步 / 最大漏洞 / 下周建议</td><td>每周 1 条</td></tr>
+      <tr><td><b>预学习推荐</b></td><td>连续 2 题 skip 或同一知识点错 2 次</td><td>「这个概念你可能还没学过，先花 3 分钟看看？」</td><td>每会话 ≤1 次</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>实现上用浏览器 <code class="inl">Notification API</code> + Service Worker；桌面壳（Tauri）下改用系统通知。所有通知都必须在设置里可关，且默认只开「今日任务卡」。</p>
+</section>
+
+<!-- ============ 3.6 ============ -->
+<section id="s16">
+  <h2><span class="num">3.6</span>激励体系</h2>
+  <p class="sub">保留 Kwiziq 的「收集感」，去掉它的「公开比较」。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:22%">元素</th><th style="width:30%">规则</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td><b>Kudos</b></td><td>答对 +10，答错 +2（参与即得分），完成会话 +30，预学习通过 +50</td><td>通用积分，不消费，只累计</td></tr>
+      <tr><td><b>知识点星级</b></td><td>铜 50 / 银 65 / 金 85，掉分则降星（可逆）</td><td>最细颗粒的正反馈</td></tr>
+      <tr><td><b>级别盾牌</b></td><td>铜 40 / 银 75 / 金 90</td><td>阶段性毕业证</td></tr>
+      <tr><td><b>地基奖杯</b></td><td>低级别所有节点 ≥ 85 后获得</td><td>鼓励回头补漏</td></tr>
+      <tr><td><b>连续天数</b></td><td>每日 ≥1 个会话；每月 2 张「冻结卡」</td><td>留存，但不制造焦虑</td></tr>
+      <tr><td><b>个人最佳</b></td><td>替代公开排行榜：与自己历史比（最快满分、最长连续、单日最多新知）</td><td>本地单机场景下更合理</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout red">
+    <p><b>反刷分设计：</b>同一知识点在 24 小时内重复作答，Kudos 减半、掌握度增益按 0.6 递减；连续 3 次全对后该知识点进入「冷却」，不再出现在热身块。否则用户会找到「刷简单题涨分」的最优解，整个模型就废了。</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+<!-- ============ 4.1 ============ -->
+<section id="s17">
+  <h2><span class="num">4.1</span>设计令牌</h2>
+  <p class="sub">像素级复刻的第一层：把颜色、字号、间距变成变量。</p>
+
+  <p>以下数值来自对官网 CSS 与截图的采样，作为 v1 的基线。所有页面只允许使用令牌，不允许写死颜色与字号——这是「像素级」可维护的前提。</p>
+
+  <div class="grid2">
+    <div>
+      <h4>色彩</h4>
+      <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:34%">令牌</th><th style="width:26%">值</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inl">--brand</code></td><td><span class="dot" style="background:#F26500"></span> #F26500</td><td>主按钮、当前项、强调</td></tr>
+          <tr><td><code class="inl">--brand-hover</code></td><td>#D95A00</td><td>悬停</td></tr>
+          <tr><td><code class="inl">--brand-soft</code></td><td>#FFF2E8</td><td>选中背景、提示条</td></tr>
+          <tr><td><code class="inl">--ink</code></td><td>#14181D</td><td>标题、正文</td></tr>
+          <tr><td><code class="inl">--ink-2</code></td><td>#39424D</td><td>次级正文</td></tr>
+          <tr><td><code class="inl">--muted</code></td><td>#6B7480</td><td>说明文字</td></tr>
+          <tr><td><code class="inl">--faint</code></td><td>#9AA3AE</td><td>占位、表头</td></tr>
+          <tr><td><code class="inl">--line</code></td><td>#E6E8EB</td><td>边框、分隔线</td></tr>
+          <tr><td><code class="inl">--bg</code></td><td>#FBFBF9</td><td>页面底色</td></tr>
+          <tr><td><code class="inl">--info</code></td><td>#0B6FB8</td><td>链接、信息态</td></tr>
+          <tr><td><code class="inl">--success</code></td><td>#3E9B4F</td><td>正确、掌握</td></tr>
+          <tr><td><code class="inl">--danger</code></td><td>#D51C1B</td><td>错误、负分</td></tr>
+          <tr><td><code class="inl">--warn</code></td><td>#C98A00</td><td>待测、证据不足</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div>
+      <h4>字体与尺度</h4>
+      <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:38%">令牌</th><th>值</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inl">--font</code></td><td>Inter, "PingFang SC", "Microsoft YaHei"</td></tr>
+          <tr><td><code class="inl">--mono</code></td><td>Consolas, "SF Mono"</td></tr>
+          <tr><td><code class="inl">--text-xs</code></td><td>11px / 1.5</td></tr>
+          <tr><td><code class="inl">--text-sm</code></td><td>13px / 1.6</td></tr>
+          <tr><td><code class="inl">--text-base</code></td><td>15px / 1.75</td></tr>
+          <tr><td><code class="inl">--text-lg</code></td><td>17px / 1.6</td></tr>
+          <tr><td><code class="inl">--text-xl</code></td><td>22px / 1.35</td></tr>
+          <tr><td><code class="inl">--text-2xl</code></td><td>28px / 1.25</td></tr>
+          <tr><td><code class="inl">--text-3xl</code></td><td>34px / 1.2</td></tr>
+          <tr><td><code class="inl">--space</code></td><td>4px 基准（4/8/12/16/24/32/48）</td></tr>
+          <tr><td><code class="inl">--radius</code></td><td>6 / 8 / 12 / 999</td></tr>
+          <tr><td><code class="inl">--shadow</code></td><td>0 1px 3px rgba(20,24,29,.07)</td></tr>
+          <tr><td><code class="inl">--container</code></td><td>1120px（内容 860px）</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <h4>布局栅格</h4>
+  <ul>
+    <li>桌面：左侧固定导航 220px + 主内容区（最大 1120px，12 列，gutter 24px）。</li>
+    <li>平板（≤1024px）：导航折叠为顶部栏，主内容单列。</li>
+    <li>手机（≤640px）：单列，卡片内边距 16px，按钮全宽。</li>
+    <li>顶栏高度 56px，背景 <code class="inl">linear-gradient(180deg, #CFEBFF, #EAF7FF)</code>，底部 1px #D7E9F5。</li>
+  </ul>
+</section>
+
+<!-- ============ 4.2 ============ -->
+<section id="s18">
+  <h2><span class="num">4.2</span>页面清单</h2>
+  <p class="sub">13 个路由，按优先级分三批。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:8%">批次</th><th style="width:20%">路由</th><th style="width:22%">页面</th><th>核心内容</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="5"><span class="tag r">P0</span></td><td><code class="inl">/onboarding</code></td><td>入门</td><td>目标选择 → 水平自评/分级测试 → 每日目标</td></tr>
+      <tr><td><code class="inl">/test</code></td><td>分级测试</td><td>跨级自适应 40 题，逐题反馈，结束给 7 段分数条</td></tr>
+      <tr><td><code class="inl">/</code></td><td>Dashboard</td><td>连续天数、Kwizbot 卡、Studyplan 10 条、级别卡、Brainmap 缩略</td></tr>
+      <tr><td><code class="inl">/kwiz/:id</code></td><td>Kwiz Runner</td><td>进度、题干、输入/选项、跳过、检查、即时反馈</td></tr>
+      <tr><td><code class="inl">/kwiz/:id/result</code></td><td>结果页</td><td>星级、逐题对照表、Learn &amp; Discuss、再来一组</td></tr>
+      <tr><td rowspan="4"><span class="tag y">P1</span></td><td><code class="inl">/brainmap</code></td><td>Brainmap</td><td>分区着色、缩放、双击隔离、点击出侧栏</td></tr>
+      <tr><td><code class="inl">/learn</code></td><td>Library</td><td>按级别/范畴筛选，搜索，加入 Notebook</td></tr>
+      <tr><td><code class="inl">/learn/:kp</code></td><td>课程页</td><td>规则、对比例句、音频、易错点、微 kwiz、相关知识点</td></tr>
+      <tr><td><code class="inl">/prelearn/:kp</code></td><td>预学习</td><td>三步 stepper：Primer → Guided → Check</td></tr>
+      <tr><td rowspan="4"><span class="tag b">P2</span></td><td><code class="inl">/notebook</code></td><td>Notebook</td><td>多本笔记本、按知识点组卷、备注</td></tr>
+      <tr><td><code class="inl">/progress</code></td><td>进度报告</td><td>时间轴、覆盖率、各块强弱、错题分布</td></tr>
+      <tr><td><code class="inl">/achievements</code></td><td>成就</td><td>星级墙、盾牌、奖杯、连续天数</td></tr>
+      <tr><td><code class="inl">/settings</code></td><td>设置</td><td>每日目标、通知时间、音频、数据导出/导入</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ 4.3 ============ -->
+<section id="s19">
+  <h2><span class="num">4.3</span>关键页面线框</h2>
+  <p class="sub">三个必须一次做对的界面。</p>
+
+  <h3>① Kwiz Runner</h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="wf-logo">KwizIQ</span><span class="wf-nav"><span>Dashboard</span><span>Notebook</span><span>Library ▾</span></span><span class="wf-pill">Exit</span></div>
+    <div class="wf-body" style="padding:14px 18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="font-size:8px;color:#8A939E">4 / 10</span>
+        <span style="flex:1;height:5px;background:#EDEFF2;border-radius:3px;overflow:hidden"><span style="display:block;height:5px;width:40%;background:#F26500"></span></span>
+        <span style="font-size:8px;color:#8A939E">A2U · 复合过去时</span>
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;margin-bottom:4px">Complete with the correct form of <b>être</b> + past participle:</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px">Elle ________ (partir) hier soir.</div>
+      <div style="border:1.5px solid #F26500;border-radius:6px;padding:7px 10px;font-size:11px;color:#14181D;margin-bottom:10px">est partie<span style="float:right;color:#F26500">|</span></div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:12px">
+        <span style="font-size:7.5px;color:#6B7480">特殊字符：</span>
+        <span style="border:1px solid #E6E8EB;border-radius:3px;padding:1px 5px;font-size:8px">é</span>
+        <span style="border:1px solid #E6E8EB;border-radius:3px;padding:1px 5px;font-size:8px">è</span>
+        <span style="border:1px solid #E6E8EB;border-radius:3px;padding:1px 5px;font-size:8px">ê</span>
+        <span style="border:1px solid #E6E8EB;border-radius:3px;padding:1px 5px;font-size:8px">ç</span>
+        <span style="border:1px solid #E6E8EB;border-radius:3px;padding:1px 5px;font-size:8px">à</span>
+        <span style="margin-left:auto;font-size:8px;color:#0B6FB8">🔊 听句子</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <span class="wf-btn" style="padding:5px 14px;font-size:8.5px">Check</span>
+        <span class="wf-btn ghost" style="padding:5px 14px;font-size:8.5px">Skip</span>
+        <span style="margin-left:auto;font-size:7.5px;color:#9AA3AE;align-self:center">Enter 检查 · Ctrl+Enter 跳过</span>
+      </div>
+      <div style="margin-top:12px;border-top:1px solid #F0F1F3;padding-top:10px;display:flex;gap:8px">
+        <div style="width:16px;height:16px;border-radius:50%;background:#EAF6EC;color:#3E9B4F;display:grid;place-items:center;font-size:9px;flex:none">✓</div>
+        <div style="font-size:8px;line-height:1.6;color:#39424D"><b>Correct.</b> 「partir 属于 être 类动词，过去分词 partie 需与主语 Elle 的阴性单数配合。」<br><span style="color:#0B6FB8;text-decoration:underline">查看完整讲解 · 加入 Notebook</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="small" style="margin-top:8px">规格：题干 17px/1.6；输入框高 44px，聚焦时 2px 橙色描边；反馈区在作答后 180ms 内展开，不跳页；正确/错误/跳过三态颜色分别为绿/红/灰。</p>
+
+  <h3>② 预学习（三步）</h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="wf-logo">KwizIQ</span><span class="wf-nav"><span>Dashboard</span><span>Library ▾</span></span><span class="wf-pill">退出</span></div>
+    <div class="wf-body" style="padding:14px 18px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
+        <span style="display:flex;align-items:center;gap:4px;font-size:8px;font-weight:700;color:#0B6FB8"><span style="width:14px;height:14px;border-radius:50%;background:#0B6FB8;color:#fff;display:grid;place-items:center;font-size:7px">1</span>微课</span>
+        <span style="flex:1;height:1px;background:#E6E8EB"></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:8px;color:#9AA3AE"><span style="width:14px;height:14px;border-radius:50%;background:#EDEFF2;display:grid;place-items:center;font-size:7px">2</span>引导</span>
+        <span style="flex:1;height:1px;background:#E6E8EB"></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:8px;color:#9AA3AE"><span style="width:14px;height:14px;border-radius:50%;background:#EDEFF2;display:grid;place-items:center;font-size:7px">3</span>检测</span>
+      </div>
+      <div style="font-size:7.5px;color:#F26500;font-weight:700;letter-spacing:.08em;margin-bottom:3px">A2U · 预学习</div>
+      <div style="font-size:13px;font-weight:800;margin-bottom:8px">être 动词的过去分词配合</div>
+      <div style="background:#FFF7F1;border:1px solid #FFD9BF;border-radius:6px;padding:8px 10px;font-size:9px;line-height:1.65;margin-bottom:9px">
+        <b>一句话规则：</b>以 être 为助动词的复合过去时，过去分词要与<b>主语</b>的性数一致。
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px">
+        <div style="border:1px solid #E6E8EB;border-radius:5px;padding:6px 8px">
+          <div style="font-size:9px;font-weight:600">Elle est <span style="background:#EAF6EC">partie</span>.</div>
+          <div style="font-size:7.5px;color:#8A939E;margin-top:2px">她离开了。主语阴性单数 → -e</div>
+        </div>
+        <div style="border:1px solid #E6E8EB;border-radius:5px;padding:6px 8px">
+          <div style="font-size:9px;font-weight:600">Ils sont <span style="background:#EAF6EC">partis</span>.</div>
+          <div style="font-size:7.5px;color:#8A939E;margin-top:2px">他们离开了。主语阳性复数 → -s</div>
+        </div>
+      </div>
+      <div style="font-size:8px;color:#B33A38;margin-bottom:10px">⚠ 中文没有性数配合，最容易漏写 -e / -s。</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="wf-btn" style="padding:5px 14px;font-size:8.5px">我准备好了 →</span>
+        <span style="font-size:7.5px;color:#9AA3AE">约 3 分钟 · 可随时退出</span>
+      </div>
+    </div>
+  </div>
+  <p class="small" style="margin-top:8px">规格：stepper 固定在顶部，三步不可跳跃；Primer 页必须滚动到底部才点亮「我准备好了」；Guided 每题的「为什么」默认折叠；Check 页隐藏所有提示与音频，只保留题干。</p>
+
+  <h3>③ Brainmap</h3>
+  <div class="wf" style="padding:0">
+    <div class="wf-bar"><span class="wf-logo">KwizIQ</span><span class="wf-nav"><span>Dashboard</span><span>Brainmap</span></span><span class="wf-pill">Upgrade</span></div>
+    <div style="padding:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:9px;font-weight:800">Your French Brainmap</span>
+        <span style="font-size:7px;color:#6B7480">放大查看 · 双击隔离课程</span>
+        <span style="margin-left:auto;font-size:7px;border:1px solid #E6E8EB;border-radius:3px;padding:1px 6px">− 100% +</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+        <!-- A2 -->
+        <div style="border:1px solid #E6E8EB;border-radius:6px;padding:5px 6px 6px;background:#FCFCFB">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:7px;font-weight:800;color:#6B7480;letter-spacing:.08em">A2 · 基础</span><span style="font-size:6.5px;color:#B9C0C8">14 节点</span></div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:10px;gap:2px">
+            <span style="grid-column:span 2;grid-row:span 2;background:#5FB56F;border-radius:1px"></span>
+            <span style="background:#8FCB9B;border-radius:1px"></span>
+            <span style="background:#F2D24B;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#8FCB9B;border-radius:1px"></span>
+            <span style="background:#8FCB9B;border-radius:1px"></span>
+            <span style="background:#5FB56F;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#F2D24B;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#8FCB9B;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#F2D24B;border-radius:1px"></span>
+          </div>
+        </div>
+        <!-- B1 -->
+        <div style="border:1px solid #E6E8EB;border-radius:6px;padding:5px 6px 6px;background:#FCFCFB">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:7px;font-weight:800;color:#6B7480;letter-spacing:.08em">B1 · 中级</span><span style="font-size:6.5px;color:#B9C0C8">18 节点</span></div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:10px;gap:2px">
+            <span style="grid-column:span 2;background:#F2D24B;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#D51C1B;border-radius:1px"></span>
+            <span style="background:#F2D24B;border-radius:1px"></span>
+            <span style="grid-column:span 2;grid-row:span 2;background:#8FCB9B;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#F2D24B;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#DDE0E4;border-radius:1px"></span>
+            <span style="background:#F2D24B;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+          </div>
+        </div>
+        <!-- B2 -->
+        <div style="border:1px solid #E6E8EB;border-radius:6px;padding:5px 6px 6px;background:#FCFCFB">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:7px;font-weight:800;color:#6B7480;letter-spacing:.08em">B2 · 中高级</span><span style="font-size:6.5px;color:#B9C0C8">16 节点</span></div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:10px;gap:2px">
+            <span style="grid-column:span 3;background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#F2D24B;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;grid-row:span 2;background:#D51C1B;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#DDE0E4;border-radius:1px"></span>
+            <span style="background:#F2D24B;border-radius:1px"></span>
+            <span style="grid-column:span 3;background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#DDE0E4;border-radius:1px"></span>
+            <span style="background:#8FCB9B;border-radius:1px"></span>
+          </div>
+        </div>
+        <!-- C1 -->
+        <div style="border:1px solid #E6E8EB;border-radius:6px;padding:5px 6px 6px;background:#FCFCFB">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:7px;font-weight:800;color:#6B7480;letter-spacing:.08em">C1 · 高级</span><span style="font-size:6.5px;color:#B9C0C8">11 节点</span></div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:10px;gap:2px">
+            <span style="grid-column:span 2;background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 3;background:#DDE0E4;border-radius:1px"></span>
+            <span style="background:#F2D24B;border-radius:1px"></span>
+            <span style="grid-column:span 4;background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#D51C1B;border-radius:1px"></span>
+            <span style="grid-column:span 2;background:#DDE0E4;border-radius:1px"></span>
+            <span style="grid-column:span 3;background:#F2D24B;border-radius:1px"></span>
+            <span style="background:#DDE0E4;border-radius:1px"></span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;font-size:7px;color:#6B7480">
+        <span>● 未接触</span><span style="color:#C98A00">● 证据不足</span><span style="color:#3E9B4F">● 已掌握</span><span style="color:#D51C1B">● 误学</span>
+        <span style="margin-left:auto">点击任一块 → 侧栏显示分数 / 课程 / 预学习入口</span>
+      </div>
+    </div>
+  </div>
+  <p class="small" style="margin-top:8px">规格：用 <code class="inl">d3-hierarchy</code> 的 treemap 生成不规则矩形（比 Voronoi 更易实现且视觉接近）；每个知识点是一个 cell，按 level 分组；hover 显示 tooltip，单击打开右侧 320px 抽屉，双击隔离该 cell 并高亮其先修链。</p>
+</section>
+
+<!-- ============ 4.4 ============ -->
+<section id="s20">
+  <h2><span class="num">4.4</span>交互细节</h2>
+  <p class="sub">决定「像不像」的往往是这些 20 毫秒。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:22%">场景</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td>提交答案</td><td><kbd>Enter</kbd> 检查；<kbd>Ctrl</kbd>+<kbd>Enter</kbd> 跳过；输入框自动聚焦</td></tr>
+      <tr><td>重音输入</td><td>输入框下方常驻 é è ê ë à â ç î ï ô ù û 按钮；也支持 <code class="inl">e:</code> → é 的快捷替换（可关）</td></tr>
+      <tr><td>答案判定</td><td>去首尾空格、忽略大小写；允许配置的等价答案（如 «Je n'ai pas de chien» / «J'ai pas de chien» 视为不同语域，需标注）</td></tr>
+      <tr><td>反馈时序</td><td>点击后立即禁用输入 → 120ms 显示对错图标 → 180ms 展开解析；不自动跳下一题，必须手动继续</td></tr>
+      <tr><td>跳过</td><td>二次确认气泡「不确定就跳过，不扣分」；跳过题在结果页标灰</td></tr>
+      <tr><td>音频</td><td>点击例句任意位置即朗读（fr-FR）；语速 0.9；连续点击不叠加</td></tr>
+      <tr><td>会话中断</td><td>自动保存到 localStorage；下次进入提示「继续上次的 10 题」</td></tr>
+      <tr><td>错误态</td><td>网络/数据库异常时显示可重试卡片，不丢作答</td></tr>
+      <tr><td>空状态</td><td>无到期、无新知时显示「今天没有债务，去 Library 逛逛？」而不是空白页</td></tr>
+      <tr><td>动效</td><td>仅用于：进度条、卡片展开、Brainmap 变色（300ms ease-out）。不做页面切换动画</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ 5.1 ============ -->
+<section id="s21">
+  <h2><span class="num">5.1</span>技术选型</h2>
+  <p class="sub">本地优先、单进程、可打包。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:20%">层</th><th style="width:30%">选型</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>前端框架</td><td>React 19 + TypeScript + Vite 7</td><td>无 SSR 需求，Vite 启动快；生态成熟，便于后续交给他人维护</td></tr>
+      <tr><td>样式</td><td>Tailwind CSS v4 + CSS 变量</td><td>令牌即类名，像素级还原时改一处全局生效</td></tr>
+      <tr><td>组件</td><td>Radix Primitives + 自绘</td><td>只要行为（弹层、抽屉、Tabs），不要默认皮肤，避免「一眼 shadcn」</td></tr>
+      <tr><td>路由 / 状态</td><td>React Router 7 / Zustand + TanStack Query</td><td>会话态与持久态分离，算法可单测</td></tr>
+      <tr><td>图谱可视化</td><td>d3-hierarchy（treemap）+ d3-delaunay</td><td>treemap 出「分块地图」，delaunay 可做更接近 Kwiziq 的 Voronoi 变体</td></tr>
+      <tr><td>后端</td><td>Fastify 5 + better-sqlite3 + Drizzle ORM</td><td>单文件数据库，零运维；同步 API 简单可靠</td></tr>
+      <tr><td>算法引擎</td><td>独立包 <code class="inl">packages/engine</code>（纯 TS）</td><td>BKT / FSRS / 组卷与 UI 解耦，可用固定种子做回归测试</td></tr>
+      <tr><td>复习调度</td><td><code class="inl">ts-fsrs</code></td><td>成熟实现，避免自己推 FSRS 参数</td></tr>
+      <tr><td>音频</td><td>Web Speech API + edge-tts 预生成 mp3</td><td>在线用系统 TTS，离线用预生成；法语 voice 缺失时自动降级</td></tr>
+      <tr><td>桌面打包</td><td>Tauri 2</td><td>体积 ~5MB，Windows 用 WebView2；比 Electron 轻一个数量级</td></tr>
+      <tr><td>测试</td><td>Vitest + Playwright</td><td>算法单测 + 关键流程 E2E（做完一组 10 题）</td></tr>
+      <tr><td>包管理</td><td>pnpm workspace</td><td>monorepo：web / server / engine / content</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout blue">
+    <p><b>为什么不用 Next.js：</b>本项目没有 SEO、没有多用户、没有服务端渲染需求。Next 的收益为零，复杂度却实打实。Vite + Fastify 的「两个进程、一个命令」对本地应用是最短路径。</p>
+  </div>
+</section>
+
+<!-- ============ 5.2 ============ -->
+<section id="s22">
+  <h2><span class="num">5.2</span>架构与数据模型</h2>
+  <p class="sub">四层，一条数据流。</p>
+
+  <figure>
+    <svg viewBox="0 0 860 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="技术架构">
+      <g font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif">
+        <!-- layer 1 -->
+        <rect x="20" y="20" width="820" height="62" rx="10" fill="#FFFFFF" stroke="#E6E8EB"/>
+        <text x="38" y="44" font-size="10" font-weight="700" fill="#9AA3AE" letter-spacing="1">UI 层</text>
+        <g font-size="10">
+          <rect x="120" y="34" width="96" height="34" rx="6" fill="#EAF4FB" stroke="#BFDDF2"/><text x="168" y="55" text-anchor="middle" fill="#0B6FB8">Dashboard</text>
+          <rect x="226" y="34" width="96" height="34" rx="6" fill="#EAF4FB" stroke="#BFDDF2"/><text x="274" y="55" text-anchor="middle" fill="#0B6FB8">Kwiz Runner</text>
+          <rect x="332" y="34" width="96" height="34" rx="6" fill="#EAF4FB" stroke="#BFDDF2"/><text x="380" y="55" text-anchor="middle" fill="#0B6FB8">Brainmap</text>
+          <rect x="438" y="34" width="96" height="34" rx="6" fill="#EAF4FB" stroke="#BFDDF2"/><text x="486" y="55" text-anchor="middle" fill="#0B6FB8">Pre-Learn</text>
+          <rect x="544" y="34" width="96" height="34" rx="6" fill="#EAF4FB" stroke="#BFDDF2"/><text x="592" y="55" text-anchor="middle" fill="#0B6FB8">Library</text>
+          <rect x="650" y="34" width="96" height="34" rx="6" fill="#EAF4FB" stroke="#BFDDF2"/><text x="698" y="55" text-anchor="middle" fill="#0B6FB8">Notebook</text>
+        </g>
+        <text x="776" y="55" font-size="9" fill="#9AA3AE">React 19</text>
+
+        <!-- arrow -->
+        <path d="M430 84 L430 100" stroke="#C9CED5" stroke-width="1.4"/>
+        <path d="M424 96 L430 104 L436 96" fill="none" stroke="#C9CED5" stroke-width="1.4"/>
+
+        <!-- layer 2 -->
+        <rect x="20" y="106" width="820" height="66" rx="10" fill="#FFF9F4" stroke="#FFD9BF"/>
+        <text x="38" y="130" font-size="10" font-weight="700" fill="#C24E00" letter-spacing="1">引擎层</text>
+        <g font-size="9.5">
+          <rect x="120" y="118" width="150" height="42" rx="6" fill="#FFFFFF" stroke="#F5D2B0"/><text x="195" y="136" text-anchor="middle" fill="#8A5A38" font-weight="700">Mastery Engine</text><text x="195" y="150" text-anchor="middle" fill="#A08570">BKT + 难度加权</text>
+          <rect x="282" y="118" width="150" height="42" rx="6" fill="#FFFFFF" stroke="#F5D2B0"/><text x="357" y="136" text-anchor="middle" fill="#8A5A38" font-weight="700">Scheduler</text><text x="357" y="150" text-anchor="middle" fill="#A08570">FSRS 到期队列</text>
+          <rect x="444" y="118" width="150" height="42" rx="6" fill="#FFFFFF" stroke="#F5D2B0"/><text x="519" y="136" text-anchor="middle" fill="#8A5A38" font-weight="700">Session Builder</text><text x="519" y="150" text-anchor="middle" fill="#A08570">配额 + 打分 + 约束</text>
+          <rect x="606" y="118" width="150" height="42" rx="6" fill="#FFFFFF" stroke="#F5D2B0"/><text x="681" y="136" text-anchor="middle" fill="#8A5A38" font-weight="700">Pre-Learn FSM</text><text x="681" y="150" text-anchor="middle" fill="#A08570">状态机 + 软门禁</text>
+        </g>
+
+        <path d="M430 176 L430 192" stroke="#C9CED5" stroke-width="1.4"/>
+        <path d="M424 188 L430 196 L436 188" fill="none" stroke="#C9CED5" stroke-width="1.4"/>
+
+        <!-- layer 3 -->
+        <rect x="20" y="198" width="820" height="56" rx="10" fill="#FFFFFF" stroke="#E6E8EB"/>
+        <text x="38" y="222" font-size="10" font-weight="700" fill="#9AA3AE" letter-spacing="1">服务层</text>
+        <g font-size="9.5" fill="#39424D">
+          <text x="130" y="230">REST API（Fastify）· 会话管理 · 作答写入 · 统计聚合 · 数据导入导出</text>
+        </g>
+
+        <path d="M430 258 L430 274" stroke="#C9CED5" stroke-width="1.4"/>
+        <path d="M424 270 L430 278 L436 270" fill="none" stroke="#C9CED5" stroke-width="1.4"/>
+
+        <!-- layer 4 -->
+        <rect x="20" y="280" width="820" height="38" rx="10" fill="#F4F5F7" stroke="#E6E8EB"/>
+        <text x="38" y="304" font-size="10" font-weight="700" fill="#9AA3AE" letter-spacing="1">数据层</text>
+        <text x="130" y="304" font-size="9.5" fill="#5C6672">SQLite（单文件）· content/*.json 种子 · 音频静态文件 · 本地备份</text>
+      </g>
+    </svg>
+    <figcaption>图 6 · 四层架构：UI 只调用 API，所有教学决策收敛在 engine 包</figcaption>
+  </figure>
+
+  <h4>核心表（SQLite DDL 节选）</h4>
+  <pre><span class="k">CREATE TABLE</span> kp (                       <span class="c">-- 知识点</span>
+  id            <span class="k">TEXT PRIMARY KEY</span>,
+  level         <span class="k">TEXT NOT NULL</span>,          <span class="c">-- A0|A1|A2L|A2U|B1|B2|C1</span>
+  category      <span class="k">TEXT NOT NULL</span>,
+  title_zh      <span class="k">TEXT NOT NULL</span>,
+  title_fr      <span class="k">TEXT</span>,
+  weight        <span class="k">REAL DEFAULT</span> <span class="n">1.0</span>,
+  difficulty    <span class="k">REAL DEFAULT</span> <span class="n">3.0</span>,
+  primer_json   <span class="k">TEXT</span>,                    <span class="c">-- 微课内容</span>
+  status        <span class="k">TEXT DEFAULT</span> <span class="s">'draft'</span>
+);
+
+<span class="k">CREATE TABLE</span> kp_edge (
+  from_id  <span class="k">TEXT</span>, to_id <span class="k">TEXT</span>,
+  kind     <span class="k">TEXT</span>,                        <span class="c">-- prereq | contrast</span>
+  <span class="k">PRIMARY KEY</span> (from_id, to_id, kind)
+);
+
+<span class="k">CREATE TABLE</span> item (                      <span class="c">-- 题目</span>
+  id          <span class="k">TEXT PRIMARY KEY</span>,
+  type        <span class="k">TEXT NOT NULL</span>,            <span class="c">-- fill|choice|order|dictation|translate|correct</span>
+  prompt      <span class="k">TEXT NOT NULL</span>,
+  answer      <span class="k">TEXT NOT NULL</span>,
+  accept      <span class="k">TEXT</span>,                      <span class="c">-- JSON 数组：可接受答案</span>
+  explain_zh  <span class="k">TEXT</span>,
+  audio       <span class="k">TEXT</span>,
+  difficulty  <span class="k">REAL DEFAULT</span> <span class="n">3.0</span>,
+  stage       <span class="k">TEXT DEFAULT</span> <span class="s">'kwiz'</span>       <span class="c">-- guided | check | kwiz</span>
+);
+
+<span class="k">CREATE TABLE</span> item_kp (
+  item_id <span class="k">TEXT</span>, kp_id <span class="k">TEXT</span>, weight <span class="k">REAL DEFAULT</span> <span class="n">1.0</span>,
+  <span class="k">PRIMARY KEY</span> (item_id, kp_id)
+);
+
+<span class="k">CREATE TABLE</span> user_kp (                    <span class="c">-- 掌握状态（核心）</span>
+  kp_id      <span class="k">TEXT PRIMARY KEY</span>,
+  p          <span class="k">REAL DEFAULT</span> <span class="n">0.15</span>,          <span class="c">-- BKT 后验</span>
+  n          <span class="k">INTEGER DEFAULT</span> <span class="n">0</span>,           <span class="c">-- 证据量</span>
+  state      <span class="k">TEXT DEFAULT</span> <span class="s">'unseen'</span>,      <span class="c">-- unseen|primed|guided|learnable|testing|mastered</span>
+  stability  <span class="k">REAL DEFAULT</span> <span class="n">0</span>,             <span class="c">-- FSRS S</span>
+  difficulty_fsrs <span class="k">REAL DEFAULT</span> <span class="n">5</span>,
+  due_at     <span class="k">TEXT</span>,
+  last_seen  <span class="k">TEXT</span>
+);
+
+<span class="k">CREATE TABLE</span> attempt (                    <span class="c">-- 每次作答</span>
+  id         <span class="k">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  session_id <span class="k">TEXT</span>, item_id <span class="k">TEXT</span>, kp_id <span class="k">TEXT</span>,
+  correct    <span class="k">INTEGER</span>,                     <span class="c">-- 1 对 / 0 错 / NULL 跳过</span>
+  elapsed_ms <span class="k">INTEGER</span>,
+  p_before   <span class="k">REAL</span>, p_after <span class="k">REAL</span>,
+  created_at <span class="k">TEXT DEFAULT</span> (datetime(<span class="s">'now'</span>))
+);
+
+<span class="k">CREATE TABLE</span> session (
+  id <span class="k">TEXT PRIMARY KEY</span>, kind <span class="k">TEXT</span>,          <span class="c">-- daily|notebook|level_test|prelearn_check</span>
+  kp_ids <span class="k">TEXT</span>, created_at <span class="k">TEXT</span>, finished_at <span class="k">TEXT</span>,
+  score <span class="k">REAL</span>, stars <span class="k">INTEGER</span>
+);</pre>
+
+  <p class="small">索引建议：<code class="inl">attempt(kp_id, created_at)</code>、<code class="inl">user_kp(due_at)</code>、<code class="inl">item_kp(kp_id)</code>。数据量在个人使用场景下极小（10 年也就几十万行），无需分库分表。</p>
+</section>
+
+<!-- ============ 5.3 ============ -->
+<section id="s23">
+  <h2><span class="num">5.3</span>目录结构</h2>
+  <p class="sub">monorepo，引擎独立可测。</p>
+
+  <pre>kwiziq-local/
+├─ apps/
+│  ├─ web/                  <span class="c"># React + Vite</span>
+│  │  ├─ src/routes/        <span class="c"># 13 个页面</span>
+│  │  ├─ src/components/    <span class="c"># KwizCard / Brainmap / Stepper ...</span>
+│  │  ├─ src/styles/        <span class="c"># tokens.css</span>
+│  │  └─ src/lib/api.ts
+│  └─ server/               <span class="c"># Fastify + Drizzle</span>
+│     ├─ src/routes/
+│     ├─ src/db/schema.ts
+│     └─ src/db/seed.ts
+├─ packages/
+│  ├─ engine/               <span class="c"># 纯函数，无 IO</span>
+│  │  ├─ mastery.ts         <span class="c"># BKT 更新 / 展示分</span>
+│  │  ├─ scheduler.ts       <span class="c"># FSRS 封装</span>
+│  │  ├─ session.ts         <span class="c"># 组卷</span>
+│  │  └─ prelearn.ts        <span class="c"># 状态机</span>
+│  ├─ shared/               <span class="c"># 类型 / 常量</span>
+│  └─ content/              <span class="c"># 知识点与题库 JSON</span>
+│     ├─ kp/*.json
+│     └─ items/*.json
+├─ data/                    <span class="c"># app.db（运行时生成，gitignore）</span>
+├─ tts/                     <span class="c"># 预生成音频</span>
+└─ package.json</pre>
+
+  <p>关键约束：<code class="inl">packages/engine</code> 不允许 import 任何 React / Fastify / fs 相关模块。它只接受纯数据、返回纯数据。这样才能用固定随机种子做「同输入必同输出」的回归测试，也才能在将来复用到小程序或移动端。</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ 6.1 ============ -->
+<section id="s24">
+  <h2><span class="num">6.1</span>内容生产</h2>
+  <p class="sub">真正的瓶颈不在代码，在这里。</p>
+
+  <p>一个知识点要能上线，必须凑齐「1 段微课 + 8 道题（含 3 道引导、3 道检测、2 道正式）+ 解析」。按 1 人日 6–8 个知识点的速度，320 个知识点约需 45–55 个工作日。这是整个项目最大的成本项，必须一开始就按流水线来做。</p>
+
+  <h4>题型模板</h4>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:16%">题型</th><th style="width:32%">示例</th><th style="width:18%">认知负荷</th><th>适用</th></tr></thead>
+    <tbody>
+      <tr><td>单选</td><td>Elle ___ hier. (a parti / est partie / est parti)</td><td>识别（低）</td><td>首次接触、引导题</td></tr>
+      <tr><td>填空</td><td>Elle ___ (partir) hier soir.</td><td>回忆（中）</td><td>主力题型</td></tr>
+      <tr><td>多空</td><td>Ils ___ ___ (aller) au cinéma.</td><td>回忆（中高）</td><td>时态 + 配合组合</td></tr>
+      <tr><td>改错</td><td>Elle est parti hier. → ?</td><td>辨别（高）</td><td>纠正误学</td></tr>
+      <tr><td>词序拖拽</td><td>重组：pas / je / n' / ai / de / chien</td><td>产出（中高）</td><td>否定、代词位置</td></tr>
+      <tr><td>听写</td><td>播放音频 → 输入整句</td><td>听辨（高）</td><td>听力 + 拼写</td></tr>
+      <tr><td>翻译</td><td>「她昨晚离开了。」→ 法语</td><td>产出（高）</td><td>综合检验</td></tr>
+      <tr><td>阅读</td><td>80 词短文 + 2 题</td><td>综合（高）</td><td>B1 以上</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>首批内容规划</h4>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:18%">阶段</th><th class="num" style="width:14%">知识点</th><th class="num" style="width:14%">题目</th><th>覆盖</th></tr></thead>
+    <tbody>
+      <tr><td>M1 种子</td><td class="num">20</td><td class="num">160</td><td>A0–A1 核心：现在时、冠词、否定、疑问</td></tr>
+      <tr><td>M2 可用</td><td class="num">80</td><td class="num">640</td><td>A0–A2L 完整闭环，够跑通全部功能</td></tr>
+      <tr><td>M4 上线</td><td class="num">320</td><td class="num">2,560</td><td>A0–B2 主干 + C1 少量；约 700 条先修边</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>生产流程</h4>
+  <ol>
+    <li><b>拆解</b>：从一份权威语法大纲（如《Grammaire progressive》）出发，把每章拆成 3–6 个可独立测试的规则。</li>
+    <li><b>写微课</b>：一句话规则 + 2 组对比例句 + 1 条中文母语者易错点。超过 120 字就说明拆得不够细。</li>
+    <li><b>写题</b>：每个知识点至少 2 道识别题、4 道回忆题、2 道产出题；干扰项必须来自真实错误（如 *est parti 而非 est partie）。</li>
+    <li><b>审校</b>：法语母语者或 C1 以上审语法与语域；中文审「易错点」是否真的符合中国学习者。</li>
+    <li><b>试做</b>：作者盲做一遍，记录难度先验；任何一题若作者也犹豫，说明题干有歧义。</li>
+    <li><b>发布</b>：<code class="inl">status: published</code>，进入图谱。</li>
+  </ol>
+
+  <div class="callout red">
+    <p><b>合规三条：</b>① 不复制 Kwiziq / Lawless French 的任何课文、例句、题目与音频；② 例句自写，专有名词与固定搭配用公开词典核对；③ 若使用外部语料（如维基词典、CC 授权文本），逐条记录来源与许可证，并在「关于」页集中声明。</p>
+  </div>
+</section>
+
+<!-- ============ 6.2 ============ -->
+<section id="s25">
+  <h2><span class="num">6.2</span>路线图</h2>
+  <p class="sub">五个里程碑，每个都有可验收的产出。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:8%">阶段</th><th style="width:14%">周期</th><th style="width:32%">交付</th><th>验收标准</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>M0</b></td><td>第 1 周</td>
+        <td>monorepo 脚手架、设计令牌、SQLite schema、20 个知识点种子、Dashboard 静态版</td>
+        <td><code class="inl">pnpm dev</code> 一条命令起前后端；页面像素对齐参考图</td>
+      </tr>
+      <tr>
+        <td><b>M1</b></td><td>第 2–3 周</td>
+        <td>分级测试、Kwiz Runner、BKT 更新、组卷器、结果页、Studyplan</td>
+        <td>能完整走完「测试 → 10 题 → 结果 → 计划更新」；同种子结果可复现</td>
+      </tr>
+      <tr>
+        <td><b>M2</b></td><td>第 4–5 周</td>
+        <td>Brainmap、课程页、预学习三步、状态机、软门禁</td>
+        <td>未接触知识点可走完 Primer→Guided→Check→正式测试；Brainmap 实时变色</td>
+      </tr>
+      <tr>
+        <td><b>M3</b></td><td>第 6 周</td>
+        <td>Notebook、进度报告、成就、连续天数、本地通知</td>
+        <td>可自由组卷；周报数据正确；通知可开关</td>
+      </tr>
+      <tr>
+        <td><b>M4</b></td><td>第 7–8 周</td>
+        <td>内容扩到 320 个知识点、TTS 预生成、Tauri 打包、数据导出</td>
+        <td>离线可用；安装包 &lt; 30MB；导出 JSON 可被重新导入</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="small">如果只有 2 周：只做 M0 + M1，用 20 个知识点跑通闭环。机制验证比内容量重要得多——先用 20 个点确认「分数手感」对不对，再扩内容。</p>
+</section>
+
+<!-- ============ 6.3 ============ -->
+<section id="s26">
+  <h2><span class="num">6.3</span>验收与风险</h2>
+  <p class="sub">怎么判断做成了，以及会在哪里翻车。</p>
+
+  <h3>验收清单</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:30%">维度</th><th>标准</th></tr></thead>
+    <tbody>
+      <tr><td>机制正确性</td><td>答对 1 题分数不超过 35；连续 8 题正确才 ≥ 75；答错一题明显回落；跳过不扣分</td></tr>
+      <tr><td>组卷质量</td><td>一次 10 题覆盖 ≥ 4 个知识点；相邻题不同知识点；难度单调上行；无最近重复题</td></tr>
+      <tr><td>预学习</td><td>3 步可完整走通；Check 未通过回到 Guided 且不扣分；通过后状态与 p 值正确写入</td></tr>
+      <tr><td>像素还原</td><td>关键页面与参考截图对比：布局偏差 ≤ 4px，主色 ΔE ≤ 3，字号/行高一致</td></tr>
+      <tr><td>性能</td><td>组卷 &lt; 100ms；首屏 &lt; 1.5s（本地）；Brainmap 320 节点渲染 &lt; 200ms</td></tr>
+      <tr><td>数据</td><td>断网可用；进程被杀后作答不丢；导出/导入无损</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>风险与对策</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:26%">风险</th><th style="width:12%">等级</th><th>对策</th></tr></thead>
+    <tbody>
+      <tr><td><b>内容产能不足</b></td><td><span class="tag r">高</span></td><td>先做 80 个知识点上线自用；把「加知识点」做成纯 JSON 流程，不碰代码；后续可用 LLM 辅助出题 + 人工审校</td></tr>
+      <tr><td>算法冷启动抖动</td><td><span class="tag y">中</span></td><td>前 50 次作答用作者先验难度，不做 Elo 校准；分级测试直接给初始 p，避免全 0.15 起步</td></tr>
+      <tr><td>「无限」导致无目标感</td><td><span class="tag y">中</span></td><td>用到期队列 + 每日目标 + 级别盾牌制造节奏；Dashboard 永远只显示「今天的 10 题」，不显示「还剩 3000 题」</td></tr>
+      <tr><td>刷分 / 刷简单题</td><td><span class="tag y">中</span></td><td>同知识点 24h 内增益递减；连续全对进冷却；热身块不参与涨分</td></tr>
+      <tr><td>版权争议</td><td><span class="tag r">高</span></td><td>内容全自建；不抓取、不翻译、不复用音频；界面「致敬」但不复制 logo 与品牌名</td></tr>
+      <tr><td>中文母语负迁移未被覆盖</td><td><span class="tag y">中</span></td><td>每个知识点强制填写「中国人易错点」；错因标签单独建模，可用于生成针对性干扰项</td></tr>
+      <tr><td>范围蔓延</td><td><span class="tag y">中</span></td><td>首版砍掉口语评测、社区、多语言、支付；任何新功能先问「是否影响闭环」</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <p><b>最后一条建议：</b>先用 20 个知识点把「分数手感」调对，再谈扩展。判断标准很朴素——让一个 B1 水平的人做 3 组题，如果他觉得「这个分数确实像我心里的样子」，机制就成了；如果他觉得「怎么才 40 分」，那就是 BKT 参数或展示分收缩系数需要重调。这件事只能靠试，不能靠推。</p>
+  </div>
+</section>
+
+<!-- ============ APPENDIX ============ -->
+<section id="s27">
+  <h2><span class="num">A</span>附录 · 调研来源</h2>
+  <p class="sub">2026-10-18 访问。</p>
+
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th style="width:38%">来源</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td>kwiziq.com（首页）</td><td>定位、核心卖点、用户证言、10x 学习速度声明</td></tr>
+      <tr><td>french.kwiziq.com/tour</td><td>五步学习流程、Brainmap 定义、Notebook、成就体系、StudyGroup</td></tr>
+      <tr><td>french.kwiziq.com/pricing</td><td>Free vs Premium 功能对照、四档价格、退款与忠诚价</td></tr>
+      <tr><td>french.kwiziq.com/faq</td><td>分数范围与语义、75% 门槛、跳过不扣分、Brainmap 颜色、Studyplan 10 条、题库规模、免费额度、覆盖率 &gt;100%</td></tr>
+      <tr><td>french.kwiziq.com/test</td><td>分级测试每级 8–18 题、固定题库、10 题自适应 kwiz、15,000+ 题 / 500 主题</td></tr>
+      <tr><td>french.kwiziq.com/revision/grammar</td><td>语法库分类结构（542 个课程链接）、B1 范畴标签</td></tr>
+      <tr><td>单节课程页（c'est + 形容词）</td><td>课程页结构：作者资质、规则、对比例句、延伸阅读</td></tr>
+      <tr><td>progress.lawlessfrench.com/leaderboard</td><td>公开排行榜形态（按答题数排名）</td></tr>
+      <tr><td>官方 Tour 截图 6 张</td><td>Dashboard、结果页、Brainmap、Notebook、成就页的布局与配色</td></tr>
+      <tr><td>官网 CSS（CssSite）</td><td>品牌色 #F26500 / #FF6A00、字体 Inter、辅助色</td></tr>
+      <tr><td>Roediger &amp; Karpicke (2008)；Carpenter et al. (2009)</td><td>检索练习优于重复阅读，支撑「以测代学」的方法论</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="small">说明：本文中标注「官方」的为 Kwiziq 页面明示信息；标注「推断」的为基于多处证据的合理还原，不宣称与 Kwiziq 实际实现一致。价格随地区与时间浮动，仅作量级参考。</p>
+
+  <div class="foot">
+    <p>Kwiziq Replica · 调研与产品策划方案 v1.0 · 2026-10-18</p>
+    <p>下一步建议：确认 M0 范围（20 个知识点 / 2 周），随后进入脚手架与数据模型搭建。</p>
+  </div>
+</section>
+
+</div>
+</main>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var map = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if(el) map[id] = a;
+  });
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){ a.classList.remove('on'); });
+        var a = map[e.target.id];
+        if(a) a.classList.add('on');
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+  Object.keys(map).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) obs.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

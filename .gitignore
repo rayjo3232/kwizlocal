@@ -1,0 +1,41 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# TTS 模型（体积大，按 content/README.md 自行下载）
+models/
+
+# 运行时数据
+data/*.db
+data/*.db-journal
+
+# 临时抓取
+_src/
+content/candidates/*.tmp
+
+# Dev tooling
+.dev/
+
+# Node
+node_modules/
+dist/
+.DS_Store
+
+# deploy artefact — regenerate with `python tools/build_dist.py`
+kwizlocal-site.zip
+
+# large data sources, re-downloadable (URLs are in app/README.md)
+content/tatoeba/
+content/lexique/
+content/fr_50k.txt
+
+# not used by the browser app
+tts/
+_reference/
+
+# assistant workspace notes, not part of the project
+.workbuddy-ai/
+
+# logs
+*.log

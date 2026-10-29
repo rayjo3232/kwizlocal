@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kwiz Local · 方案思维导图 v0.6</title>
+<style>
+  :root{
+    --ink:#14181D;--ink2:#39424D;--muted:#6B7480;--faint:#9AA3AE;
+    --line:#E6E8EB;--bg:#FBFBF9;--card:#FFFFFF;
+    --brand:#F26500;--blue:#0B6FB8;--green:#3E9B4F;--purple:#7A5AF8;--gold:#C98A00;--grey:#6B7480;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Inter","Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto;padding:44px 28px 70px}
+  .kicker{font-size:11.5px;letter-spacing:.14em;color:var(--brand);font-weight:800;text-transform:uppercase;margin-bottom:12px}
+  h1{font-size:36px;letter-spacing:-.035em;margin:0 0 10px;font-weight:800}
+  .lede{color:var(--muted);font-size:14.5px;max-width:760px;margin:0 0 18px}
+  .meta{display:flex;gap:22px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:26px}
+  .meta b{color:var(--ink);font-size:15px;font-weight:800;margin-right:4px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:0 1px 3px rgba(20,24,29,.05)}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 14px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .dot.done{background:#3E9B4F}
+  .dot.partial{background:#C98A00}
+  .dot.todo{background:#C9CED5}
+  svg{width:100%;height:auto;display:block}
+  .branch:hover .leaf{opacity:.35}
+  .branch:hover .leaf:hover{opacity:1}
+  .leaf{transition:opacity .12s}
+  .leaf rect.hit{fill:transparent}
+  .leaf:hover rect.hit{fill:#FFF2E8}
+  .leaf text{font-size:11.5px;fill:#39424D}
+  .leaf .st{font-size:9px;font-weight:800;letter-spacing:.04em}
+  .leaf .st.done{fill:#3E9B4F}
+  .leaf .st.partial{fill:#C98A00}
+  .leaf .st.todo{fill:#B0B7BF}
+  .bname{font-size:13px;font-weight:800}
+  .bsub{font-size:9.5px;fill:#8A939E}
+  .note{font-size:11.5px;color:var(--faint);margin-top:14px}
+  .foot{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  @media print{
+    body{background:#fff}
+    .wrap{padding:0;max-width:none}
+    .card{border:none;box-shadow:none;padding:0}
+    .branch:hover .leaf{opacity:1}
+    @page{size:A4 landscape;margin:10mm}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Product Map · v0.6</div>
+  <h1>Kwiz Local 方案构成</h1>
+  <p class="lede">一页看清当前 Demo 由什么组成：内容、引擎、界面、数据、差异化，以及下一步。绿色 = 已实现，黄色 = 简化版，灰色 = 未做。</p>
+  <div class="meta">
+    <span><b>140</b>知识点</span>
+    <span><b>700</b>道题</span>
+    <span><b>8</b>个语法范畴</span>
+    <span><b>A0–B2</b>五级</span>
+    <span><b>0</b>后端依赖</span>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot done"></i>已实现</span>
+    <span><i class="dot partial"></i>简化 / 部分</span>
+    <span><i class="dot todo"></i>未做</span>
+  </div>
+
+  <div class="card">
+  <svg viewBox="0 0 1200 980" role="img" aria-label="Kwiz Local 方案思维导图">
+    <defs>
+      <marker id="none"></marker>
+    </defs>
+
+    <!-- root -->
+    <g>
+      <rect x="40" y="455" width="180" height="70" rx="14" fill="#14181D"/>
+      <text x="130" y="486" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="Inter,sans-serif">Kwiz Local</text>
+      <text x="130" y="505" text-anchor="middle" font-size="9.5" fill="#B9C0C8" font-family="Inter,sans-serif">本地法语学习 Demo</text>
+      <text x="130" y="518" text-anchor="middle" font-size="9.5" fill="#7C8794" font-family="Inter,sans-serif">v0.6 · 2026-10</text>
+    </g>
+
+    <!-- ============ branch 1: content ============ -->
+    <g class="branch">
+      <path d="M220,490 C260,490 260,80 300,80" fill="none" stroke="#F26500" stroke-width="1.6" opacity=".55"/>
+      <rect x="300" y="60" width="190" height="44" rx="9" fill="#FFF2E8" stroke="#FFD9BF"/>
+      <rect x="300" y="60" width="4" height="44" rx="2" fill="#F26500"/>
+      <text class="bname" x="316" y="79" fill="#C24E00" font-family="Inter,sans-serif">内容 Content</text>
+      <text class="bsub" x="316" y="94" font-family="Inter,sans-serif">48 点 · 240 题 · 7 范畴</text>
+
+      <g class="leaf"><rect class="hit" x="560" y="52" width="600" height="20" rx="4"/><circle cx="570" cy="62" r="3" fill="#3E9B4F"/><text x="584" y="66" font-family="Inter,sans-serif">140 个知识点，A0–B2，CEFR 考纲对齐（EAQUALS）</text><text class="st done" x="1080" y="66" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="74" width="600" height="20" rx="4"/><circle cx="570" cy="84" r="3" fill="#3E9B4F"/><text x="584" y="88" font-family="Inter,sans-serif">8 个语法范畴：冠词、代词、动词、形容词、介词、句法、表达、阅读</text><text class="st done" x="1080" y="88" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="96" width="600" height="20" rx="4"/><circle cx="570" cy="106" r="3" fill="#3E9B4F"/><text x="584" y="110" font-family="Inter,sans-serif">700 题：选择 / 填空 / 改错 + 阅读短文</text><text class="st done" x="1080" y="110" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="118" width="600" height="20" rx="4"/><circle cx="570" cy="128" r="3" fill="#3E9B4F"/><text x="584" y="132" font-family="Inter,sans-serif">英文讲解：一句话规则 + 对比例句 + 易错点</text><text class="st done" x="1080" y="132" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="140" width="600" height="20" rx="4"/><circle cx="570" cy="150" r="3" fill="#3E9B4F"/><text x="584" y="154" font-family="Inter,sans-serif">来源：自写 + Tatoeba 参考（CC BY 2.0 FR）</text><text class="st done" x="1080" y="154" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="162" width="600" height="20" rx="4"/><circle cx="570" cy="172" r="3" fill="#C9CED5"/><text x="584" y="176" font-family="Inter,sans-serif">目标：扩到 180+ 知识点，补 C1 / 听力理解</text><text class="st todo" x="1080" y="176" font-family="Inter,sans-serif">NEXT</text></g>
+      <path d="M490,82 C525,82 525,62 560,62" fill="none" stroke="#F26500" stroke-width="1.1" opacity=".35"/>
+      <path d="M490,82 C525,82 525,84 560,84" fill="none" stroke="#F26500" stroke-width="1.1" opacity=".35"/>
+      <path d="M490,82 C525,82 525,106 560,106" fill="none" stroke="#F26500" stroke-width="1.1" opacity=".35"/>
+      <path d="M490,82 C525,82 525,128 560,128" fill="none" stroke="#F26500" stroke-width="1.1" opacity=".35"/>
+      <path d="M490,82 C525,82 525,150 560,150" fill="none" stroke="#F26500" stroke-width="1.1" opacity=".35"/>
+      <path d="M490,82 C525,82 525,172 560,172" fill="none" stroke="#F26500" stroke-width="1.1" opacity=".35"/>
+    </g>
+
+    <!-- ============ branch 2: engine ============ -->
+    <g class="branch">
+      <path d="M220,490 C260,490 260,245 300,245" fill="none" stroke="#0B6FB8" stroke-width="1.6" opacity=".55"/>
+      <rect x="300" y="225" width="190" height="44" rx="9" fill="#EAF4FB" stroke="#BFDDF2"/>
+      <rect x="300" y="225" width="4" height="44" rx="2" fill="#0B6FB8"/>
+      <text class="bname" x="316" y="244" fill="#0A5E9E" font-family="Inter,sans-serif">引擎 Engine</text>
+      <text class="bsub" x="316" y="259" font-family="Inter,sans-serif">测量 · 调度 · 组卷</text>
+
+      <g class="leaf"><rect class="hit" x="560" y="217" width="600" height="20" rx="4"/><circle cx="570" cy="227" r="3" fill="#3E9B4F"/><text x="584" y="231" font-family="Inter,sans-serif">BKT 掌握度：每点维护 p 与证据量 n</text><text class="st done" x="1080" y="231" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="239" width="600" height="20" rx="4"/><circle cx="570" cy="249" r="3" fill="#3E9B4F"/><text x="584" y="253" font-family="Inter,sans-serif">展示分 −100~100：负分、证据收缩、skip 不计分</text><text class="st done" x="1080" y="253" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="261" width="600" height="20" rx="4"/><circle cx="570" cy="271" r="3" fill="#3E9B4F"/><text x="584" y="275" font-family="Inter,sans-serif">级别加权分：可负，UI 钳到 0</text><text class="st done" x="1080" y="275" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="283" width="600" height="20" rx="4"/><circle cx="570" cy="293" r="3" fill="#C98A00"/><text x="584" y="297" font-family="Inter,sans-serif">间隔调度：0.25–12 天，随 p 增长（非完整 FSRS）</text><text class="st partial" x="1080" y="297" font-family="Inter,sans-serif">PARTIAL</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="305" width="600" height="20" rx="4"/><circle cx="570" cy="315" r="3" fill="#3E9B4F"/><text x="584" y="319" font-family="Inter,sans-serif">组卷：到期 &gt; 薄弱 &gt; 新知，6 点轮转，难度升序</text><text class="st done" x="1080" y="319" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="327" width="600" height="20" rx="4"/><circle cx="570" cy="337" r="3" fill="#C9CED5"/><text x="584" y="341" font-family="Inter,sans-serif">分级初始化：按级别准确率写入 p 与 n</text><text class="st done" x="1080" y="341" font-family="Inter,sans-serif">DONE</text></g>
+      <path d="M490,247 C525,247 525,227 560,227" fill="none" stroke="#0B6FB8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,247 C525,247 525,249 560,249" fill="none" stroke="#0B6FB8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,247 C525,247 525,271 560,271" fill="none" stroke="#0B6FB8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,247 C525,247 525,293 560,293" fill="none" stroke="#0B6FB8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,247 C525,247 525,315 560,315" fill="none" stroke="#0B6FB8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,247 C525,247 525,337 560,337" fill="none" stroke="#0B6FB8" stroke-width="1.1" opacity=".3"/>
+    </g>
+
+    <!-- ============ branch 3: ui ============ -->
+    <g class="branch">
+      <path d="M220,490 C260,490 260,415 300,415" fill="none" stroke="#3E9B4F" stroke-width="1.6" opacity=".55"/>
+      <rect x="300" y="393" width="190" height="44" rx="9" fill="#EDF7EF" stroke="#BFE3C6"/>
+      <rect x="300" y="393" width="4" height="44" rx="2" fill="#3E9B4F"/>
+      <text class="bname" x="316" y="412" fill="#2F7A3E" font-family="Inter,sans-serif">界面 UI</text>
+      <text class="bsub" x="316" y="427" font-family="Inter,sans-serif">7 个页面 · 无构建</text>
+
+      <g class="leaf"><rect class="hit" x="560" y="385" width="600" height="20" rx="4"/><circle cx="570" cy="395" r="3" fill="#3E9B4F"/><text x="584" y="399" font-family="Inter,sans-serif">Dashboard：连续天数、成就、级别分、10 条计划</text><text class="st done" x="1080" y="399" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="407" width="600" height="20" rx="4"/><circle cx="570" cy="417" r="3" fill="#3E9B4F"/><text x="584" y="421" font-family="Inter,sans-serif">Brainmap：级别 → 语法范畴 → 知识点，可逐层下钻</text><text class="st done" x="1080" y="421" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="429" width="600" height="20" rx="4"/><circle cx="570" cy="439" r="3" fill="#3E9B4F"/><text x="584" y="443" font-family="Inter,sans-serif">Kwiz：10 题、即时反馈、Skip 不扣分</text><text class="st done" x="1080" y="443" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="451" width="600" height="20" rx="4"/><circle cx="570" cy="461" r="3" fill="#3E9B4F"/><text x="584" y="465" font-family="Inter,sans-serif">Result：逐题对照 + 一键重练错题</text><text class="st done" x="1080" y="465" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="473" width="600" height="20" rx="4"/><circle cx="570" cy="483" r="3" fill="#3E9B4F"/><text x="584" y="487" font-family="Inter,sans-serif">Pre-learn：Primer → Guided → Check 三步</text><text class="st done" x="1080" y="487" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="495" width="600" height="20" rx="4"/><circle cx="570" cy="505" r="3" fill="#3E9B4F"/><text x="584" y="509" font-family="Inter,sans-serif">Library：按级别 / 范畴筛选 + 搜索</text><text class="st done" x="1080" y="509" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="517" width="600" height="20" rx="4"/><circle cx="570" cy="527" r="3" fill="#C9CED5"/><text x="584" y="531" font-family="Inter,sans-serif">Placement 20 题（A0–B2 每级 4 题）</text><text class="st todo" x="1080" y="531" font-family="Inter,sans-serif">NEXT</text></g>
+      <path d="M490,415 C525,415 525,395 560,395" fill="none" stroke="#3E9B4F" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,415 C525,415 525,417 560,417" fill="none" stroke="#3E9B4F" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,415 C525,415 525,439 560,439" fill="none" stroke="#3E9B4F" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,415 C525,415 525,461 560,461" fill="none" stroke="#3E9B4F" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,415 C525,415 525,483 560,483" fill="none" stroke="#3E9B4F" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,415 C525,415 525,505 560,505" fill="none" stroke="#3E9B4F" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,415 C525,415 525,527 560,527" fill="none" stroke="#3E9B4F" stroke-width="1.1" opacity=".3"/>
+    </g>
+
+    <!-- ============ branch 4: data ============ -->
+    <g class="branch">
+      <path d="M220,490 C260,490 260,585 300,585" fill="none" stroke="#7A5AF8" stroke-width="1.6" opacity=".5"/>
+      <rect x="300" y="565" width="190" height="44" rx="9" fill="#F1EEFF" stroke="#D8D0FF"/>
+      <rect x="300" y="565" width="4" height="44" rx="2" fill="#7A5AF8"/>
+      <text class="bname" x="316" y="584" fill="#5B3FD1" font-family="Inter,sans-serif">数据 Data</text>
+      <text class="bsub" x="316" y="599" font-family="Inter,sans-serif">单机 · 可导出</text>
+
+      <g class="leaf"><rect class="hit" x="560" y="557" width="600" height="20" rx="4"/><circle cx="570" cy="567" r="3" fill="#3E9B4F"/><text x="584" y="571" font-family="Inter,sans-serif">localStorage 单机持久化</text><text class="st done" x="1080" y="571" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="579" width="600" height="20" rx="4"/><circle cx="570" cy="589" r="3" fill="#3E9B4F"/><text x="584" y="593" font-family="Inter,sans-serif">JSON 全量导出（进度备份）</text><text class="st done" x="1080" y="593" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="601" width="600" height="20" rx="4"/><circle cx="570" cy="611" r="3" fill="#3E9B4F"/><text x="584" y="615" font-family="Inter,sans-serif">演示数据生成器（看地图用）</text><text class="st done" x="1080" y="615" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="623" width="600" height="20" rx="4"/><circle cx="570" cy="633" r="3" fill="#3E9B4F"/><text x="584" y="637" font-family="Inter,sans-serif">无后端 / 无账号 / 无网络请求</text><text class="st done" x="1080" y="637" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="645" width="600" height="20" rx="4"/><circle cx="570" cy="655" r="3" fill="#C9CED5"/><text x="584" y="659" font-family="Inter,sans-serif">导入 / 多设备同步 / Anki 导出</text><text class="st todo" x="1080" y="659" font-family="Inter,sans-serif">NEXT</text></g>
+      <path d="M490,587 C525,587 525,567 560,567" fill="none" stroke="#7A5AF8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,587 C525,587 525,589 560,589" fill="none" stroke="#7A5AF8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,587 C525,587 525,611 560,611" fill="none" stroke="#7A5AF8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,587 C525,587 525,633 560,633" fill="none" stroke="#7A5AF8" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,587 C525,587 525,655 560,655" fill="none" stroke="#7A5AF8" stroke-width="1.1" opacity=".3"/>
+    </g>
+
+    <!-- ============ branch 5: difference ============ -->
+    <g class="branch">
+      <path d="M220,490 C260,490 260,745 300,745" fill="none" stroke="#C98A00" stroke-width="1.6" opacity=".5"/>
+      <rect x="300" y="725" width="190" height="44" rx="9" fill="#FFF7E0" stroke="#F2D24B"/>
+      <rect x="300" y="725" width="4" height="44" rx="2" fill="#C98A00"/>
+      <text class="bname" x="316" y="744" fill="#8A6A12" font-family="Inter,sans-serif">差异化 Difference</text>
+      <text class="bsub" x="316" y="759" font-family="Inter,sans-serif">和 Kwiziq 不一样的地方</text>
+
+      <g class="leaf"><rect class="hit" x="560" y="717" width="600" height="20" rx="4"/><circle cx="570" cy="727" r="3" fill="#3E9B4F"/><text x="584" y="731" font-family="Inter,sans-serif">无付费墙：所有功能无限使用</text><text class="st done" x="1080" y="731" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="739" width="600" height="20" rx="4"/><circle cx="570" cy="749" r="3" fill="#3E9B4F"/><text x="584" y="753" font-family="Inter,sans-serif">未学先教：Pre-learn 是正式状态，不是外挂</text><text class="st done" x="1080" y="753" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="761" width="600" height="20" rx="4"/><circle cx="570" cy="771" r="3" fill="#3E9B4F"/><text x="584" y="775" font-family="Inter,sans-serif">全英文讲解：用英语学法语，不依赖中文</text><text class="st done" x="1080" y="775" font-family="Inter,sans-serif">DONE</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="783" width="600" height="20" rx="4"/><circle cx="570" cy="793" r="3" fill="#3E9B4F"/><text x="584" y="797" font-family="Inter,sans-serif">本地优先：数据不出机器</text><text class="st done" x="1080" y="797" font-family="Inter,sans-serif">DONE</text></g>
+      <path d="M490,747 C525,747 525,727 560,727" fill="none" stroke="#C98A00" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,747 C525,747 525,749 560,749" fill="none" stroke="#C98A00" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,747 C525,747 525,771 560,771" fill="none" stroke="#C98A00" stroke-width="1.1" opacity=".3"/>
+      <path d="M490,747 C525,747 525,793 560,793" fill="none" stroke="#C98A00" stroke-width="1.1" opacity=".3"/>
+    </g>
+
+    <!-- ============ branch 6: next ============ -->
+    <g class="branch">
+      <path d="M220,490 C260,490 260,895 300,895" fill="none" stroke="#6B7480" stroke-width="1.4" opacity=".45" stroke-dasharray="4 3"/>
+      <rect x="300" y="875" width="190" height="44" rx="9" fill="#F4F5F7" stroke="#DDE0E4"/>
+      <rect x="300" y="875" width="4" height="44" rx="2" fill="#6B7480"/>
+      <text class="bname" x="316" y="894" fill="#5C6672" font-family="Inter,sans-serif">下一步 Next</text>
+      <text class="bsub" x="316" y="909" font-family="Inter,sans-serif">等你指方向</text>
+
+      <g class="leaf"><rect class="hit" x="560" y="867" width="600" height="20" rx="4"/><circle cx="570" cy="877" r="3" fill="#C9CED5"/><text x="584" y="881" font-family="Inter,sans-serif">知识点 140 → 180+，补 C1</text><text class="st todo" x="1080" y="881" font-family="Inter,sans-serif">NEXT</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="889" width="600" height="20" rx="4"/><circle cx="570" cy="899" r="3" fill="#C9CED5"/><text x="584" y="903" font-family="Inter,sans-serif">Notebook：自定义组卷与收藏</text><text class="st todo" x="1080" y="903" font-family="Inter,sans-serif">NEXT</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="911" width="600" height="20" rx="4"/><circle cx="570" cy="921" r="3" fill="#C9CED5"/><text x="584" y="925" font-family="Inter,sans-serif">题型扩展：词序拖拽、听写、多空、听力理解</text><text class="st todo" x="1080" y="925" font-family="Inter,sans-serif">NEXT</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="933" width="600" height="20" rx="4"/><circle cx="570" cy="943" r="3" fill="#C9CED5"/><text x="584" y="947" font-family="Inter,sans-serif">正式 FSRS 与更长的复习间隔</text><text class="st todo" x="1080" y="947" font-family="Inter,sans-serif">NEXT</text></g>
+      <g class="leaf"><rect class="hit" x="560" y="955" width="600" height="20" rx="4"/><circle cx="570" cy="965" r="3" fill="#C9CED5"/><text x="584" y="969" font-family="Inter,sans-serif">导入 / 多设备同步 / Anki 导出</text><text class="st todo" x="1080" y="969" font-family="Inter,sans-serif">NEXT</text></g>
+      <path d="M490,897 C525,897 525,877 560,877" fill="none" stroke="#6B7480" stroke-width="1" opacity=".25"/>
+      <path d="M490,897 C525,897 525,899 560,899" fill="none" stroke="#6B7480" stroke-width="1" opacity=".25"/>
+      <path d="M490,897 C525,897 525,921 560,921" fill="none" stroke="#6B7480" stroke-width="1" opacity=".25"/>
+      <path d="M490,897 C525,897 525,943 560,943" fill="none" stroke="#6B7480" stroke-width="1" opacity=".25"/>
+      <path d="M490,897 C525,897 525,965 560,965" fill="none" stroke="#6B7480" stroke-width="1" opacity=".25"/>
+    </g>
+  </svg>
+  </div>
+
+  <p class="note">读法：从左侧根节点出发，六条分支分别是内容、引擎、界面、数据、差异化与下一步。每条分支右侧列出具体构成，末端标状态。悬停分支可聚焦。</p>
+
+  <div class="foot">
+    <span>Kwiz Local · 方案思维导图 v0.6 · 2026-10-18</span>
+    <span>对应代码：app/index.html · 数据：app/data.js · 引擎：app/engine.js</span>
+  </div>
+</div>
+</body>
+</html>

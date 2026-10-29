@@ -1,0 +1,17 @@
+{
+  "name": "Kwiz Local — French",
+  "short_name": "KwizLocal",
+  "description": "Offline French grammar, vocabulary and conjugation practice.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F9FB",
+  "theme_color": "#F26500",
+  "lang": "en",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

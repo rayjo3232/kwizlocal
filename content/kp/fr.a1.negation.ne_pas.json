@@ -1,0 +1,156 @@
+{
+  "id": "fr.a1.negation.ne_pas",
+  "level": "A1",
+  "category": "negation",
+  "title_zh": "否定句：ne... pas 与冠词的替换",
+  "title_fr": "La négation ne... pas",
+  "weight": 1.3,
+  "difficulty": 1.8,
+  "prereqs": ["fr.a0.articles.indefinite"],
+  "contrasts": ["fr.a1.negation.ne_pas.etre_exception"],
+  "status": "draft",
+  "primer": {
+    "rule_zh": "否定动词时，ne 放在动词前、pas 放在动词后；肯定句里的 un / une / des 要变成 de（元音前变 d'）。",
+    "examples": [
+      {
+        "fr": "Je n'ai pas de chat.",
+        "zh": "我没有猫。",
+        "note_zh": "肯定句 J'ai un chat. 中的 un 在否定后变 de。",
+        "audio": "tts/fr/fr.a1.negation.ne_pas/ex1.wav"
+      },
+      {
+        "fr": "Elle ne mange pas de pommes.",
+        "zh": "她不吃苹果。",
+        "note_zh": "des pommes 在否定后变 de pommes。",
+        "audio": "tts/fr/fr.a1.negation.ne_pas/ex2.wav"
+      },
+      {
+        "fr": "Nous n'avons pas d'argent.",
+        "zh": "我们没有钱。",
+        "note_zh": "de 在元音开头的 argent 前省音为 d'。",
+        "audio": "tts/fr/fr.a1.negation.ne_pas/ex3.wav"
+      },
+      {
+        "fr": "Ce n'est pas un problème.",
+        "zh": "这不是问题。",
+        "note_zh": "例外：être 后面的表语名词保留 un / une。",
+        "audio": "tts/fr/fr.a1.negation.ne_pas/ex4.wav"
+      }
+    ],
+    "pitfall_zh": "中文没有「否定改变冠词」这回事，容易说成 *Je n'ai pas un chat.；记住 un / une / des 在否定后一律变 de。"
+  },
+  "items": [
+    {
+      "id": "itm.fr.a1.negation.ne_pas.01",
+      "type": "choice",
+      "stage": "guided",
+      "prompt": "选出正确的否定句：J'ai un frère.",
+      "answer": "Je n'ai pas de frère.",
+      "options": [
+        "Je n'ai pas un frère.",
+        "Je n'ai pas de frère.",
+        "Je n'ai pas frère."
+      ],
+      "hint_zh": "肯定句里的 un 要变 de。",
+      "explain_zh": "un frère 在否定后变为 de frère；ne 在 ai 前省音为 n'。",
+      "difficulty": 1.2
+    },
+    {
+      "id": "itm.fr.a1.negation.ne_pas.02",
+      "type": "fill",
+      "stage": "guided",
+      "prompt": "Elle mange des fraises. → Elle ne mange pas ____ fraises.",
+      "answer": "de",
+      "hint_zh": "des 在否定后变成什么？",
+      "explain_zh": "不定冠词 des 在否定句中变为 de。",
+      "difficulty": 1.5
+    },
+    {
+      "id": "itm.fr.a1.negation.ne_pas.03",
+      "type": "fill",
+      "stage": "guided",
+      "prompt": "Je bois du café. → Je ne bois pas ____ café.",
+      "answer": "de",
+      "hint_zh": "du 是 de + le，否定后只剩 de。",
+      "explain_zh": "部分冠词 du / de la / de l' 在否定后统一变为 de（元音前 d'）。",
+      "difficulty": 1.6
+    },
+    {
+      "id": "itm.fr.a1.negation.ne_pas.04",
+      "type": "fill",
+      "stage": "check",
+      "prompt": "Nous avons des amis. → Nous n'avons pas ____ amis.",
+      "answer": "d'",
+      "accept": ["d’"],
+      "explain_zh": "de 在元音开头的 amis 前省音为 d'。",
+      "difficulty": 1.9
+    },
+    {
+      "id": "itm.fr.a1.negation.ne_pas.05",
+      "type": "correct",
+      "stage": "check",
+      "prompt": "改错：Je n'ai pas un chien.",
+      "answer": "Je n'ai pas de chien.",
+      "explain_zh": "un chien 在否定后变 de chien，这是否定句改变冠词的核心规则。",
+      "difficulty": 2.0
+    },
+    {
+      "id": "itm.fr.a1.negation.ne_pas.06",
+      "type": "translate",
+      "stage": "check",
+      "prompt": "翻译：她没有钱。",
+      "answer": "Elle n'a pas d'argent.",
+      "accept": ["Elle n'a pas d’argent."],
+      "explain_zh": "avoir 的否定为 n'a pas；argent 以元音开头，de 省音为 d'。",
+      "difficulty": 2.2
+    },
+    {
+      "id": "itm.fr.a1.negation.ne_pas.07",
+      "type": "fill",
+      "stage": "kwiz",
+      "prompt": "Il y a des nuages. → Il n'y a pas ____ nuages.",
+      "answer": "de",
+      "explain_zh": "des 在否定后变 de；il y a 的否定形式是 il n'y a pas。",
+      "difficulty": 2.3
+    },
+    {
+      "id": "itm.fr.a1.negation.ne_pas.08",
+      "type": "choice",
+      "stage": "kwiz",
+      "prompt": "哪一句正确？",
+      "answer": "Ce n'est pas une erreur.",
+      "options": [
+        "Ce n'est pas une erreur.",
+        "Ce n'est pas d'erreur.",
+        "Ce n'est pas erreur."
+      ],
+      "explain_zh": "être 后面的表语名词是例外：保留 un / une，不变成 de。",
+      "difficulty": 2.8
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "tatoeba",
+      "ref": "query:n'ai pas de",
+      "usage": "example_sentences",
+      "note": "句型与搭配参考；例句已按教学需要改写，未直接复制。"
+    },
+    {
+      "source_id": "piper",
+      "ref": "fr_FR-siwis-medium",
+      "usage": "tts_audio",
+      "note": "4 条例句音频由本地 TTS 生成。"
+    },
+    {
+      "source_id": "verbecc",
+      "ref": "avoir / être",
+      "usage": "verification",
+      "note": "校验否定句中助动词与动词形式。"
+    }
+  ],
+  "meta": {
+    "author": "Ray",
+    "created_at": "2026-10-18",
+    "version": 1
+  }
+}
