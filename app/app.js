@@ -195,6 +195,18 @@ function findItem(kp, itemId) {
   return kp.items.filter(function (i) { return i.id === itemId; })[0] || null;
 }
 
+/* Vocabulary cards, cloze, gender and conjugation drills all count as practice
+   — they just do not move grammar mastery, because there is no grammar point
+   to move. Logging them through the same pipeline is what makes the daily goal
+   and the weekly card tell the truth: before this, ten minutes of vocabulary
+   left the dashboard reading "0 questions today". */
+function logTopicAnswer(source, itemId, correct) {
+  Engine.applyAttempt(state, {
+    kpId: null, itemId: itemId, correct: correct,
+    source: source, noMastery: true
+  });
+}
+
 function getItem(ref) {
   const kp = KP_BY_ID[ref.kpId];
   if (!kp) return null;
@@ -501,8 +513,15 @@ function weeklyReport() {
   const weekAgo = Date.now() - 7 * 86400000;
   const sessions = (state.sessions || []).filter(function (s) { return s.at >= weekAgo; });
   const attempts = (state.attempts || []).filter(function (a) { return a.at >= weekAgo; });
+
+  /* Grammar, vocabulary and conjugation are counted separately: mixing them
+     made the accuracy number meaningless (a flashcard is not a grammar
+     answer) while hiding that the words were practised at all. */
+  const grammar = attempts.filter(function (a) { return !a.noMastery; });
+  const vocab = attempts.filter(function (a) { return a.source === "vocab"; });
+  const verbs = attempts.filter(function (a) { return a.source === "verbs"; });
   const questions = attempts.length;
-  const correct = attempts.filter(function (a) { return a.correct; }).length;
+  const correct = grammar.filter(function (a) { return a.correct; }).length;
   const minutes = Math.round(sessions.reduce(function (n, s) { return n + (s.durationMs || 0); }, 0) / 60000);
 
   const byCat = {};
@@ -520,7 +539,11 @@ function weeklyReport() {
     if (!weakest || avg < weakest.avg) weakest = { cat: c, avg: Math.round(avg) };
   });
 
-  return { questions: questions, correct: correct, minutes: minutes, sessions: sessions.length, weakest: weakest };
+  return {
+    questions: questions, correct: correct, minutes: minutes, sessions: sessions.length,
+    grammar: grammar.length, vocab: vocab.length, verbs: verbs.length,
+    weakest: weakest
+  };
 }
 
 /* Activity strip: bar height = questions answered, colour = accuracy.
@@ -576,14 +599,20 @@ function weeklyHtml() {
     return '<div class="week-card"><div class="wk-title">This week</div>'
       + '<div class="wk-empty">No sessions yet. Finish a quick kwiz and your numbers land here.</div></div>';
   }
-  const acc = w.questions ? Math.round(w.correct / w.questions * 100) : 0;
+  const acc = w.grammar ? Math.round(w.correct / w.grammar * 100) : 0;
+  const mix = [];
+  if (w.vocab) mix.push(w.vocab + " word" + (w.vocab === 1 ? "" : "s"));
+  if (w.verbs) mix.push(w.verbs + " verb form" + (w.verbs === 1 ? "" : "s"));
   return '<div class="week-card"><div class="wk-title">This week</div>'
     + '<div class="wk-stats">'
     + '<div class="wk-stat"><b>' + w.questions + "</b><span>questions</span></div>"
-    + '<div class="wk-stat"><b>' + acc + "%</b><span>accuracy</span></div>"
+    + '<div class="wk-stat"><b>' + acc + "%</b><span>grammar accuracy</span></div>"
     + '<div class="wk-stat"><b>' + w.minutes + "</b><span>minutes</span></div>"
     + '<div class="wk-stat"><b>' + w.sessions + "</b><span>sessions</span></div>"
     + "</div>"
+    + (mix.length
+      ? '<div class="wk-mix">Also this week: ' + mix.join(" · ") + "</div>"
+      : "")
     + '<div id="actWrap">' + activityBars() + "</div>"
     + (w.weakest
       ? '<div class="wk-weak">Weakest area: <b>' + esc(CATEGORIES[w.weakest.cat] || w.weakest.cat)
@@ -2827,6 +2856,7 @@ function renderVocabFlash() {
     rec2.last = Date.now();
     if (knew) { rec2.correct += 1; rec2.known = true; f.known += 1; }
     else { rec2.known = false; f.unknown += 1; }
+    logTopicAnswer("vocab", "vocab." + v.w, knew);
     saveState();
     f.index += 1;
     f.revealed = false;
@@ -2908,6 +2938,7 @@ function renderGenderDrill() {
         rec.seen += 1;
         rec.last = Date.now();
         if (g.picked === v.g) rec.correct += 1;
+        logTopicAnswer("vocab", "gender." + v.w, g.picked === v.g);
         saveState();
         renderGenderDrill();
       });
@@ -3114,6 +3145,7 @@ function checkVerb() {
   rec.seen += 1;
   rec.last = Date.now();
   if (ok) rec.correct += 1;
+  logTopicAnswer("verbs", "verb." + q.inf + "|" + q.tense + "|" + q.person, ok);
   saveState();
   renderVerbDrill();
 }
@@ -3218,6 +3250,7 @@ function renderCloze() {
         rec.seen += 1;
         rec.last = Date.now();
         if (ok) rec.correct += 1;
+        logTopicAnswer("vocab", "cloze." + q.v.w, ok);
         saveState();
         renderCloze();
       });

@@ -434,6 +434,7 @@ const Engine = (function () {
     const t = todayStr();
     const ids = {};
     (state.attempts || []).forEach(function (a) {
+      if (!a.kpId) return;              /* vocabulary / conjugation rows */
       if (todayStr(new Date(a.at)) === t) ids[a.kpId] = true;
     });
     return Object.keys(ids).length;
