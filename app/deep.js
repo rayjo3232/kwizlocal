@@ -1452,5 +1452,87 @@ const DEEP = {
       ["Ils obtiennent une réponse.", "They get an answer."]
     ],
     tip: "Singular -ien- (je viens, il tient), plural -en- (nous venons, vous tenez), but ils viennent / tiennent keep -ien-."
+  },
+
+  /* ---------- breadth pass: high-frequency gaps ---------- */
+
+  "a2.verbs.savoir_connaitre": {
+    usage: "Two verbs for 'know'. savoir = facts and skills (je sais nager, je sais qu'il vient). connaître = familiarity with people, places and works (je connais Marie, je connais Paris).",
+    more: [
+      ["Je sais qu'il est là.", "I know he's there."],
+      ["Tu connais ce film ?", "Do you know this film?"],
+      ["Elle sait conduire.", "She can drive."]
+    ],
+    tip: "An infinitive or a que-clause after the verb → savoir. A noun (person, place, thing) → connaître."
+  },
+
+  "a2.verbs.devoir_falloir": {
+    usage: "Both express obligation. devoir names the person who must (je dois partir); il faut states that something is necessary, with no person named (il faut partir).",
+    more: [
+      ["Tu dois te reposer.", "You must rest."],
+      ["Il faut réserver à l'avance.", "You have to book in advance."],
+      ["Il faut que nous partions.", "We have to leave."]
+    ],
+    tip: "il faut is impersonal: never *je faut*. To name the person, use devoir or il faut que + subjunctive."
+  },
+
+  "a1.adjectives.irregular": {
+    usage: "beau, nouveau and vieux have a second masculine form used before a vowel or silent h.",
+    more: [
+      ["un bel été", "a beautiful summer"],
+      ["un nouvel ordinateur", "a new computer"],
+      ["un vieil homme", "an old man"]
+    ],
+    tip: "Only before a vowel/silent h, and only masculine. Feminine is always belle, nouvelle, vieille."
+  },
+
+  "a1.prepositions.transport": {
+    usage: "Say how you travel: en for enclosed vehicles, à for open ones and on foot.",
+    more: [
+      ["en train", "by train"],
+      ["à vélo", "by bike"],
+      ["à pied", "on foot"]
+    ],
+    tip: "You get into a car/train/plane → en. You sit on a bike/horse → à. Walking is always à pied."
+  },
+
+  "a2.pronouns.neuter_le": {
+    usage: "le can point to a whole statement rather than a noun: Je le sais, Il l'a dit, Je le pense.",
+    more: [
+      ["Je le pense.", "I think so."],
+      ["Elle l'a compris.", "She understood it."],
+      ["Nous le savons.", "We know it."]
+    ],
+    tip: "This le never agrees, even when the idea is feminine: C'est une bonne idée — je le pense."
+  },
+
+  "a2.pronouns.tout": {
+    usage: "As a pronoun, tout = everything (invariable); tous / toutes = all of them (agrees, people).",
+    more: [
+      ["Tout est prêt.", "Everything is ready."],
+      ["C'est tout.", "That's all."],
+      ["Tous ont répondu.", "They all answered."]
+    ],
+    tip: "tout = 'too' (everything); tous = 'tooss' (all of them). The pronunciation tells you which one it is."
+  },
+
+  "b1.verbs.faire_causatif": {
+    usage: "faire + infinitive means you arrange for something to happen rather than doing it yourself.",
+    more: [
+      ["Je fais repeindre la cuisine.", "I'm having the kitchen repainted."],
+      ["Elle fait venir le plombier.", "She's getting the plumber to come."],
+      ["Il s'est fait voler son vélo.", "He had his bike stolen."]
+    ],
+    tip: "The doer takes à: je fais réparer la voiture au garagiste. With se faire, the subject is the victim: il s'est fait voler."
+  },
+
+  "b1.pronouns.ce_dont": {
+    usage: "ce dont and ce à quoi are the 'de' and 'à' versions of ce qui / ce que.",
+    more: [
+      ["Ce dont je rêve, c'est d'un long voyage.", "What I dream of is a long trip."],
+      ["Ce à quoi elle s'attend, c'est à une surprise.", "What she expects is a surprise."],
+      ["Voilà ce dont il a besoin.", "That's what he needs."]
+    ],
+    tip: "Check the verb: besoin de / parler de / avoir peur de → ce dont. penser à / s'attendre à → ce à quoi."
   }
 };

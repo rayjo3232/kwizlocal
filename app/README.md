@@ -55,8 +55,8 @@ collapses to one column.
 
 | Piece | Status |
 |---|---|
-| 154 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
-| 784 items: choice / fill / correction + 10 reading passages (A1–B2) | done |
+| 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
+| 824 items: choice / fill / correction + 10 reading passages (A1–B2) | done |
 | **Quick kwiz**: 3-question (~1 min) and 10-question modes | done |
 | **Per-answer score movement**: every answer shows the exact delta for that point | done |
 | **Auto-advance**: jumps to the next question after a correct answer (toggle in Settings) | done |
@@ -78,7 +78,7 @@ collapses to one column.
 | **Reading practice**: one passage at a time, weakest first, 5 questions each | done |
 | **Sentence practice**: ~14k mined Tatoeba sentences (gap-fill + word order), semantic distractors, filter by grammar tag and CEFR level | done |
 | **Common mistakes**: every point shows a wrong-vs-right table, generated from its own choice items | done |
-| **Deep explanations**: 144 of 154 points carry usage notes, extra examples and a memory tip | done |
+| **Deep explanations**: 152 of 162 points carry usage notes, extra examples and a memory tip | done |
 | **Related points**: every lesson drawer cross-links to what it builds on and what it leads to | done |
 | **Adaptive retry**: a point you miss in a full kwiz comes back two questions later (3-question quick kwiz stays short) | done |
 | **Reading translation**: reveal / hide an English translation under each passage | done |

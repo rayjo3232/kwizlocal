@@ -2138,6 +2138,112 @@ const KPS = [
       ["fill", "Elle ___ (appartenir) à ce club.", null, "appartient", "elle + appartenir = appartient."]
     ]),
 
+  /* ---------------- breadth pass: high-frequency gaps ---------------- */
+
+  K("a2.verbs.savoir_connaitre", "A2", "verbs",
+    "savoir vs connaître", "savoir ou connaître ?", 1.3, 2.3, ["a1.verbs.modals"],
+    "savoir = to know a fact or how to do something (+ infinitive). connaître = to know a person, place or work (be familiar with).",
+    [["Je sais nager.", "I know how to swim."], ["Je connais Marie.", "I know Marie."], ["Tu sais où il habite ?", "Do you know where he lives?"]],
+    "Both mean 'know'. savoir for facts and skills, connaître for people, places and works. Never *je connais nager*.",
+    [
+      ["fill", "Je ___ nager. (savoir)", null, "sais", "savoir + infinitive = know how to."],
+      ["choice", "Je ___ Paris.", ["connais", "sais", "connaît"], "connais", "A place you are familiar with → connaître."],
+      ["fill", "Tu ___ où il habite ? (savoir)", null, "sais", "Knowing a fact → savoir."],
+      ["choice", "She knows the answer: Elle ___ la réponse.", ["sait", "connaît", "sais"], "sait", "A fact → savoir."],
+      ["fill", "Nous ___ bien ce restaurant. (connaître)", null, "connaissons", "Being familiar with a place → connaître."]
+    ]),
+
+  K("a2.verbs.devoir_falloir", "A2", "verbs",
+    "devoir vs il faut", "devoir ou il faut ?", 1.3, 2.4, ["a1.verbs.modals", "a1.expressions.il_faut"],
+    "devoir + infinitive = must (a named person is obliged). il faut + infinitive = it is necessary (no person named).",
+    [["Je dois partir.", "I must leave."], ["Il faut partir.", "One must leave."], ["Il faut que tu partes.", "You have to leave."]],
+    "il faut is impersonal: it never means 'I must'. For a person, use devoir.",
+    [
+      ["fill", "Je ___ partir. (devoir)", null, "dois", "je + devoir = dois."],
+      ["choice", "___ faut partir.", ["Il", "Je", "Tu"], "Il", "il faut is a fixed impersonal phrase."],
+      ["fill", "Tu ___ finir ce travail. (devoir)", null, "dois", "tu + devoir = dois."],
+      ["choice", "Which means 'one must'?", ["Il faut", "Je dois", "Tu dois"], "Il faut", "No person named → il faut."],
+      ["fill", "Il ___ que tu partes. (falloir)", null, "faut", "il faut que + subjunctive."]
+    ]),
+
+  K("a1.adjectives.irregular", "A1", "adjectives",
+    "beau, nouveau, vieux before a vowel", "beau, nouveau, vieux", 1.2, 1.8, ["a1.adjectives.agreement"],
+    "beau, nouveau and vieux take a special masculine form before a vowel or silent h: un bel homme, un nouvel ami, un vieil arbre.",
+    [["un bel homme", "a handsome man"], ["un nouvel ami", "a new friend"], ["un vieil arbre", "an old tree"]],
+    "The special form is only for masculine nouns starting with a vowel/silent h. Feminine: belle, nouvelle, vieille.",
+    [
+      ["choice", "un ___ homme", ["bel", "beau", "belle"], "bel", "beau → bel before a vowel/silent h."],
+      ["fill", "un ___ ami (nouveau)", null, "nouvel", "nouveau → nouvel before a vowel."],
+      ["choice", "un ___ arbre", ["vieil", "vieux", "vieille"], "vieil", "vieux → vieil before a vowel."],
+      ["fill", "une ___ maison (beau)", null, "belle", "Feminine keeps belle."],
+      ["choice", "un ___ livre", ["beau", "bel", "belle"], "beau", "A consonant follows, so the normal form beau."]
+    ]),
+
+  K("a1.prepositions.transport", "A1", "prepositions",
+    "Transport: en or à", "Les moyens de transport", 1.1, 1.6, ["a1.prepositions.place"],
+    "en + enclosed vehicle (en voiture, en train, en bus, en avion). à + open vehicle (à vélo, à moto, à cheval). à pied = on foot.",
+    [["Je vais au travail en train.", "I go to work by train."], ["Elle rentre à vélo.", "She goes home by bike."], ["Nous y allons à pied.", "We go there on foot."]],
+    "en for getting into something; à for riding on top of something (vélo, moto, cheval) and for à pied.",
+    [
+      ["choice", "Je vais à Paris ___ train.", ["en", "à", "dans"], "en", "You get into a train → en."],
+      ["fill", "Elle rentre ___ vélo.", null, "à", "You ride on a bike → à vélo."],
+      ["choice", "Nous y allons ___ pied.", ["à", "en", "par"], "à", "à pied = on foot."],
+      ["fill", "Il voyage ___ avion.", null, "en", "You get into a plane → en avion."],
+      ["choice", "___ voiture", ["en", "à", "sur"], "en", "You get into a car → en voiture."]
+    ]),
+
+  K("a2.pronouns.neuter_le", "A2", "pronouns",
+    "The neuter le", "Le « le » neutre", 1.3, 2.5, ["a2.pronouns.cod"],
+    "le can stand for a whole idea or clause, not just a masculine noun: Je le sais, Il l'a dit. This neuter le never agrees.",
+    [["Je le sais.", "I know it."], ["Elle l'a dit.", "She said it."], ["C'est vrai, je te le confirme.", "That's true, I confirm it to you."]],
+    "Neuter le replaces an idea, so it stays le even when the idea is feminine: C'est une bonne idée — je le pense.",
+    [
+      ["choice", "C'est vrai ? — Oui, je ___ sais.", ["le", "la", "les"], "le", "It replaces the idea, not a noun."],
+      ["choice", "C'est une bonne idée. — Je ___ pense.", ["le", "la", "les"], "le", "Neuter le, even though idée is feminine."],
+      ["fill", "Je ___ sais déjà. (it)", null, "le", "Neuter le before the verb."],
+      ["choice", "Il a tout compris, il ___ a dit.", ["l'", "le", "la"], "l'", "le elides to l' before a vowel."],
+      ["fill", "Nous ___ savons. (it)", null, "le", "Neuter le stays le."]
+    ]),
+
+  K("a2.pronouns.tout", "A2", "pronouns",
+    "tout as a pronoun", "Le pronom tout", 1.2, 2.2, ["a2.adjectives.tout"],
+    "tout as a pronoun means everything / all of it: tout va bien, c'est tout. For people it agrees: tous sont venus, elles sont toutes parties.",
+    [["Tout va bien.", "Everything is fine."], ["C'est tout.", "That's all."], ["Tous sont venus.", "They all came."]],
+    "tout (everything) is invariable; tous/toutes (all of them, people) agree and are pronounced differently.",
+    [
+      ["choice", "___ va bien.", ["Tout", "Tous", "Toute"], "Tout", "Everything → invariable tout."],
+      ["fill", "C'est ___. (that's all)", null, "tout", "c'est tout = that's all."],
+      ["choice", "___ sont venus. (all the students)", ["Tous", "Tout", "Toutes"], "Tous", "All of them, masculine plural → tous."],
+      ["fill", "Elles sont ___ arrivées. (all)", null, "toutes", "Feminine plural → toutes."],
+      ["choice", "J'ai ___ compris.", ["tout", "tous", "toute"], "tout", "Everything → tout."]
+    ]),
+
+  K("b1.verbs.faire_causatif", "B1", "verbs",
+    "faire + infinitive (causative)", "Le faire causatif", 1.4, 3.4, ["a0.verbs.faire"],
+    "faire + infinitive = to have/get something done: je fais réparer ma voiture (I have my car repaired), elle fait rire tout le monde.",
+    [["Je fais réparer ma voiture.", "I'm having my car repaired."], ["Elle fait rire tout le monde.", "She makes everyone laugh."], ["Il s'est fait couper les cheveux.", "He had his hair cut."]],
+    "The person who does the action goes after à: je fais réparer la voiture au garagiste.",
+    [
+      ["choice", "I have my car repaired: Je ___ réparer ma voiture.", ["fais", "fait", "faire"], "fais", "je + faire = fais."],
+      ["fill", "Elle ___ rire tout le monde. (faire)", null, "fait", "elle + faire = fait."],
+      ["choice", "He had his hair cut: Il s'est ___ couper les cheveux.", ["fait", "fais", "faire"], "fait", "se faire + infinitive."],
+      ["fill", "Nous faisons ___ la maison. (peindre)", null, "peindre", "faire + infinitive."],
+      ["choice", "The mechanic does it: Je fais réparer la voiture ___ garagiste.", ["au", "à le", "du"], "au", "à + le = au."]
+    ]),
+
+  K("b1.pronouns.ce_dont", "B1", "pronouns",
+    "ce dont / ce à quoi", "ce dont, ce à quoi", 1.4, 3.6, ["b1.pronouns.relative_compose", "b1.syntax.relative_dont"],
+    "ce dont = 'what ... of/about' (replaces de + thing). ce à quoi = 'what ... to/about' (replaces à + thing).",
+    [["Ce dont j'ai besoin, c'est du calme.", "What I need is calm."], ["Ce à quoi je pense, c'est aux vacances.", "What I'm thinking about is the holidays."], ["Dis-moi ce dont tu as peur.", "Tell me what you're afraid of."]],
+    "Use ce dont when the verb takes de (avoir besoin de, parler de); ce à quoi when it takes à (penser à, s'attendre à).",
+    [
+      ["choice", "___ j'ai besoin, c'est du repos.", ["Ce dont", "Ce que", "Ce à quoi"], "Ce dont", "avoir besoin de → ce dont."],
+      ["fill", "Dis-moi ce ___ tu as peur. (de)", null, "dont", "avoir peur de → ce dont."],
+      ["choice", "___ je pense, c'est à toi.", ["Ce à quoi", "Ce dont", "Ce que"], "Ce à quoi", "penser à → ce à quoi."],
+      ["fill", "C'est exactement ce ___ je m'attendais. (à)", null, "à quoi", "s'attendre à → ce à quoi."],
+      ["choice", "Which is correct?", ["Ce dont je parle", "Ce que je parle de", "Ce à quoi je parle de"], "Ce dont je parle", "parler de → ce dont."]
+    ]),
+
 ];
 
 const KP_BY_ID = {};

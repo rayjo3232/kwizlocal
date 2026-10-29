@@ -72,5 +72,15 @@ const ZH = {
   "a1.expressions.date": "日期与序数词",
   "a2.syntax.comparison_quantity": "数量比较：plus de / autant de",
   "a2.verbs.imperatif_pronoms": "命令式 + 宾语代词",
-  "a2.verbs.venir_tenir": "venir / tenir 及其派生"
+  "a2.verbs.venir_tenir": "venir / tenir 及其派生",
+
+  /* ---- 广度补充：高频缺口 ---- */
+  "a2.verbs.savoir_connaitre": "savoir vs connaître：知道",
+  "a2.verbs.devoir_falloir": "devoir vs il faut：必须",
+  "a1.adjectives.irregular": "beau / nouveau / vieux 特殊形式",
+  "a1.prepositions.transport": "交通方式：en / à",
+  "a2.pronouns.neuter_le": "中性代词 le",
+  "a2.pronouns.tout": "代词 tout",
+  "b1.verbs.faire_causatif": "faire 使役结构",
+  "b1.pronouns.ce_dont": "ce dont / ce à quoi"
 };
