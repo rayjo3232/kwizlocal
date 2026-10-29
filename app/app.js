@@ -89,6 +89,23 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
+/* English prose that quotes French. Three passes, each cheap and safe:
+   1. *asterisks* — French marked by hand in the data
+   2. any word carrying an accent — English almost never uses one
+   3. high-frequency French function words with no English homograph
+   Wrapping twice is harmless (nested <i> looks identical), so we do not
+   bother tracking what is already inside a tag. */
+function frify(text) {
+  return esc(text)
+    .replace(/\*([^*]+)\*/g, '<i class="fr-inline">$1</i>')
+    .replace(/([A-Za-z\u00C0-\u017F]*[\u00E0\u00E2\u00E7\u00E9\u00E8\u00EA\u00EB\u00EE\u00EF\u00F4\u00FB\u00F9\u00FC\u00FF\u0153\u00C0\u00C2\u00C7\u00C9\u00C8\u00CA\u00CB\u00CE\u00CF\u00D4\u00DB\u00D9\u00DC\u0178\u0152][A-Za-z\u00C0-\u017F'\u2019-]*)/g,
+      '<i class="fr-inline">$1</i>')
+    /* (?<!['’]) keeps quelqu'un and l'un whole — otherwise the "un" inside
+       an elided word gets italicised on its own. */
+    .replace(/(?<!['\u2019])\b(le|la|les|un|une|des|du|au|aux|je|tu|nous|vous|ils|elles|est|sont|ne|pas|dans|pour|avec|mais|donc|tr\u00E8s|plus|moins)\b/g,
+      '<i class="fr-inline">$1</i>');
+}
+
 function stars(n) {
   let out = "";
   for (let i = 0; i < 5; i++) out += '<span class="' + (i < n ? "on" : "") + '">★</span>';
@@ -613,18 +630,19 @@ function openDrawer(kpId) {
   const sc = s ? Engine.display(s.p, s.n) : 0;
   const st = Engine.statusOf(state, kp);
 
-  drawerTitle.textContent = kp.title;
+  drawerTitle.innerHTML = esc(kp.title)
+    + (zhOf(kp) ? '<span class="t-zh" style="display:block">' + esc(zhOf(kp)) + "</span>" : "");
   let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
     + '<span class="score-chip" style="font-size:14px;color:' + scoreColor(sc, s ? s.n : 0) + '">' + (s && s.n ? sc : "—") + "</span>"
     + badge(st) + '<span class="tiny">' + esc(kp.level) + " · " + esc(CATEGORIES[kp.category] || kp.category) + "</span></div>"
-    + '<div class="rule">' + esc(kp.rule) + "</div>"
+    + '<div class="rule">' + frify(kp.rule) + "</div>"
     + usageHtml(kp)
     + "<h4>Examples</h4>"
     + exampleList(kp).map(function (e) {
       return '<div class="ex"><b>' + esc(e[0]) + "</b><span>" + esc(e[1]) + "</span></div>";
     }).join("")
     + mistakesHtml(kp)
-    + "<h4>Watch out</h4><div class=\"small\">" + esc(kp.pitfall) + "</div>"
+    + "<h4>Watch out</h4><div class=\"small\">" + frify(kp.pitfall) + "</div>"
     + tipHtml(kp)
     + '<div class="drawer-actions">'
     + '<button class="btn sm" data-practice="' + kp.id + '">Practice this</button>'
@@ -1533,6 +1551,11 @@ function renderExamResult() {
 
 /* ---------------- pre-learn ---------------- */
 
+/* Optional Chinese subtitle for a point title. */
+function zhOf(kp) {
+  return (typeof ZH !== "undefined" && ZH[kp.id]) ? ZH[kp.id] : "";
+}
+
 /* Optional longer explanation, keyed by point id. */
 function deepOf(kpId) {
   return (typeof DEEP !== "undefined" && DEEP[kpId]) ? DEEP[kpId] : null;
@@ -1557,13 +1580,13 @@ function exampleList(kp) {
 function usageHtml(kp) {
   const deep = deepOf(kp.id);
   if (!deep || !deep.usage) return "";
-  return '<div class="usage-box">' + esc(deep.usage) + "</div>";
+  return '<div class="usage-box">' + frify(deep.usage) + "</div>";
 }
 
 function tipHtml(kp) {
   const deep = deepOf(kp.id);
   if (!deep || !deep.tip) return "";
-  return '<div class="tip-box"><span class="tip-mark">TIP</span><span>' + esc(deep.tip) + "</span></div>";
+  return '<div class="tip-box"><span class="tip-mark">TIP</span><span>' + frify(deep.tip) + "</span></div>";
 }
 
 /* Pull the wrong options out of the choice items so every point can show a
@@ -1626,13 +1649,13 @@ function renderPrelearn(kpId) {
   let body = "";
 
   if (prelearn.step === 1) {
-    body = '<div class="rule-box"><b>One rule:</b> ' + esc(kp.rule) + "</div>"
+    body = '<div class="rule-box"><b>One rule:</b> ' + frify(kp.rule) + "</div>"
       + usageHtml(kp)
       + '<div class="ex-list">' + exampleList(kp).map(function (e) {
         return '<div class="ex-item"><div class="fr">' + esc(e[0]) + '</div><div class="en">' + esc(e[1]) + "</div></div>";
       }).join("") + "</div>"
       + mistakesHtml(kp)
-      + '<div class="pitfall"><b>Watch out:</b> ' + esc(kp.pitfall) + "</div>"
+      + '<div class="pitfall"><b>Watch out:</b> ' + frify(kp.pitfall) + "</div>"
       + tipHtml(kp)
       + '<div style="margin-top:18px"><button class="btn" id="step1Next">I am ready →</button>'
       + '<span class="small" style="margin-left:10px">About 3 minutes</span></div>';
@@ -1716,7 +1739,9 @@ function renderPrelearn(kpId) {
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
     + '<div class="page-head" style="text-align:left;margin-bottom:14px">'
     + '<div class="tiny" style="letter-spacing:.08em;color:var(--brand);font-weight:800">PRE-LEARN · ' + esc(kp.level) + "</div>"
-    + '<h1 style="font-size:24px">' + esc(kp.title) + "</h1></div>"
+    + '<h1 style="font-size:24px">' + esc(kp.title) + "</h1>"
+    + (zhOf(kp) ? '<div class="t-zh">' + esc(zhOf(kp)) + "</div>" : "")
+    + "</div>"
     + '<div class="stepper">' + stepHtml(1, "Primer") + '<span class="line"></span>'
     + stepHtml(2, "Guided") + '<span class="line"></span>' + stepHtml(3, "Check") + "</div>"
     + '<div class="card">' + body + "</div></div></div>";
@@ -3033,7 +3058,9 @@ function renderLibrary() {
       + ' data-score="' + (st && st.n ? sc : -999) + '"'
       + ' data-last="' + (st && st.lastSeen ? st.lastSeen : 0) + '">'
       + '<div class="lvl">' + esc(kp.level) + " · " + esc(CATEGORIES[kp.category] || kp.category) + "</div>"
-      + '<div class="t">' + esc(kp.title) + '</div><div class="fr">' + esc(kp.titleFr) + "</div>"
+      + '<div class="t">' + esc(kp.title) + "</div>"
+      + (zhOf(kp) ? '<div class="t-zh">' + esc(zhOf(kp)) + "</div>" : "")
+      + '<div class="fr">' + esc(kp.titleFr) + "</div>"
       + '<div class="foot"><span class="score" style="color:' + scoreColor(sc, st ? st.n : 0) + '">'
       + (st && st.n ? sc : "—") + "</span>" + badge(status)
       + '<button class="btn sm ghost" data-kp-open="' + kp.id + '">' + (status === "new" ? "Learn" : "Practice") + "</button></div></div>";

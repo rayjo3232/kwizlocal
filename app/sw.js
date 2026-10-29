@@ -1,6 +1,6 @@
 /* Offline cache for the app shell.
    Bump CACHE when you ship new data files so clients pick them up. */
-const CACHE = "kwizlocal-v3";
+const CACHE = "kwizlocal-v4";
 
 /* Workers Static Assets answers /index.html with a 307 to /, and a redirect
    inside cache.addAll can abort the whole install. "./" alone is enough —
@@ -10,6 +10,7 @@ const ASSETS = [
   "./styles.css",
   "./data.js",
   "./deep.js",
+  "./zh.js",
   "./vocab.js",
   "./verbs.js",
   "./sentences.js",

@@ -26,6 +26,7 @@ FILES = [
     "engine.js",
     "data.js",
     "deep.js",
+    "zh.js",
     "vocab.js",
     "verbs.js",
     "sentences.js",
