@@ -1,10 +1,12 @@
 /* Offline cache for the app shell.
    Bump CACHE when you ship new data files so clients pick them up. */
-const CACHE = "kwizlocal-v2";
+const CACHE = "kwizlocal-v3";
 
+/* Workers Static Assets answers /index.html with a 307 to /, and a redirect
+   inside cache.addAll can abort the whole install. "./" alone is enough —
+   every static host we target serves index.html at the root. */
 const ASSETS = [
   "./",
-  "./index.html",
   "./styles.css",
   "./data.js",
   "./deep.js",
@@ -58,7 +60,7 @@ self.addEventListener("fetch", function (e) {
         }
         return res;
       }).catch(function () {
-        return caches.match("./index.html");
+        return caches.match("./");
       });
     })
   );
