@@ -1137,17 +1137,30 @@ function renderResult(id) {
     return;
   }
 
+  /* One block per question rather than a five-column table: on a phone a
+     table collapses into unreadable slivers, and the thing you actually want
+     is "what did I write / what was right / why". */
   const rows = record.answers.map(function (a, i) {
     const kp = KP_BY_ID[a.kpId];
     const item = kp.items.filter(function (x) { return x.id === a.itemId; })[0];
     const cls = a.correct === null ? "skip" : a.correct ? "good" : "bad";
-    const yours = a.correct === null ? "— skipped —" : (a.given || "—");
-    const href = "#/prelearn/" + kp.id;
-    return "<tr><td>" + (i + 1) + "</td>"
-      + '<td class="q">' + esc(item.prompt) + '<div class="exp">' + esc(item.explain) + "</div></td>"
-      + '<td class="' + cls + '">' + esc(yours) + "</td>"
-      + '<td class="good">' + esc(item.answer) + "</td>"
-      + '<td><a href="' + href + '" class="small">Study</a></td></tr>';
+    const mark = a.correct === null ? "–" : a.correct ? "✓" : "×";
+    const yours = a.correct === null ? "skipped" : (a.given || "—");
+    const qHtml = esc(item.prompt).replace(/___/g, '<span class="blank">____</span>');
+    return '<div class="res-row ' + cls + '">'
+      + '<div class="res-mark">' + mark + "</div>"
+      + '<div class="res-main">'
+      + '<div class="res-q">' + qHtml + "</div>"
+      + '<div class="res-answers">'
+      + '<div class="res-a"><span>You wrote</span><b>' + esc(yours) + "</b></div>"
+      + (a.correct === false
+        ? '<div class="res-a ok"><span>Correct</span><b>' + esc(item.answer) + "</b></div>"
+        : "")
+      + "</div>"
+      + (item.explain ? '<div class="res-exp">' + esc(item.explain) + "</div>" : "")
+      + "</div>"
+      + '<a class="res-study" href="#/prelearn/' + kp.id + '">Study</a>'
+      + "</div>";
   }).join("");
 
   const wrong = record.answers.filter(function (a) { return a.correct === false; });
@@ -1197,9 +1210,10 @@ function renderResult(id) {
     + (record.skipped ? " · " + record.skipped + " skipped" : "")
     + (record.durationMs ? " · " + fmtDuration(record.durationMs) : "") + "</div></div>"
     + changeHtml
-    + '<div class="card' + (changes.length ? " section-gap" : "") + '"><table class="result-table"><thead><tr>'
-    + "<th>#</th><th>Question</th><th>Your answer</th><th>Correct answer</th><th></th>"
-    + "</tr></thead><tbody>" + rows + "</tbody></table></div>"
+    + '<div class="card' + (changes.length ? " section-gap" : "") + '">'
+    + '<h2 style="font-size:15px;margin-bottom:2px">Every question</h2>'
+    + '<p class="small" style="margin:0 0 4px">Tap Study to open the grammar behind a question.</p>'
+    + '<div class="res-list">' + rows + "</div></div>"
     + '<div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap">'
     + (wrong.length ? '<button class="btn ghost" id="mistakesBtn">Practise ' + wrong.length + ' mistake' + (wrong.length > 1 ? "s" : "") + "</button>" : "")
     + '<button class="btn" data-start="' + record.total + '">Again · ' + record.total + " questions</button>"

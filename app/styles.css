@@ -654,6 +654,57 @@ p{margin:0 0 12px}
 }
 .tr-yours{font-size:13.5px;line-height:1.6;color:var(--muted)}
 
+/* ---------- result: one block per question ---------- */
+.res-list{display:grid;gap:2px;margin-top:6px}
+.res-row{
+  display:flex;align-items:flex-start;gap:12px;padding:14px 0;
+  border-bottom:1px solid var(--line2);
+}
+.res-row:last-child{border-bottom:none}
+.res-mark{
+  flex:none;width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;font-size:12px;font-weight:800;margin-top:1px;
+}
+.res-row.good .res-mark{background:var(--green-soft);color:var(--green)}
+.res-row.bad .res-mark{background:var(--red-soft);color:var(--red)}
+.res-row.skip .res-mark{background:var(--line2);color:var(--muted)}
+.res-main{flex:1;min-width:0}
+.res-q{
+  font-size:14.5px;line-height:1.55;color:var(--ink);font-weight:500;
+  letter-spacing:-.005em;
+}
+.res-q .blank{
+  display:inline-block;min-width:34px;border-bottom:2px solid var(--brand);
+  margin:0 2px;
+}
+.res-answers{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:7px}
+.res-a{display:flex;align-items:baseline;gap:7px;font-size:13px}
+.res-a span{
+  font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--faint);flex:none;
+}
+.res-a b{font-weight:700;color:var(--ink2)}
+.res-a.ok b{color:var(--green)}
+.res-row.bad .res-a:first-child b{
+  color:var(--red);text-decoration:line-through;
+  text-decoration-color:rgba(213,28,27,.4);
+}
+.res-exp{font-size:12.5px;line-height:1.6;color:var(--muted);margin-top:6px}
+.res-study{
+  flex:none;align-self:flex-start;margin-top:1px;
+  font-size:11.5px;font-weight:700;color:var(--brand);text-decoration:none;
+  padding:5px 9px;border-radius:6px;background:var(--brand-soft);
+}
+.res-study:hover{background:#FFE7D6}
+
+@media (max-width:700px){
+  .res-row{gap:10px;padding:15px 0}
+  .res-q{font-size:15.5px}
+  .res-a{font-size:14px}
+  .res-exp{font-size:13.5px}
+  .res-study{padding:7px 11px;font-size:12px}
+}
+
 /* ---------- settings ---------- */
 .setting-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line2)}
 .setting-row:last-child{border-bottom:none}
