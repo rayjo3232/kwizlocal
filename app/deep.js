@@ -514,5 +514,296 @@ const DEEP = {
       ["On a fini.", "We have finished."]
     ],
     tip: "on takes il/elle verb forms no matter how many people are involved: on est, on a, on va."
+  },
+
+  /* ---- A2 ---- */
+  "a2.passe_compose.avoir": {
+    usage: "The default past tense for almost every verb. Built from a present-tense avoir plus the past participle.",
+    more: [
+      ["J'ai mangé une pomme.", "I ate an apple."],
+      ["Nous avons fini le travail.", "We finished the work."],
+      ["Elle a répondu à ma question.", "She answered my question."]
+    ],
+    tip: "With avoir the participle never agrees with the subject: elle a répondu, never répondue."
+  },
+
+  "a2.passe_compose.etre": {
+    usage: "A short list of movement and change-of-state verbs take être instead, and their participle agrees with the subject.",
+    more: [
+      ["Elle est arrivée hier.", "She arrived yesterday."],
+      ["Ils sont partis tôt.", "They left early."],
+      ["Nous sommes restés à la maison.", "We stayed at home."]
+    ],
+    tip: "The list is aller, venir, arriver, partir, entrer, sortir, naître, mourir, rester, tomber, monter, descendre, retourner — plus all reflexive verbs."
+  },
+
+  "a2.imparfait.formation": {
+    usage: "Take the nous form of the present, drop -ons, add the imperfect endings. One stem serves all six persons.",
+    more: [
+      ["nous parlons → je parlais", "I was speaking"],
+      ["nous finissons → il finissait", "he was finishing"],
+      ["être → j'étais", "the only irregular stem"]
+    ],
+    tip: "être is the sole exception (stem ét-). Everything else, including irregular verbs, follows the nous form."
+  },
+
+  "a2.imparfait_vs_pc": {
+    usage: "The imperfect paints the background — habits, weather, states, things in progress. The passé composé reports events that happened and finished.",
+    more: [
+      ["Je lisais quand il est arrivé.", "I was reading when he arrived."],
+      ["Quand j'étais petit, je jouais dehors.", "When I was little, I played outside."],
+      ["Hier, j'ai vu Marie.", "Yesterday I saw Marie."]
+    ],
+    tip: "Ask yourself: am I describing, or reporting one thing that happened? Describing → imparfait. One event → passé composé."
+  },
+
+  "a2.pronouns.cod": {
+    usage: "le, la, les stand in for a direct object already mentioned. They go before the verb, not after it as in English.",
+    more: [
+      ["Tu connais Marie ? — Oui, je la connais.", "Do you know Marie? Yes, I know her."],
+      ["Le livre ? Je l'ai lu.", "The book? I've read it."],
+      ["Les clés, je les cherche.", "The keys, I'm looking for them."]
+    ],
+    tip: "A direct object pronoun in front of a passé composé makes the participle agree: je les ai lus."
+  },
+
+  "a2.pronouns.y_en": {
+    usage: "y replaces a place or an à-phrase; en replaces a de-phrase or a quantity. Both sit before the verb.",
+    more: [
+      ["Tu vas à Paris ? — J'y vais.", "Are you going to Paris? I'm going there."],
+      ["Tu veux du café ? — J'en veux.", "Do you want coffee? I want some."],
+      ["Combien de frères ? — J'en ai deux.", "How many brothers? I have two."]
+    ],
+    tip: "y answers \"where / to what\"; en answers \"of what / how many\". Getting these two straight removes a lot of hesitation."
+  },
+
+  "a2.pronouns.coi": {
+    usage: "lui and leur replace an à + person phrase. Same slot as the direct object pronouns.",
+    more: [
+      ["Je parle à Marie → Je lui parle.", "I speak to her."],
+      ["Il téléphone à ses parents → Il leur téléphone.", "He calls them."],
+      ["Tu lui as dit ?", "Did you tell him?"]
+    ],
+    tip: "lui is singular for both genders; leur is plural for both. Unlike le/la, they do not mark gender."
+  },
+
+  "a2.syntax.relative_ou": {
+    usage: "Beyond asking where, où links a clause to a place or a moment in time.",
+    more: [
+      ["La ville où je suis né.", "The town where I was born."],
+      ["Le jour où on s'est rencontrés.", "The day we met."],
+      ["C'est le moment où il faut partir.", "This is the moment when we have to leave."]
+    ],
+    tip: "English splits this into where and when; French uses où for both."
+  },
+
+  "a2.syntax.time_markers": {
+    usage: "depuis = since/for, and the action is still going. pendant = for, and it is over. il y a = ago.",
+    more: [
+      ["J'habite ici depuis 2019.", "I have lived here since 2019."],
+      ["J'ai travaillé pendant deux ans.", "I worked for two years."],
+      ["Il est parti il y a trois jours.", "He left three days ago."]
+    ],
+    tip: "depuis takes the present tense in French, not the perfect: j'habite ici depuis 2019, not j'ai habité."
+  },
+
+  "a2.adjectives.superlative": {
+    usage: "le plus / le moins plus the adjective. The article agrees with the noun.",
+    more: [
+      ["C'est le meilleur restaurant.", "It is the best restaurant."],
+      ["la moins chère", "the cheapest (feminine)"],
+      ["le plus intéressant", "the most interesting"]
+    ],
+    tip: "bon → meilleur. \"le plus bon\" does not exist."
+  },
+
+  "a2.adjectives.adverbs_ment": {
+    usage: "Most adverbs are built from the feminine form of the adjective plus -ment.",
+    more: [
+      ["lent → lentement", "slowly"],
+      ["heureux → heureusement", "fortunately"],
+      ["vrai → vraiment", "really"]
+    ],
+    tip: "Adjectives ending in -ent or -ant become -emment or -amment, and both are pronounced the same."
+  },
+
+  "a2.prepositions.geography": {
+    usage: "en for feminine countries and continents, au for masculine ones, aux for plurals, à for cities.",
+    more: [
+      ["en France, en Italie, en Afrique", "feminine or vowel-initial"],
+      ["au Canada, au Japon, au Maroc", "masculine"],
+      ["aux États-Unis, aux Philippines", "plural"]
+    ],
+    tip: "Countries ending in -e are usually feminine, but le Mexique, le Cambodge and le Zimbabwe break the rule."
+  },
+
+  "a2.verbs.pronominaux_passe": {
+    usage: "Reflexive verbs take être in the passé composé, and the participle agrees with the subject unless a direct object follows.",
+    more: [
+      ["Je me suis levé tôt.", "I got up early."],
+      ["Elle s'est couchée tard.", "She went to bed late."],
+      ["Nous nous sommes amusés.", "We had fun."]
+    ],
+    tip: "Elle s'est lavée (agrees) but elle s'est lavé les mains (no agreement, because les mains is the object)."
+  },
+
+  "a2.verbs.imparfait_usage": {
+    usage: "Past habits and background states: what used to happen, what things were like.",
+    more: [
+      ["Avant, je fumais.", "I used to smoke."],
+      ["Il faisait beau ce jour-là.", "The weather was nice that day."],
+      ["Elle avait vingt ans.", "She was twenty."]
+    ],
+    tip: "English \"used to\" and \"was -ing\" almost always map to the imparfait."
+  },
+
+  "a2.pronouns.possessive": {
+    usage: "le mien, la mienne, les miens replace my + noun. The article and the possessive both agree with the thing owned.",
+    more: [
+      ["Ton stylo ? J'ai pris le mien.", "Your pen? I took mine."],
+      ["Leurs enfants et les nôtres.", "Their children and ours."],
+      ["C'est la mienne.", "It is mine (feminine)."]
+    ],
+    tip: "Two parts, both inflected: le mien, la mienne, les miens, les miennes."
+  },
+
+  "a2.pronouns.demonstrative": {
+    usage: "celui, celle, ceux, celles stand in for \"the one(s)\" so you do not repeat the noun. They never appear alone.",
+    more: [
+      ["Quel livre ? — Celui de Marie.", "Which book? Marie's."],
+      ["Je préfère celle-ci.", "I prefer this one."],
+      ["Ceux qui travaillent réussissent.", "Those who work succeed."]
+    ],
+    tip: "Always followed by de, qui, or -ci / -là. A bare celui is incomplete."
+  },
+
+  "a2.syntax.cause_consequence": {
+    usage: "parce que gives the reason, comme puts it up front, donc and c'est pourquoi introduce the result.",
+    more: [
+      ["Il est absent parce qu'il est malade.", "He is absent because he is ill."],
+      ["Comme il pleuvait, on est restés.", "Since it was raining, we stayed."],
+      ["Il pleut, donc je prends un parapluie.", "It is raining, so I am taking an umbrella."]
+    ],
+    tip: "comme sits at the head of the sentence; parce que answers a question. Swapping them sounds wrong even when the meaning is clear."
+  },
+
+  "a2.expressions.avoir": {
+    usage: "French says you *have* hunger, thirst, fear and need where English says you *are* hungry, thirsty or afraid.",
+    more: [
+      ["J'ai faim.", "I am hungry."],
+      ["Elle a peur des araignées.", "She is afraid of spiders."],
+      ["Nous avons besoin d'aide.", "We need help."]
+    ],
+    tip: "avoir envie de = want, avoir besoin de = need. Both take de before a noun or an infinitive."
+  },
+
+  "a2.verbs.accord_participe": {
+    usage: "With avoir, the past participle agrees only when the direct object comes before the verb.",
+    more: [
+      ["Les fleurs que j'ai cueillies.", "The flowers I picked."],
+      ["Je les ai vus.", "I saw them."],
+      ["Elle a écrit les lettres.", "She wrote the letters — no agreement."]
+    ],
+    tip: "The test is position, not meaning: object before the verb → agree; object after → leave it alone."
+  },
+
+  "a2.syntax.discours_indirect": {
+    usage: "Reporting what someone said. If the reporting verb is past, the reported tense shifts back one step.",
+    more: [
+      ["Il dit qu'il est malade.", "He says he is ill."],
+      ["Il a dit qu'il était malade.", "He said he was ill."],
+      ["Elle demande si je viens.", "She asks whether I am coming."]
+    ],
+    tip: "Present becomes imperfect, passé composé becomes plus-que-parfait. Yes/no questions use si, not que."
+  },
+
+  "a2.pronouns.indefinite": {
+    usage: "chacun, plusieurs, certains, la plupart — vague quantities without a number.",
+    more: [
+      ["Chacun a son opinion.", "Everyone has their opinion."],
+      ["Plusieurs sont venus.", "Several came."],
+      ["La plupart des gens pensent que...", "Most people think that..."]
+    ],
+    tip: "la plupart always needs de + definite article; chacun is always singular, even when it means everyone."
+  },
+
+  "a2.prepositions.expressions": {
+    usage: "à cause de blames, grâce à credits, malgré concedes.",
+    more: [
+      ["À cause de la pluie, on est restés.", "Because of the rain, we stayed."],
+      ["Grâce à toi, j'ai réussi.", "Thanks to you, I succeeded."],
+      ["Malgré la fatigue, il continue.", "Despite the fatigue, he continues."]
+    ],
+    tip: "malgré takes a noun directly — no de. \"malgré de la fatigue\" is wrong."
+  },
+
+  "a2.expressions.faux_amis": {
+    usage: "Words that look English but are not. These cause more embarrassment than grammar mistakes.",
+    more: [
+      ["actuellement = currently, not actually", "actually = en fait"],
+      ["éventuellement = possibly, not eventually", "eventually = finalement"],
+      ["assister à = to attend, not to assist", "to assist = aider"]
+    ],
+    tip: "The closer a word looks to English, the more it is worth checking. actuellement / actually is the classic trap."
+  },
+
+  "a2.syntax.interrogation_quel": {
+    usage: "quel is an adjective and needs a noun; lequel is a pronoun and stands alone.",
+    more: [
+      ["Quel livre ?", "Which book?"],
+      ["Quelle heure est-il ?", "What time is it?"],
+      ["Lequel préfères-tu ?", "Which one do you prefer?"]
+    ],
+    tip: "lequel contracts with à and de: auquel, duquel, auxquels, desquels."
+  },
+
+  "a2.adverbs.frequency": {
+    usage: "toujours, souvent, parfois, rarement, jamais — how often something happens.",
+    more: [
+      ["Je vais souvent au cinéma.", "I often go to the cinema."],
+      ["Il a toujours aimé ça.", "He has always liked that."],
+      ["Elle ne fume jamais.", "She never smokes."]
+    ],
+    tip: "In a compound tense the adverb sits between auxiliary and participle: j'ai souvent vu, not j'ai vu souvent."
+  },
+
+  "a2.verbs.politesse": {
+    usage: "The conditional softens a request. je voudrais and pourriez-vous are the standard polite forms.",
+    more: [
+      ["Je voudrais un café.", "I would like a coffee."],
+      ["Pourriez-vous m'aider ?", "Could you help me?"],
+      ["Auriez-vous un moment ?", "Would you have a moment?"]
+    ],
+    tip: "je veux is not rude, but it is blunt. In shops and offices, je voudrais is what people expect."
+  },
+
+  "a2.adjectives.tout": {
+    usage: "As an adjective it means all/every and agrees; as an adverb it means completely and usually stays invariable.",
+    more: [
+      ["Tous les étudiants sont là.", "All the students are here."],
+      ["Toute la journée.", "All day."],
+      ["Il est tout content.", "He is completely happy."]
+    ],
+    tip: "Adjective → agrees (tout, toute, tous, toutes). Adverb → frozen as tout, except before a feminine adjective starting with a consonant."
+  },
+
+  "a2.prepositions.movement": {
+    usage: "vers heads towards, jusqu'à goes as far as, à travers cuts through.",
+    more: [
+      ["Il marche vers la gare.", "He walks towards the station."],
+      ["Nous avons marché jusqu'au parc.", "We walked as far as the park."],
+      ["À travers la forêt.", "Through the forest."]
+    ],
+    tip: "vers only gives a direction and may never arrive; jusqu'à insists on reaching the endpoint."
+  },
+
+  "a2.syntax.interrogation_complete": {
+    usage: "The full question-word set, used with est-ce que or inversion.",
+    more: [
+      ["Pourquoi est-ce que tu pars ?", "Why are you leaving?"],
+      ["Combien ça coûte ?", "How much does it cost?"],
+      ["Depuis quand habites-tu ici ?", "Since when have you lived here?"]
+    ],
+    tip: "combien takes de before a noun: combien de personnes, combien d'argent."
   }
 };
