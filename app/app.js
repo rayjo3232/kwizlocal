@@ -253,25 +253,36 @@ function hexPath(cx, cy, r) {
   return d + "Z";
 }
 
-/* Largest honeycomb that fits n cells into w×h. Bisection on the radius is
-   simpler and more reliable than solving the packing by hand. */
+/* Pick the column count that yields the largest hexagon.
+
+   Bisecting on the radius does not work: it happily accepts a single row of
+   tiny hexagons because that also "fits". Enumerating columns and keeping the
+   best radius fills the box properly. The radius is capped so that a level
+   with only two or three points does not turn into three giant tiles. */
 function hexGrid(n, w, h) {
-  let lo = 8, hi = 46, best = null;
-  for (let iter = 0; iter < 24; iter++) {
-    const R = (lo + hi) / 2;
-    const hexW = Math.sqrt(3) * R;
-    const rowStep = 1.5 * R;
-    /* Never lay out more columns than there are cells — otherwise a handful
-       of points would be measured against a full-width grid and rejected. */
-    const cols = Math.max(1, Math.min(n, Math.floor((w + hexW * 0.5) / hexW)));
+  const MAX_R = 64, MIN_R = 10;
+  let best = null;
+  for (let cols = 1; cols <= n; cols++) {
     const rows = Math.ceil(n / cols);
-    const totalW = cols * hexW + hexW * 0.5;
-    const totalH = (rows - 1) * rowStep + 2 * R;
-    if (totalW <= w && totalH <= h) {
-      best = { R: R, hexW: hexW, rowStep: rowStep, cols: cols, rows: rows, totalW: totalW, totalH: totalH };
-      lo = R;
-    } else {
-      hi = R;
+    const RbyW = (w / (cols + 0.5)) / Math.sqrt(3);
+    const RbyH = h / (1.5 * (rows - 1) + 2);
+    const R = Math.min(RbyW, RbyH, MAX_R);
+    if (R < MIN_R) continue;
+    /* Same radius in several layouts? Prefer the one closest to square, so
+       five points do not end up in a single vertical column. */
+    const square = Math.sqrt(n);
+    const better = !best || R > best.R + 0.01 ||
+      (Math.abs(R - best.R) <= 0.01 && Math.abs(cols - square) < Math.abs(best.cols - square));
+    if (better) {
+      best = {
+        R: R,
+        cols: cols,
+        rows: rows,
+        hexW: Math.sqrt(3) * R,
+        rowStep: 1.5 * R,
+        totalW: cols * Math.sqrt(3) * R + Math.sqrt(3) * R * 0.5,
+        totalH: (rows - 1) * 1.5 * R + 2 * R
+      };
     }
   }
   return best;
