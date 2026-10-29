@@ -610,6 +610,23 @@ p{margin:0 0 12px}
 .mb-row .w{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(200,60,60,.45)}
 .mb-row .r{font-weight:700;color:var(--ink)}
 
+/* related points: cross-links between lessons, the way Kwiziq ties a basic
+   lesson to the advanced ones that build on it */
+.rel-block{margin:14px 0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.rel-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line2)}
+.rel-row:last-child{border-bottom:none}
+.rel-label{
+  flex:none;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin-right:2px;
+}
+.rel-link{
+  font:inherit;font-size:12px;font-weight:600;line-height:1.35;cursor:pointer;
+  color:#1a73e8;background:#F3F9FE;border:1px solid #D6E8F5;border-radius:999px;
+  padding:3px 9px;transition:background-color 120ms ease;
+}
+.rel-link:hover{background:#E5F4FF}
+.rel-link:active{transform:translateY(1px)}
+
 /* weekly summary card */
 .week-card{
   background:#fff;border:1px solid var(--line);border-radius:10px;
@@ -625,6 +642,23 @@ p{margin:0 0 12px}
 .wk-stat span{font-size:10.5px;color:var(--muted);letter-spacing:.02em}
 .wk-weak{margin-top:10px;font-size:12px;color:var(--ink2)}
 .wk-empty{font-size:12.5px;color:var(--muted)}
+
+/* seven-day activity strip under the weekly numbers */
+.act-bars{
+  display:flex;align-items:flex-end;gap:7px;
+  margin-top:13px;padding-top:12px;border-top:1px solid var(--line2);
+}
+.act-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.act-track{
+  width:100%;height:46px;display:flex;align-items:flex-end;
+  background:#F4F6F8;border-radius:5px;overflow:hidden;
+}
+.act-bar{display:block;width:100%;border-radius:5px 5px 0 0;background:#D9DEE3}
+.act-bar.good{background:#5FB56F}
+.act-bar.mid{background:#F2C94C}
+.act-bar.low{background:#E4574C}
+.act-day{font-size:9.5px;font-weight:700;color:var(--faint);letter-spacing:.04em}
+
 @media (max-width:520px){.wk-stats{grid-template-columns:repeat(2,1fr)}}
 
 /* ---------- translation practice ---------- */

@@ -480,6 +480,41 @@ function weeklyReport() {
   return { questions: questions, correct: correct, minutes: minutes, sessions: sessions.length, weakest: weakest };
 }
 
+/* Seven-day activity strip: bar height = questions answered, colour = accuracy.
+   The weekly card used to show totals only, so a flat week and a burst looked
+   identical. This is the small "real-time report" Kwiziq puts on the dashboard. */
+function activityBars() {
+  const DAY = ["S", "M", "T", "W", "T", "F", "S"];
+  const key = function (ts) {
+    const d = new Date(ts);
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  };
+  const days = [];
+  const now = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    days.push({ key: key(d), label: DAY[d.getDay()], n: 0, c: 0 });
+  }
+  const idx = {};
+  days.forEach(function (d, i) { idx[d.key] = i; });
+  (state.attempts || []).forEach(function (a) {
+    const i = idx[key(a.at)];
+    if (i == null) return;
+    days[i].n += 1;
+    if (a.correct) days[i].c += 1;
+  });
+  const max = Math.max(1, Math.max.apply(null, days.map(function (d) { return d.n; })));
+  return '<div class="act-bars">' + days.map(function (d) {
+    const h = d.n ? Math.max(10, Math.round(d.n / max * 100)) : 0;
+    const acc = d.n ? Math.round(d.c / d.n * 100) : 0;
+    const cls = !d.n ? "" : acc >= 70 ? "good" : acc >= 40 ? "mid" : "low";
+    const tip = d.n ? d.n + " questions · " + acc + "% correct" : "no practice";
+    return '<div class="act-col" title="' + tip + '">'
+      + '<div class="act-track"><span class="act-bar ' + cls + '" style="height:' + h + '%"></span></div>'
+      + '<span class="act-day">' + d.label + "</span></div>";
+  }).join("") + "</div>";
+}
+
 function weeklyHtml() {
   const w = weeklyReport();
   if (!w.sessions && !w.questions) {
@@ -494,6 +529,7 @@ function weeklyHtml() {
     + '<div class="wk-stat"><b>' + w.minutes + "</b><span>minutes</span></div>"
     + '<div class="wk-stat"><b>' + w.sessions + "</b><span>sessions</span></div>"
     + "</div>"
+    + activityBars()
     + (w.weakest
       ? '<div class="wk-weak">Weakest area: <b>' + esc(CATEGORIES[w.weakest.cat] || w.weakest.cat)
         + "</b> (" + w.weakest.avg + ") · "
@@ -766,6 +802,7 @@ function openDrawer(kpId) {
     + mistakesHtml(kp)
     + "<h4>Watch out</h4><div class=\"small\">" + frify(kp.pitfall) + "</div>"
     + tipHtml(kp)
+    + relatedHtml(kp)
     + '<div class="drawer-actions">'
     + '<button class="btn sm" data-practice="' + kp.id + '">Practice this</button>'
     + (st === "new" ? '<button class="btn sm ghost" data-prelearn="' + kp.id + '">Pre-learn (3 min)</button>' : "")
@@ -809,6 +846,9 @@ function openDrawer(kpId) {
       closeDrawer();
       if (location.hash.indexOf("brainmap") >= 0 || location.hash.indexOf("library") >= 0) route();
     });
+  });
+  drawerBody.querySelectorAll("[data-rel]").forEach(function (b) {
+    b.addEventListener("click", function () { openDrawer(b.getAttribute("data-rel")); });
   });
 }
 
@@ -1723,6 +1763,30 @@ function tipHtml(kp) {
   const deep = deepOf(kp.id);
   if (!deep || !deep.tip) return "";
   return '<div class="tip-box"><span class="tip-mark">TIP</span><span>' + frify(deep.tip) + "</span></div>";
+}
+
+/* Cross-links to neighbouring lessons. "Builds on" comes from the point's own
+   prereqs; "Leads to" is the reverse index built in data.js. Both are shown as
+   chips that reopen the drawer on the linked point — the same navigation
+   Kwiziq gives you at the foot of a lesson. */
+function relatedHtml(kp) {
+  const pick = function (ids) {
+    return (ids || []).map(function (id) { return KP_BY_ID[id]; }).filter(Boolean);
+  };
+  const pre = pick(kp.prereqs);
+  const dep = pick(typeof KP_DEPENDENTS !== "undefined" ? KP_DEPENDENTS[kp.id] : []);
+  if (!pre.length && !dep.length) return "";
+
+  const row = function (label, list) {
+    if (!list.length) return "";
+    return '<div class="rel-row"><span class="rel-label">' + label + "</span>"
+      + list.slice(0, 4).map(function (p) {
+        return '<button class="rel-link" data-rel="' + esc(p.id) + '">' + esc(p.title) + "</button>";
+      }).join("")
+      + "</div>";
+  };
+  return '<div class="rel-block"><div class="mb-title">Related points</div>'
+    + row("Builds on", pre) + row("Leads to", dep) + "</div>";
 }
 
 /* Pull the wrong options out of the choice items so every point can show a

@@ -2022,3 +2022,13 @@ const KPS = [
 
 const KP_BY_ID = {};
 KPS.forEach(function (kp) { KP_BY_ID[kp.id] = kp; });
+
+/* Reverse prerequisite index: for each point, which points list it as a
+   prerequisite. Used by the lesson drawer to show "leads to" links the way
+   Kwiziq cross-links a basic lesson to the advanced ones. */
+const KP_DEPENDENTS = {};
+KPS.forEach(function (kp) {
+  (kp.prereqs || []).forEach(function (p) {
+    (KP_DEPENDENTS[p] = KP_DEPENDENTS[p] || []).push(kp.id);
+  });
+});
