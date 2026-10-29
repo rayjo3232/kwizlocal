@@ -152,6 +152,8 @@ function passageHtml(item) {
 }
 
 function typeLabel(item) {
+  if (item.topic === "vocab") return "Which word fits?";
+  if (item.topic === "verbs") return "Conjugate the verb";
   if (item.type === "choice") return "Choose the correct answer";
   if (item.type === "fill" || item.type === "multi_fill") return "Complete the sentence";
   if (item.type === "correct") return "Correct the sentence";
@@ -190,8 +192,10 @@ function toast(msg) {
 /* Resolve an item id against a point: hand-written questions first, then the
    sentence bank (ids prefixed "sent."). */
 function findItem(kp, itemId) {
+  const s = String(itemId);
+  if (s.indexOf("topic.") === 0) return topicItem(s);
+  if (s.indexOf("sent.") === 0) return sentItem(s);
   if (!kp) return null;
-  if (String(itemId).indexOf("sent.") === 0) return sentItem(itemId);
   return kp.items.filter(function (i) { return i.id === itemId; })[0] || null;
 }
 
@@ -208,10 +212,10 @@ function logTopicAnswer(source, itemId, correct) {
 }
 
 function getItem(ref) {
-  const kp = KP_BY_ID[ref.kpId];
-  if (!kp) return null;
+  const kp = ref.kpId ? KP_BY_ID[ref.kpId] : null;
   const item = findItem(kp, ref.itemId);
-  return item ? { kp: kp, item: item } : null;
+  if (!item) return null;
+  return { kp: kp || TOPIC_KP[item.topic], item: item };
 }
 
 function monthSessions() {
@@ -705,6 +709,7 @@ function renderDashboard() {
     + '</div>'
 
     + '<section class="card hero">'
+    + '<div class="hero-left">'
     + '<div class="hero-top"><div class="avatar">K</div><div class="hero-copy">'
     + '<div class="hello">' + (today ? "Welcome back." : "Hello!") + "</div>"
     + "<p>" + (inProgress
@@ -715,12 +720,19 @@ function renderDashboard() {
     + (inProgress ? '<button class="btn subtle" data-start="3">Start a fresh quick kwiz</button>' : "")
     + '<button class="btn subtle" data-start="10">Full kwiz · 10</button>'
     + "</div>"
-    + (stepsHtml ? '<div class="next-steps"><div class="ns-title">Or, in order of urgency</div>' + stepsHtml + "</div>" : "")
     + (state.attempts.length === 0 && !state.seeded && !state.placement
       ? '<div class="firstrun"><div><b>First time here?</b> A 20-question placement test tells you where you are in about 5 minutes.</div>'
         + '<span class="spacer"></span><button class="btn sm ghost" data-placement>Start placement</button>'
         + '<a href="#/settings" class="small">or load demo data</a></div>'
       : "")
+    + "</div>"
+    + '<div class="hero-side">'
+    + (stepsHtml
+      ? '<div class="next-steps"><div class="ns-title">Or, in order of urgency</div>' + stepsHtml
+        + (steps.length < 2 ? '<p class="ns-empty">Nothing else is due for review.</p>' : "") + "</div>"
+      : '<div class="next-steps"><div class="ns-title">All caught up</div>'
+        + '<p class="ns-empty">Nothing is due and nothing is weak. A longer kwiz will find something.</p></div>')
+    + "</div>"
     + "</section>"
 
     + weeklyHtml()
@@ -1024,7 +1036,7 @@ function snapshotScores(items) {
    established — same grammar, new vocabulary, so you cannot memorise the
    hand-written question instead of learning the rule. */
 function addSentenceVariety(items) {
-  if (!SENTENCE_BANK.length) return items;
+  if (!sentenceBank().length) return items;
   const usedKp = {};
   let swaps = 0;
   return items.map(function (ref) {
@@ -1044,6 +1056,7 @@ function startSession(size) {
   const n = size || 10;
   const built = Engine.buildSession(state, n);
   built.items = addSentenceVariety(built.items);
+  built.items = mixTopics(built.items, n);
   session = {
     session: built,
     before: snapshotScores(built.items),
@@ -1154,7 +1167,7 @@ let SENT_TAG_INDEX = null;
 function sentTagIndex() {
   if (SENT_TAG_INDEX) return SENT_TAG_INDEX;
   SENT_TAG_INDEX = {};
-  SENTENCE_BANK.forEach(function (s, i) {
+  sentenceBank().forEach(function (s, i) {
     if (s[5] !== "gap" || !s[3] || !s[4] || !s[4].length) return;
     (SENT_TAG_INDEX[s[2]] = SENT_TAG_INDEX[s[2]] || []).push(i);
   });
@@ -1164,7 +1177,7 @@ function sentTagIndex() {
 /* Turn a bank row into an item shaped like a hand-written choice question. */
 function sentItem(itemId) {
   const i = parseInt(String(itemId).slice(5), 10);
-  const s = SENTENCE_BANK[i];
+  const s = sentenceBank()[i];
   if (!s) return null;
   return {
     id: itemId,
@@ -1182,7 +1195,7 @@ function sentItem(itemId) {
 /* Candidate sentence ids for a point, rotated by how often it has been seen. */
 function sentIdsFor(kpId, offset) {
   const tags = SENT_KP_TAGS[kpId];
-  if (!tags || !SENTENCE_BANK.length) return [];
+  if (!tags || !sentenceBank().length) return [];
   const idx = sentTagIndex();
   const ids = [];
   tags.forEach(function (t) {
@@ -1191,6 +1204,136 @@ function sentIdsFor(kpId, offset) {
   if (!ids.length) return [];
   const start = (offset * 11) % ids.length;
   return ids.slice(start).concat(ids.slice(0, start)).slice(0, 8);
+}
+
+/* ---- vocabulary and conjugation inside normal sessions ----
+
+   The daily three used to be 100% grammar. 600 words and 3,108 verb forms sat
+   behind their own pages, so they only got practised on the days you happened
+   to remember to open them. They now take a share of every session — scored
+   as work, never as grammar evidence.
+
+   Items are built lazily from their id and cached, because the options must
+   not reshuffle between the question render and the feedback render. */
+const TOPIC_KP = {
+  vocab: { id: "topic.vocab", title: "Vocabulary", titleFr: "", level: "", category: "vocab", items: [] },
+  verbs: { id: "topic.verbs", title: "Conjugation", titleFr: "", level: "", category: "verbs", items: [] }
+};
+
+const TOPIC_CACHE = {};
+
+function topicItem(itemId) {
+  const s = String(itemId);
+  if (TOPIC_CACHE[s]) return TOPIC_CACHE[s];
+  let item = null;
+
+  if (s.indexOf("topic.vocab:") === 0) {
+    const v = VOCAB_BY_WORD[s.slice(12)];
+    const ex = v && v.ex && v.ex[0];
+    const blanked = ex ? blankWord(ex[0], v.w) : null;
+    /* A blank at the start of the sentence is not a question — there is no
+       context to work from — so those examples are skipped. */
+    const usable = blanked && blanked.indexOf("____") > 2 && ex[0].split(/\s+/).length >= 5;
+    if (usable) {
+      const others = VOCAB_LIST.filter(function (x) { return x.pos === v.pos && x.w !== v.w; })
+        .map(function (x) { return x.w; });
+      if (others.length >= 3) {
+        item = {
+          id: s, type: "choice", prompt: blanked,
+          options: vocabShuffle([v.w].concat(vocabShuffle(others).slice(0, 3))),
+          answer: v.w, explain: ex[1], difficulty: 2, stage: "kwiz", topic: "vocab"
+        };
+      }
+    }
+  } else if (s.indexOf("topic.verbs:") === 0) {
+    const parts = s.slice(12).split("|");
+    const v = VERB_BY_INF[parts[0]];
+    const form = v && v.t[parts[1]] && v.t[parts[1]][parseInt(parts[2], 10)];
+    if (form) {
+      const pronoun = VERB_PERSON_LIST[parseInt(parts[2], 10)];
+      item = {
+        id: s, type: "fill",
+        prompt: "« " + parts[0] + " » — " + parts[1] + ", " + pronoun,
+        answer: form,
+        accept: [verbElide(pronoun, form)],
+        explain: v.en ? v.en : "",
+        difficulty: 3, stage: "kwiz", topic: "verbs"
+      };
+    }
+  }
+
+  if (!item) return null;
+  if (Object.keys(TOPIC_CACHE).length > 300) {
+    Object.keys(TOPIC_CACHE).forEach(function (k) { delete TOPIC_CACHE[k]; });
+  }
+  TOPIC_CACHE[s] = item;
+  return item;
+}
+
+/* Which words are worth asking: unknown ones first, then the ones you keep
+   getting wrong, then whatever you have not seen for longest. */
+function topicVocabRefs(n) {
+  const pool = VOCAB_LIST.filter(function (v) {
+    if (!(v.ex && v.ex[0] && v.ex[0][0])) return false;
+    if (state.vocab && state.vocab[v.w] && state.vocab[v.w].known) return false;
+    const b = blankWord(v.ex[0][0], v.w);
+    return b && b.indexOf("____") > 2 && v.ex[0][0].split(/\s+/).length >= 5;
+  }).map(function (v) {
+    const r = state.vocab && state.vocab[v.w];
+    const misses = r ? Math.max(0, r.seen - r.correct) : 0;
+    return { w: v.w, misses: misses, seen: r ? r.seen : 0, last: r ? r.last : 0 };
+  });
+  pool.sort(function (a, b) {
+    if (a.misses !== b.misses) return b.misses - a.misses;
+    if (a.seen !== b.seen) return a.seen - b.seen;
+    return a.last - b.last;
+  });
+  return pool.slice(0, n).map(function (x) {
+    return { kpId: null, topic: "vocab", itemId: "topic.vocab:" + x.w };
+  });
+}
+
+function topicVerbRefs(n) {
+  const pool = [];
+  VERB_LIST.forEach(function (v) {
+    VERB_TENSE_LIST.forEach(function (t) {
+      if (!v.t[t]) return;
+      for (let p = 0; p < 6; p++) {
+        const key = v.inf + "|" + t + "|" + p;
+        const r = state.verbs && state.verbs[key];
+        const seen = r ? r.seen : 0;
+        const acc = seen ? r.correct / seen : 0;
+        pool.push({
+          key: key,
+          score: seen ? (1 - acc) + Math.random() * 0.15 : 0.5 + Math.random() * 0.2
+        });
+      }
+    });
+  });
+  pool.sort(function (a, b) { return b.score - a.score; });
+  return pool.slice(0, n).map(function (x) {
+    return { kpId: null, topic: "verbs", itemId: "topic.verbs:" + x.key };
+  });
+}
+
+/* Replace roughly one question in three, never the opening one, so a session
+   still starts with the grammar it was built around. */
+function mixTopics(items, n) {
+  const slots = n <= 3 ? 1 : Math.max(1, Math.round(n * 0.3));
+  const wantVocab = Math.ceil(slots / 2);
+  const picks = topicVocabRefs(wantVocab).concat(topicVerbRefs(slots - wantVocab));
+  if (!picks.length) return items;
+
+  const out = items.slice();
+  const positions = [];
+  for (let i = 1; i < out.length && positions.length < picks.length; i += 3) positions.push(i);
+  positions.forEach(function (pos, k) {
+    const ref = picks[k];
+    if (!ref) return;
+    if (!topicItem(ref.itemId)) return;     /* drop refs whose data is missing */
+    out[pos] = ref;
+  });
+  return out;
 }
 
 function startSessionFromItems(items) {
@@ -1315,9 +1458,12 @@ function renderKwiz() {
         + '<span class="delta ' + (l.delta > 0 ? "up" : l.delta < 0 ? "down" : "flat") + '">'
         + (l.delta > 0 ? "+" : "") + l.delta + "</span></div>"
       : "";
-    const ctxNote = l.noMastery
-      ? '<div class="ctx-note">Context question — a real sentence from the bank. It counts towards this session but not towards your confidence score.</div>'
-      : "";
+    const ctxNote = item.topic
+      ? '<div class="ctx-note">' + (item.topic === "verbs" ? "Conjugation" : "Vocabulary")
+        + " — it counts towards this session, not towards your grammar score.</div>"
+      : (l.noMastery
+        ? '<div class="ctx-note">Context question — a real sentence from the bank. It counts towards this session but not towards your confidence score.</div>'
+        : "");
     if (l.skip) {
       feedback = '<div class="feedback skip" role="status" aria-live="polite"><div class="mark">–</div><div class="body">'
         + "<b>Skipped — no penalty.</b>"
@@ -1330,9 +1476,11 @@ function renderKwiz() {
       feedback = '<div class="feedback bad" role="status" aria-live="polite"><div class="mark">×</div><div class="body">'
         + "<b>Not quite.</b>" + moveHtml + ctxNote
         + '<div class="answer-line">' + esc(item.answer) + "</div>"
-        + (item.type === "choice" && !item.fromSentence ? whyWrongHtml(kp.id, l.given) : "")
+        + (item.type === "choice" && !item.fromSentence && !item.topic ? whyWrongHtml(kp.id, l.given) : "")
         + esc(item.explain)
-        + '<div style="margin-top:6px"><a href="#/prelearn/' + kp.id + '" class="small" style="color:var(--blue);font-weight:600">Learn this point →</a></div>'
+        + (item.topic
+          ? ""
+          : '<div style="margin-top:6px"><a href="#/prelearn/' + kp.id + '" class="small" style="color:var(--blue);font-weight:600">Learn this point →</a></div>')
         + "</div></div>";
     }
   }
@@ -1340,10 +1488,14 @@ function renderKwiz() {
   const hint = (!answered && item.hint && item.stage === "guided")
     ? '<p class="small" style="margin-top:12px">Hint: ' + esc(item.hint) + "</p>" : "";
 
+  const headLabel = item.topic
+    ? (item.topic === "verbs" ? "Conjugation" : "Vocabulary")
+    : esc(kp.level) + " · " + esc(kp.title.split(":")[0]);
+
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
     + '<div class="kwiz-top"><span>' + (session.index + 1) + " / " + total + "</span>"
     + '<span class="track"><span class="fill" style="width:' + (session.index / total * 100) + '%"></span></span>'
-    + "<span>" + esc(kp.level) + " · " + esc(kp.title.split(":")[0]) + "</span></div>"
+    + "<span>" + headLabel + "</span></div>"
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">' + (ref.retry ? '<span class="retry-badge">Retry</span> ' : "") + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
@@ -1431,20 +1583,22 @@ function checkAnswer() {
      score movement for this answer, and so a half-finished session still
      counts. finishSession skips answers already marked applied. */
   const res = Engine.applyAttempt(state, {
-    kpId: ref.kpId, itemId: item.id, correct: correct,
-    source: item.fromSentence ? "sentence" : "kwiz",
-    noMastery: !!item.fromSentence
+    kpId: ref.kpId || null, itemId: item.id, correct: correct,
+    source: item.topic || (item.fromSentence ? "sentence" : "kwiz"),
+    noMastery: !!item.fromSentence || !!item.topic
   });
   saveState();
   const beforeScore = res.before;
   const afterScore = res.after;
 
   session.answers.push({
-    itemId: item.id, kpId: ref.kpId, correct: correct, given: given, applied: true,
-    noMastery: !!item.fromSentence
+    itemId: item.id, kpId: ref.kpId || null, correct: correct, given: given, applied: true,
+    noMastery: !!item.fromSentence || !!item.topic,
+    topic: item.topic || null
   });
   session.last = {
-    correct: correct, given: given, skip: false, noMastery: !!item.fromSentence,
+    correct: correct, given: given, skip: false,
+    noMastery: !!item.fromSentence || !!item.topic,
     before: beforeScore, after: afterScore, delta: afterScore - beforeScore
   };
   session.phase = "feedback";
@@ -1523,10 +1677,10 @@ function renderResult(id) {
   /* One block per question rather than a five-column table: on a phone a
      table collapses into unreadable slivers, and the thing you actually want
      is "what did I write / what was right / why". */
-  const rows = record.answers.map(function (a, i) {
-    const kp = KP_BY_ID[a.kpId];
+  const rowHtml = function (a) {
+    const kp = a.kpId ? KP_BY_ID[a.kpId] : TOPIC_KP[a.topic];
     const item = findItem(kp, a.itemId);
-    if (!item) return "";
+    if (!kp || !item) return "";
     const cls = a.correct === null ? "skip" : a.correct ? "good" : "bad";
     const mark = a.correct === null ? "–" : a.correct ? "✓" : "×";
     const yours = a.correct === null ? "skipped" : (a.given || "—");
@@ -1541,12 +1695,22 @@ function renderResult(id) {
         ? '<div class="res-a ok"><span>Correct</span><b>' + esc(item.answer) + "</b></div>"
         : "")
       + "</div>"
-      + (a.noMastery ? '<div class="res-ctx">Context question from the sentence bank · not scored</div>' : "")
+      + (a.noMastery
+        ? '<div class="res-ctx">' + (a.topic
+          ? (a.topic === "verbs" ? "Conjugation" : "Vocabulary") + " · counts in this session, not in your grammar score"
+          : "Context question from the sentence bank · not scored") + "</div>"
+        : "")
       + (item.explain ? '<div class="res-exp">' + esc(item.explain) + "</div>" : "")
       + "</div>"
-      + '<a class="res-study" href="#/prelearn/' + kp.id + '">Study</a>'
+      + (a.kpId ? '<a class="res-study" href="#/prelearn/' + kp.id + '">Study</a>' : '<span class="res-study"></span>')
       + "</div>";
-  }).join("");
+  };
+
+  /* Missed and skipped answers come first; the ones you got right are folded
+     away so the next action is not buried under ten correct rows. */
+  const missedRows = record.answers.filter(function (a) { return a.correct !== true; }).map(rowHtml).join("");
+  const rightRows = record.answers.filter(function (a) { return a.correct === true; }).map(rowHtml).join("");
+  const rightCount = record.answers.filter(function (a) { return a.correct === true; }).length;
 
   const wrong = record.answers.filter(function (a) { return a.correct === false; });
 
@@ -1606,11 +1770,6 @@ function renderResult(id) {
     + '<div class="result-score">' + record.correct + " of " + answered + " correct"
     + (record.skipped ? " · " + record.skipped + " skipped" : "")
     + (record.durationMs ? " · " + fmtDuration(record.durationMs) : "") + "</div></div>"
-    + changeHtml
-    + '<div class="card' + (changes.length ? " section-gap" : "") + '">'
-    + '<h2 style="font-size:15px;margin-bottom:2px">Every question</h2>'
-    + '<p class="small" style="margin:0 0 4px">Tap Study to open the grammar behind a question.</p>'
-    + '<div class="res-list">' + rows + "</div></div>"
     + '<div class="res-actions">'
     + (wrong.length
       ? '<button class="btn" id="mistakesBtn">Practise ' + wrong.length + ' mistake' + (wrong.length > 1 ? "s" : "") + "</button>"
@@ -1619,9 +1778,21 @@ function renderResult(id) {
     + (wrong.length ? '<button class="btn subtle" id="newPointBtn">Learn a new point</button>' : "")
     + '<a class="btn subtle" href="#/">Back to dashboard</a></div>'
     + (wrong.length
-      ? '<p class="small" style="text-align:center;margin-top:12px">'
+      ? '<p class="small" style="text-align:center;margin:10px 0 0">'
         + wrong.length + " mistake" + (wrong.length > 1 ? "s" : "") + ' added to your <a href="#/notebook">Notebook</a>.</p>'
       : "")
+    + changeHtml
+    + '<div class="card section-gap">'
+    + '<h2 style="font-size:15px;margin-bottom:2px">' + (missedRows ? "What you missed" : "Every question") + "</h2>"
+    + '<p class="small" style="margin:0 0 4px">Tap Study to open the grammar behind a question.</p>'
+    + (missedRows ? '<div class="res-list">' + missedRows + "</div>" : "")
+    + (rightRows
+      ? (missedRows
+        ? '<details class="res-fold"><summary>Show ' + rightCount + " correct answer" + (rightCount === 1 ? "" : "s") + "</summary>"
+          + '<div class="res-list">' + rightRows + "</div></details>"
+        : '<div class="res-list">' + rightRows + "</div>")
+      : "")
+    + "</div>"
     + "</div></div>";
 
   document.querySelectorAll("[data-start]").forEach(function (b) {
@@ -3267,7 +3438,30 @@ function renderCloze() {
 /* ---------------- sentence bank ---------------- */
 
 /* sentences.js is generated by tools/build_sentences.py; tolerate it missing. */
-const SENTENCE_BANK = (typeof SENTENCES !== "undefined" && Array.isArray(SENTENCES)) ? SENTENCES : [];
+/* The bank is 2.3 MB of array literal — 77% of everything the app ships, and
+   pure parse cost on every cold start. A fresh profile never needs it (sentence
+   questions only join practice once a point has three attempts behind it), so
+   it loads after first paint instead of blocking it. */
+let SENT_CACHE = null;
+let sentLoadPromise = null;
+
+function sentenceBank() {
+  if (!SENT_CACHE && typeof SENTENCES !== "undefined" && Array.isArray(SENTENCES)) SENT_CACHE = SENTENCES;
+  return SENT_CACHE || [];
+}
+
+function loadSentences() {
+  if (typeof SENTENCES !== "undefined") { SENT_CACHE = SENTENCES; return Promise.resolve(SENT_CACHE); }
+  if (sentLoadPromise) return sentLoadPromise;
+  sentLoadPromise = new Promise(function (resolve) {
+    const el = document.createElement("script");
+    el.src = "sentences.js";
+    el.onload = function () { SENT_CACHE = null; SENT_TAG_INDEX = null; resolve(sentenceBank()); };
+    el.onerror = function () { sentLoadPromise = null; resolve([]); };
+    document.body.appendChild(el);
+  });
+  return sentLoadPromise;
+}
 
 const SENT_TAGS = [
   ["all", "All"],
@@ -3291,7 +3485,7 @@ let sentDrill = null;
 
 function sentTagCounts() {
   const out = {};
-  SENTENCE_BANK.forEach(function (s) { out[s[2]] = (out[s[2]] || 0) + 1; });
+  sentenceBank().forEach(function (s) { out[s[2]] = (out[s[2]] || 0) + 1; });
   return out;
 }
 
@@ -3301,13 +3495,26 @@ function sentStat(tag) {
   return state.sentences[tag];
 }
 
+function renderSentencesMissing() {
+  app.innerHTML = '<div class="container"><div class="empty">'
+    + "<b>Sentence bank is not built yet.</b><br><br>"
+    + "Run <code>python tools/build_sentences.py</code> in the project folder.<br><br>"
+    + "It mines Tatoeba sentence pairs into thousands of gap-fill and word-order items."
+    + "</div></div>";
+}
+
 function renderSentences() {
-  if (!SENTENCE_BANK.length) {
-    app.innerHTML = '<div class="container"><div class="empty">'
-      + "<b>Sentence bank is not built yet.</b><br><br>"
-      + "Run <code>python tools/build_sentences.py</code> in the project folder.<br><br>"
-      + "It mines Tatoeba sentence pairs into thousands of gap-fill and word-order items."
-      + "</div></div>";
+  if (!sentenceBank().length) {
+    /* First visit to this page after a cold start: the bank is still loading. */
+    if (typeof SENTENCES === "undefined") {
+      app.innerHTML = '<div class="container"><div class="empty">Loading the sentence bank…</div></div>';
+      loadSentences().then(function (bank) {
+        if (bank.length) renderSentences();
+        else renderSentencesMissing();
+      });
+      return;
+    }
+    renderSentencesMissing();
     return;
   }
   if (sentDrill) { renderSentDrill(); return; }
@@ -3317,16 +3524,16 @@ function renderSentences() {
   const chips = SENT_TAGS.filter(function (pair) {
     return pair[0] === "all" || counts[pair[0]];
   }).map(function (pair) {
-    const n = pair[0] === "all" ? SENTENCE_BANK.length : counts[pair[0]];
+    const n = pair[0] === "all" ? sentenceBank().length : counts[pair[0]];
     return '<button class="chip' + (sentTag === pair[0] ? " active" : "") + '" data-stag="' + pair[0] + '">'
       + pair[1] + " " + n + "</button>";
   }).join("");
 
-  const total = SENTENCE_BANK.length;
-  const gaps = SENTENCE_BANK.filter(function (s) { return s[5] === "gap"; }).length;
+  const total = sentenceBank().length;
+  const gaps = sentenceBank().filter(function (s) { return s[5] === "gap"; }).length;
 
   const levelCounts = {};
-  SENTENCE_BANK.forEach(function (s) {
+  sentenceBank().forEach(function (s) {
     const lv = s[6] || "A1";
     levelCounts[lv] = (levelCounts[lv] || 0) + 1;
   });
@@ -3338,7 +3545,7 @@ function renderSentences() {
       + (lv === "all" ? "All levels" : lv) + " " + n + "</button>";
   }).join("");
 
-  const poolSize = SENTENCE_BANK.filter(function (s) {
+  const poolSize = sentenceBank().filter(function (s) {
     return (sentTag === "all" || s[2] === sentTag) && (sentLevel === "all" || s[6] === sentLevel);
   }).length;
 
@@ -3374,7 +3581,7 @@ function renderSentences() {
 }
 
 function startSentDrill(n) {
-  const pool = SENTENCE_BANK.filter(function (s) {
+  const pool = sentenceBank().filter(function (s) {
     return (sentTag === "all" || s[2] === sentTag) && (sentLevel === "all" || s[6] === sentLevel);
   });
   if (!pool.length) { toast("Nothing in this filter"); return; }
@@ -4207,3 +4414,12 @@ document.querySelectorAll("[data-tab-action]").forEach(function (b) {
 })();
 
 route();
+
+/* Pull the sentence bank in once the first screen is painted. Practice can use
+   it from the second session onward; the Sentences page loads it explicitly if
+   you get there first. */
+(function warmSentences() {
+  const go = function () { loadSentences(); };
+  if (typeof requestIdleCallback === "function") requestIdleCallback(go, { timeout: 4000 });
+  else setTimeout(go, 1500);
+})();

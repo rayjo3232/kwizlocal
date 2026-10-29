@@ -108,6 +108,10 @@ collapses to one column.
 | **Distractor feedback**: the 20 most-confused points explain why the option you picked is wrong (`app/distract.js`) | done |
 | **Rotation-based session building**: one question per point before any point repeats, recent items skipped, a point serves a different question each time | done |
 | **Sentence bank in the main kwiz**: once a point is established, real sentences from the 13k bank join the rotation as *context* questions — scored in the session, deliberately not scored in the mastery model | done |
+| **Vocabulary and conjugation in the daily kwiz**: about one question in three comes from the word deck or a verb form, so the three-question session covers the whole language instead of only grammar | done |
+| **One activity ledger**: vocabulary cards, cloze, gender drill and conjugation all count towards the daily goal and the weekly card (labelled separately from grammar accuracy) | done |
+| **Result page leads with the next action**: Practise mistakes / Learn a new point sit above the review list, and correct answers are folded away | done |
+| **Sentence bank loads after first paint**: 2.3 MB no longer blocks the first screen | done |
 | **Dashboard with one primary action**: daily goal → Quick · 3 → two secondary options → at most three ranked next steps; achievements and the study plan moved below | done |
 | **Pre-learn primer**: rule + two examples + one mix-up + the CTA on the first screen; extra examples, usage, mistakes, watch-out and tip collapsed into `<details>` | done |
 | **Phone Brainmap**: the innermost hexagon grid becomes a readable list (title, area, level, score, Practise) instead of hiding the SVG labels | done |

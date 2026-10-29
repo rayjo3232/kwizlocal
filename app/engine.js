@@ -386,7 +386,7 @@ const Engine = (function () {
       if (a.applied) return;
       applyAttempt(state, {
         kpId: a.kpId, itemId: a.itemId, correct: a.correct,
-        source: a.source || "kwiz"
+        source: a.source || "kwiz", noMastery: !!a.noMastery
       });
     });
 
