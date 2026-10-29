@@ -805,5 +805,569 @@ const DEEP = {
       ["Depuis quand habites-tu ici ?", "Since when have you lived here?"]
     ],
     tip: "combien takes de before a noun: combien de personnes, combien d'argent."
+  },
+
+  /* ---------- B1 ---------- */
+
+  "b1.future.simple": {
+    usage: "For plans, predictions and promises further ahead. Speech often uses aller + infinitive instead, but writing and formal speech keep the simple future.",
+    more: [
+      ["Je te rappellerai demain.", "I'll call you back tomorrow."],
+      ["Il pleuvra toute la journée.", "It will rain all day."],
+      ["Nous partirons dès qu'il sera prêt.", "We'll leave as soon as he's ready."]
+    ],
+    tip: "The endings -ai, -as, -a, -ons, -ez, -ont are the present of avoir worn down. Irregular stems: ser-, aur-, ir-, fer-, pourr-, viendr-."
+  },
+
+  "b1.conditional.present": {
+    usage: "Polite requests, hypotheses (with si + imparfait), and reported future. It softens a demand the way English uses 'would'.",
+    more: [
+      ["Je voudrais un café, s'il vous plaît.", "I would like a coffee, please."],
+      ["Si j'avais le temps, je viendrais.", "If I had time, I would come."],
+      ["Il a dit qu'il partirait.", "He said he would leave."]
+    ],
+    tip: "Same stem as the future, different endings: take the futur stem and add the imparfait endings — je serais, tu serais, il serait."
+  },
+
+  "b1.subjunctive.present": {
+    usage: "After expressions of will, need, doubt or emotion, and after certain conjunctions, when the two clauses have different subjects.",
+    more: [
+      ["Il faut que tu partes.", "You must leave."],
+      ["Je doute qu'il vienne.", "I doubt he'll come."],
+      ["Bien que je sois fatigué, je continue.", "Although I'm tired, I carry on."]
+    ],
+    tip: "The trigger is almost always que. If both clauses share a subject, use an infinitive instead: je veux partir, not *je veux que je parte*."
+  },
+
+  "b1.relative.qui_que": {
+    usage: "qui is the subject of the clause that follows; que is the direct object. Choose by looking at what comes right after the pronoun.",
+    more: [
+      ["La femme qui chante est ma sœur.", "The woman who is singing is my sister."],
+      ["Le film que nous avons vu était long.", "The film we saw was long."],
+      ["C'est l'ami qu'elle cherche.", "It's the friend she's looking for."]
+    ],
+    tip: "A verb straight after → qui (subject). A subject + verb after → que (object). que elides to qu' before a vowel."
+  },
+
+  "b1.comparison": {
+    usage: "Compare with plus / moins / aussi + adjective + que. The superlative adds le/la/les plus or moins.",
+    more: [
+      ["Il est plus grand que moi.", "He is taller than me."],
+      ["Ce livre est moins cher que l'autre.", "This book is cheaper than the other."],
+      ["C'est la meilleure idée.", "It's the best idea."]
+    ],
+    tip: "bon → meilleur, bien → mieux. Never say *plus meilleur* — meilleur is already comparative."
+  },
+
+  "b1.pronoun_order": {
+    usage: "When two object pronouns meet, they queue in a fixed order. Learn the queue, not a rule.",
+    more: [
+      ["Il me le donne.", "He gives it to me."],
+      ["Je le lui ai envoyé.", "I sent it to him."],
+      ["Nous y en avons mis.", "We put some there."]
+    ],
+    tip: "Order: me/te/se/nous/vous → le/la/les → lui/leur → y → en. You never use two from the same column."
+  },
+
+  "b1.verbs.plus_que_parfait": {
+    usage: "The past of the past: an action already finished before another past action — English 'had done'.",
+    more: [
+      ["J'avais déjà mangé quand il est arrivé.", "I had already eaten when he arrived."],
+      ["Elle était partie avant midi.", "She had left before noon."],
+      ["Nous avions fini le travail.", "We had finished the work."]
+    ],
+    tip: "avoir/être in the imparfait + past participle. With être the participle agrees: elle était partie, ils étaient partis."
+  },
+
+  "b1.verbs.passive": {
+    usage: "Put the action or the object in focus instead of the doer: être + past participle (+ par + agent).",
+    more: [
+      ["Le roman a été écrit par Hugo.", "The novel was written by Hugo."],
+      ["Les fenêtres sont fermées.", "The windows are closed."],
+      ["Cette maison est construite en pierre.", "This house is built of stone."]
+    ],
+    tip: "The participle agrees with the subject, never with the agent: les lettres sont écrites par Marie."
+  },
+
+  "b1.syntax.relative_dont": {
+    usage: "dont replaces de + noun. It covers possession ('whose') and verbs built with de: parler de, avoir besoin de.",
+    more: [
+      ["Le film dont je parle est célèbre.", "The film I'm talking about is famous."],
+      ["L'homme dont je connais la fille.", "The man whose daughter I know."],
+      ["Voici le livre dont j'ai besoin.", "Here is the book I need."]
+    ],
+    tip: "If the verb takes de, use dont and drop the de: parler de → le film dont je parle. Never *dont je parle de*."
+  },
+
+  "b1.syntax.si_clauses": {
+    usage: "The three-step ladder: si + present → future (real); si + imparfait → conditional (unreal now); si + plus-que-parfait → conditional past (unreal then).",
+    more: [
+      ["Si tu viens, nous mangerons.", "If you come, we'll eat."],
+      ["Si j'avais de l'argent, j'achèterais une voiture.", "If I had money, I'd buy a car."],
+      ["Si j'avais su, je serais venu.", "If I had known, I would have come."]
+    ],
+    tip: "Never put a conditional right after si. *Si je serais* is wrong — it's si j'étais."
+  },
+
+  "b1.verbs.gerondif": {
+    usage: "en + present participle shows how or while something happens: manner, simultaneity, condition.",
+    more: [
+      ["Il apprend en écoutant.", "He learns by listening."],
+      ["Elle a réussi en travaillant dur.", "She succeeded by working hard."],
+      ["En arrivant, j'ai vu Marie.", "On arriving, I saw Marie."]
+    ],
+    tip: "The gerund's subject must match the main verb's, otherwise use a full clause. Don't confuse en + -ant (gerund) with bare -ant (present participle)."
+  },
+
+  "b1.expressions.connectors": {
+    usage: "Logical links that make writing flow: addition, contrast, cause, consequence.",
+    more: [
+      ["Il pleut ; cependant, nous sortons.", "It's raining; however, we're going out."],
+      ["Je pense, donc je suis.", "I think, therefore I am."],
+      ["Elle est malade ; en effet, elle tousse.", "She's ill; indeed, she's coughing."]
+    ],
+    tip: "cependant and pourtant both mean 'yet', but pourtant stresses surprise. donc = consequence; en effet = confirmation."
+  },
+
+  "b1.verbs.subjunctive_conj": {
+    usage: "Certain conjunctions always drag the subjunctive in: bien que, pour que, avant que, à condition que, quoique.",
+    more: [
+      ["Bien qu'il soit jeune, il est compétent.", "Although he's young, he's competent."],
+      ["Je le fais pour que tu comprennes.", "I do it so that you understand."],
+      ["Pars avant qu'il ne pleuve.", "Leave before it rains."]
+    ],
+    tip: "après que takes the indicative, avant que the subjunctive. The ne after avant que is expletive, not negative."
+  },
+
+  "b1.verbs.conditional_past": {
+    usage: "Would have done: regret or an unreal past. avoir/être in the conditional + past participle.",
+    more: [
+      ["J'aurais mangé si j'avais eu faim.", "I would have eaten if I had been hungry."],
+      ["Elle serait partie plus tôt.", "She would have left earlier."],
+      ["Nous aurions dû écouter.", "We should have listened."]
+    ],
+    tip: "In a si-sentence the past conditional is the 'then' half, never the 'if' half: si j'avais su, j'aurais répondu."
+  },
+
+  "b1.syntax.inversion": {
+    usage: "Formal or literary questions put the verb before the subject with a hyphen. In speech, est-ce que usually replaces it.",
+    more: [
+      ["Parles-tu français ?", "Do you speak French?"],
+      ["Où vas-tu ?", "Where are you going?"],
+      ["Que faites-vous ce soir ?", "What are you doing tonight?"]
+    ],
+    tip: "A vowel-initial verb needs -t- before il/elle/on: va-t-il, a-t-elle. puis-je is the one irregular je form."
+  },
+
+  "b1.syntax.emphasis": {
+    usage: "Spotlight one element by framing it with c'est ... qui (subject) or c'est ... que (object).",
+    more: [
+      ["C'est Marie qui a appelé.", "It was Marie who called."],
+      ["C'est ce livre que je veux.", "It's this book I want."],
+      ["C'est à Paris qu'ils habitent.", "It's in Paris that they live."]
+    ],
+    tip: "qui if the spotlighted element is the subject of the following verb; que otherwise. Before a vowel, que → qu'."
+  },
+
+  "b1.pronouns.relative_compose": {
+    usage: "ce qui / ce que refer to a whole idea or an unnamed thing — 'what' as a noun clause.",
+    more: [
+      ["Ce qui m'intéresse, c'est la musique.", "What interests me is music."],
+      ["Je ne comprends pas ce que tu dis.", "I don't understand what you're saying."],
+      ["Ce qu'il veut, c'est partir.", "What he wants is to leave."]
+    ],
+    tip: "ce qui = subject of the clause; ce que = object. A verb straight after → ce qui; subject + verb → ce que."
+  },
+
+  "b1.expressions.formal": {
+    usage: "Written or polite French: full negation, nous instead of on, and fixed formulas for letters and service encounters.",
+    more: [
+      ["Veuillez patienter un instant.", "Please wait a moment."],
+      ["Je vous prie de m'excuser.", "I beg your pardon."],
+      ["Nous vous remercions de votre réponse.", "We thank you for your reply."]
+    ],
+    tip: "In formal writing ne is never dropped: je ne sais pas, not je sais pas. Sign off with Cordialement or Bien à vous."
+  },
+
+  "b1.verbs.futur_anterieur": {
+    usage: "Will have done: an action completed before a future moment, often after quand, dès que, lorsque.",
+    more: [
+      ["J'aurai fini avant midi.", "I'll have finished before noon."],
+      ["Elle sera partie à notre arrivée.", "She'll have left by the time we arrive."],
+      ["Dès qu'il aura mangé, il sortira.", "As soon as he has eaten, he'll go out."]
+    ],
+    tip: "After quand/dès que about the future, French uses the future perfect, not the future: quand j'aurai fini, not *quand je finirai*."
+  },
+
+  "b1.syntax.concession": {
+    usage: "Admit a fact that works against the main clause: bien que / quoique + subjunctive, même si + indicative.",
+    more: [
+      ["Bien qu'il soit jeune, il est compétent.", "Although he's young, he's competent."],
+      ["Même s'il pleut, nous sortirons.", "Even if it rains, we'll go out."],
+      ["Quoique fatiguée, elle continue.", "Although tired, she carries on."]
+    ],
+    tip: "bien que takes the subjunctive; même si takes the indicative. They are not interchangeable in mood."
+  },
+
+  "b1.syntax.but": {
+    usage: "Purpose: pour + infinitive when one subject does both; pour que / afin que + subjunctive when the subjects differ.",
+    more: [
+      ["Je travaille pour réussir.", "I work to succeed."],
+      ["Je travaille pour que tu réussisses.", "I work so that you succeed."],
+      ["Elle parle lentement afin qu'on la comprenne.", "She speaks slowly so that people understand her."]
+    ],
+    tip: "Same subject → infinitive; different subject → que + subjunctive. pour que never takes an infinitive."
+  },
+
+  "b1.syntax.participle_present": {
+    usage: "The -ant form states a simultaneous or preceding circumstance. Invariable, and more formal than a full clause.",
+    more: [
+      ["Étant malade, il reste à la maison.", "Being ill, he stays at home."],
+      ["Ayant fini, elle est partie.", "Having finished, she left."],
+      ["Voyant le danger, il a reculé.", "Seeing the danger, he stepped back."]
+    ],
+    tip: "The present participle (-ant) has no en; the gerund (en + -ant) does. Both are invariable — never *étante*."
+  },
+
+  "b1.pronouns.relatifs_composes": {
+    usage: "When a relative needs a preposition other than de, use lequel / laquelle / lesquels / lesquelles, which agrees with the antecedent.",
+    more: [
+      ["Le livre auquel je pense est cher.", "The book I'm thinking of is expensive."],
+      ["La ville dans laquelle je vis est calme.", "The city I live in is quiet."],
+      ["Les amis avec lesquels je voyage.", "The friends I travel with."]
+    ],
+    tip: "à + lequel = auquel; de + lequel = duquel. For people, à qui / de qui sounds more natural than auquel."
+  },
+
+  "b1.expressions.synonyms": {
+    usage: "Replace vague faire / dire with precise verbs — the mark of B1+ writing and of good style.",
+    more: [
+      ["Il a déclaré que le projet était fini.", "He stated that the project was finished."],
+      ["Elle a effectué des recherches.", "She carried out research."],
+      ["Nous avons réalisé une enquête.", "We conducted a survey."]
+    ],
+    tip: "dire → déclarer, affirmer, expliquer, préciser; faire → effectuer, réaliser, accomplir. Pick by nuance, not by length."
+  },
+
+  "b1.negation.que_aucun": {
+    usage: "Advanced negation: ne...que (only), aucun(e) (not any), ni...ni (neither...nor).",
+    more: [
+      ["Je n'ai que cinq euros.", "I only have five euros."],
+      ["Aucun élève n'a répondu.", "No pupil answered."],
+      ["Il n'a ni frère ni sœur.", "He has neither brother nor sister."]
+    ],
+    tip: "ne...que is not really negative — it means 'only'. aucun and ni replace un/des with de: je n'ai aucun ami."
+  },
+
+  "b1.adjectives.indefinis": {
+    usage: "Determiners for an unspecified quantity or identity: n'importe quel (any), tel (such), divers (various), la plupart de (most), chaque (each).",
+    more: [
+      ["N'importe quel jour me convient.", "Any day suits me."],
+      ["La plupart des gens sont d'accord.", "Most people agree."],
+      ["Chaque étudiant a un livre.", "Each student has a book."]
+    ],
+    tip: "chaque is always singular; la plupart de takes a plural noun and a plural verb: la plupart des gens pensent."
+  },
+
+  "b1.adverbs.maniere": {
+    usage: "Manner adverbs built on the feminine adjective + -ment: lent → lentement, sérieux → sérieusement.",
+    more: [
+      ["Il a finalement accepté.", "He finally accepted."],
+      ["Conduis prudemment.", "Drive carefully."],
+      ["Elle a répondu brièvement.", "She answered briefly."]
+    ],
+    tip: "-ent / -ant adjectives make -emment / -amment (prudent → prudemment), both pronounced 'a-ment'."
+  },
+
+  "b1.adjectives.ci_la": {
+    usage: "Attach -ci ('this/these', nearer) or -là ('that/those', further) to a noun with a demonstrative, or to celui/celle to stand alone.",
+    more: [
+      ["Ce livre-ci est intéressant.", "This book is interesting."],
+      ["Celle-là est plus chère.", "That one is more expensive."],
+      ["Prenez ces chaises-là.", "Take those chairs."]
+    ],
+    tip: "In speech -là is far more common than -ci, even for 'this': ce livre-là often just means 'this book'."
+  },
+
+  "b1.verbs.prepositionnels": {
+    usage: "Many French verbs need a fixed preposition before an infinitive or noun — memorise each verb + preposition pair.",
+    more: [
+      ["J'arrête de fumer.", "I'm stopping smoking."],
+      ["Elle pense à ses vacances.", "She's thinking about her holiday."],
+      ["Il a réussi à partir.", "He managed to leave."]
+    ],
+    tip: "arrêter de, décider de, oublier de vs penser à, réussir à, hésiter à, rêver de. Learn each verb with its preposition."
+  },
+
+  "b1.verbs.passe_simple": {
+    usage: "A literary past tense for finished actions in writing — novels, history, fairy tales. Recognise it; you rarely need to produce it.",
+    more: [
+      ["Il parla longtemps.", "He spoke for a long time."],
+      ["Elle finit son travail.", "She finished her work."],
+      ["Ils vendirent la maison.", "They sold the house."]
+    ],
+    tip: "-er verbs: -ai, -as, -a, -âmes, -âtes, -èrent. Others: -is, -it, -îmes, -îtes, -irent. il fut (être) and il eut (avoir) are everywhere."
+  },
+
+  "b1.syntax.discours_indirect": {
+    usage: "Report what someone said: que for statements, si for yes/no questions, the question word for WH-questions.",
+    more: [
+      ["Il dit qu'il viendra.", "He says he'll come."],
+      ["Elle demande si tu es là.", "She asks if you're here."],
+      ["Je ne sais pas où il est.", "I don't know where he is."]
+    ],
+    tip: "In reported questions, drop est-ce que and use normal word order: 'Où est-il ?' → il demande où il est."
+  },
+
+  "b1.syntax.si_present": {
+    usage: "si + present for real or likely conditions; the result can be present, future or imperative.",
+    more: [
+      ["S'il fait beau, nous irons à la plage.", "If the weather is nice, we'll go to the beach."],
+      ["Si tu es prêt, partons !", "If you're ready, let's go!"],
+      ["Si tu veux, je t'aide.", "If you want, I'll help you."]
+    ],
+    tip: "si + present never pairs with a conditional. The conditional belongs with si + imparfait."
+  },
+
+  /* ---------- B2 ---------- */
+
+  "b2.syntax.nominalisation": {
+    usage: "Turn a verb clause into a noun phrase — the hallmark of formal and academic French.",
+    more: [
+      ["Le gouvernement a décidé → la décision du gouvernement.", "The government decided → the government's decision."],
+      ["Les prix augmentent → une augmentation des prix.", "Prices are rising → a rise in prices."],
+      ["Il a réussi → sa réussite.", "He succeeded → his success."]
+    ],
+    tip: "The old object becomes de + noun: décider quelque chose → la décision de quelque chose. Watch irregular nouns: choisir → le choix."
+  },
+
+  "b2.verbs.subjonctif_passe": {
+    usage: "Past subjunctive: a subjunctive action that is already complete. avoir/être in the present subjunctive + past participle.",
+    more: [
+      ["Bien qu'il ait fini, il reste.", "Although he has finished, he stays."],
+      ["Je doute qu'elle soit venue.", "I doubt she came."],
+      ["Il est possible qu'ils soient partis.", "It's possible they have left."]
+    ],
+    tip: "Both halves are subjunctive: que j'aie fini, que tu sois parti. Don't slip an indicative in."
+  },
+
+  "b2.syntax.discours_indirect_passe": {
+    usage: "When the reporting verb is past, shift the reported tense back one step.",
+    more: [
+      ["« Je viendrai » → Il a dit qu'il viendrait.", "I'll come → He said he would come."],
+      ["« J'ai fini » → Il a dit qu'il avait fini.", "I finished → He said he had finished."],
+      ["« Je suis malade » → Elle a dit qu'elle était malade.", "I'm ill → She said she was ill."]
+    ],
+    tip: "present → imparfait, passé composé → plus-que-parfait, future → conditional. Time words shift too: demain → le lendemain."
+  },
+
+  "b2.expressions.registre": {
+    usage: "Match vocabulary and grammar to the situation: formal writing, standard speech, or casual talk.",
+    more: [
+      ["Je vais travailler. (standard)", "I'm going to work."],
+      ["Je vais bosser. (informal)", "I'm going to work (colloquial)."],
+      ["Je me rends à mon lieu de travail. (formal)", "I am going to my place of work."]
+    ],
+    tip: "Informal: on, tu, bouffer, bosser, un type. Formal: nous, full negation, veuillez. Never mix registers in one text."
+  },
+
+  "b2.verbs.infinitif_passe": {
+    usage: "To have done: avoir/être in the infinitive + past participle, after après, pour, sans, de.",
+    more: [
+      ["Après avoir mangé, il est parti.", "After eating, he left."],
+      ["Il regrette d'être parti.", "He regrets having left."],
+      ["Merci d'avoir appelé.", "Thank you for calling."]
+    ],
+    tip: "Same subject rule as the present infinitive. With être the participle agrees: après être partie."
+  },
+
+  "b2.negation.expletif": {
+    usage: "The expletive ne adds no meaning but appears after avant que, à moins que, craindre que in careful French. nul / nulle part are formal negatives.",
+    more: [
+      ["Avant que je ne parte, appelle-moi.", "Before I leave, call me."],
+      ["Il n'y a nulle part où aller.", "There is nowhere to go."],
+      ["Nul doute qu'il réussira.", "No doubt he'll succeed."]
+    ],
+    tip: "The expletive ne is optional in speech and never negative — don't add pas. nul = no/none, nulle part = nowhere."
+  },
+
+  "b2.syntax.sans_au_cas": {
+    usage: "sans + noun/infinitive = without; au cas où + conditional = in case; sans que + subjunctive = without someone doing.",
+    more: [
+      ["Au cas où il pleuvrait, prends un parapluie.", "In case it rains, take an umbrella."],
+      ["Il est parti sans dire au revoir.", "He left without saying goodbye."],
+      ["Sans lui, nous n'y serions pas arrivés.", "Without him, we wouldn't have managed."]
+    ],
+    tip: "au cas où always takes the conditional, never the present: au cas où il pleuvrait. sans que needs the subjunctive."
+  },
+
+  "b2.expressions.presentatifs": {
+    usage: "Point to or introduce something: voici (here is), voilà (there is), c'est / ce sont (it is / they are).",
+    more: [
+      ["Voici mon frère.", "This is my brother."],
+      ["Voilà la solution.", "There's the solution."],
+      ["Ce sont mes amis.", "These are my friends."]
+    ],
+    tip: "ce sont before a plural noun; c'est before a singular or a name. In casual speech c'est often wins even for plurals."
+  },
+
+  "b2.verbs.prepositionnels_avance": {
+    usage: "Higher-level verbs with a fixed preposition: se charger de, se plaindre de, hésiter à, persuader de.",
+    more: [
+      ["Je me charge du projet.", "I'm taking care of the project."],
+      ["Elle se plaint du bruit.", "She complains about the noise."],
+      ["Il hésite à répondre.", "He hesitates to answer."]
+    ],
+    tip: "se plaindre de (not *se plaindre sur*), hésiter à + infinitive, persuader quelqu'un de + infinitive. The preposition is fixed."
+  },
+
+  "b2.syntax.connecteurs_avances": {
+    usage: "Formal connectors that carry precise logical weight: considérant que, d'autant plus que, en revanche, partant.",
+    more: [
+      ["Considérant que le prix a augmenté, nous renonçons.", "Considering the price has risen, we're giving up."],
+      ["Il est compétent, d'autant plus qu'il est jeune.", "He's competent, all the more so because he's young."],
+      ["En revanche, le service est excellent.", "On the other hand, the service is excellent."]
+    ],
+    tip: "d'autant plus que adds a reinforcing reason; en revanche contrasts. partant is bookish — 'therefore'."
+  },
+
+  "b2.syntax.concordance": {
+    usage: "When the main verb is past, backshift the subordinate: présent → imparfait, futur → conditionnel, passé composé → plus-que-parfait.",
+    more: [
+      ["Il a dit qu'il viendrait.", "He said he would come."],
+      ["Elle pensait que j'étais malade.", "She thought I was ill."],
+      ["Il croyait que nous avions fini.", "He believed we had finished."]
+    ],
+    tip: "This is the same backshift as reported speech. A present-tense main verb keeps the original tense."
+  },
+
+  "b2.pronouns.indefinis": {
+    usage: "Pronouns for unspecified people or things: plusieurs (several), certains (some), l'un... l'autre, chacun (each).",
+    more: [
+      ["Plusieurs sont partis.", "Several have left."],
+      ["L'un parle, l'autre écoute.", "One speaks, the other listens."],
+      ["Chacun pour soi.", "Every man for himself."]
+    ],
+    tip: "chacun is singular and takes a singular verb. l'un... l'autre agrees: l'une... l'autre for feminine."
+  },
+
+  "b2.syntax.opposition": {
+    usage: "Contrast ideas with sans que + subjunctive, contrairement à, à l'inverse de, inversement.",
+    more: [
+      ["Il est parti sans que personne ne le voie.", "He left without anyone seeing him."],
+      ["Contrairement à toi, j'aime le froid.", "Unlike you, I like the cold."],
+      ["À l'inverse de son frère, elle est calme.", "Unlike her brother, she's calm."]
+    ],
+    tip: "sans que takes the subjunctive and often an expletive ne. contrairement à + noun, never + que."
+  },
+
+  "b2.syntax.consequence": {
+    usage: "Express a result: si bien que, au point que / à tel point que, de sorte que.",
+    more: [
+      ["Il a plu toute la nuit, si bien que les routes sont inondées.", "It rained all night, so much so that the roads are flooded."],
+      ["Elle est malade au point qu'elle ne peut pas travailler.", "She's ill to the point that she can't work."],
+      ["Le match a été annulé, de sorte que nous sommes rentrés.", "The match was cancelled, so we went home."]
+    ],
+    tip: "de sorte que can also express purpose (so that) with the subjunctive — context decides. au point que = to the point that."
+  },
+
+  "b2.verbs.passe_anterieur": {
+    usage: "Literary 'had done': passé simple of avoir/être + past participle, used after quand/dès que for an action completed before another past action.",
+    more: [
+      ["Quand il eut fini, il partit.", "When he had finished, he left."],
+      ["Dès qu'elle fut arrivée, elle téléphona.", "As soon as she had arrived, she phoned."],
+      ["Après qu'il eut mangé, il sortit.", "After he had eaten, he went out."]
+    ],
+    tip: "Recognise it in literature; in speech you use the plus-que-parfait. il eut (avoir) vs il fut (être) — one letter apart."
+  },
+
+  "b2.syntax.nominalisation_2": {
+    usage: "Noun forms of adjectives and verbs, common in formal and journalistic French.",
+    more: [
+      ["la jeunesse", "youth"],
+      ["la réussite", "success"],
+      ["la découverte", "discovery"]
+    ],
+    tip: "Common suffixes: -esse (jeune → jeunesse), -té (beau → beauté), -tion. Some are irregular — learn the pairs."
+  },
+
+  "b2.verbs.passif_avance": {
+    usage: "Beyond être + participle: passive with de (state), se faire + infinitive (causative passive), and passive infinitives.",
+    more: [
+      ["Il s'est fait voler son portefeuille.", "He had his wallet stolen."],
+      ["La porte est restée fermée.", "The door stayed closed."],
+      ["Cette ville est connue de tous.", "This city is known to everyone."]
+    ],
+    tip: "se faire + infinitive is the everyday causative passive: se faire voler, se faire couper les cheveux. de marks a state, par an action."
+  },
+
+  "b2.pronouns.relatifs_composes_2": {
+    usage: "Complex relative pronouns agree with the antecedent and contract with à/de: auquel, desquels, parmi lesquels.",
+    more: [
+      ["Le bureau auquel je pense est cher.", "The office I'm thinking of is expensive."],
+      ["Les amis parmi lesquels il vit sont sympas.", "The friends he lives among are nice."],
+      ["La raison pour laquelle je pars est simple.", "The reason I'm leaving is simple."]
+    ],
+    tip: "Agreement is with the antecedent, not the clause: la raison pour laquelle. à + lesquels = auxquels; de + lesquels = desquels."
+  },
+
+  "b2.verbs.subjonctif_avance": {
+    usage: "Subjunctive after complex conjunctions: pourvu que (provided), à moins que (unless), de crainte/peur que (for fear that), quoique (although).",
+    more: [
+      ["Je viendrai pourvu que tu sois là.", "I'll come provided you're there."],
+      ["À moins qu'il ne pleuve, nous sortirons.", "Unless it rains, we'll go out."],
+      ["De peur qu'il ne parte, elle le retient.", "For fear he might leave, she holds him back."]
+    ],
+    tip: "à moins que and de crainte que often add an expletive ne. pourvu que takes the subjunctive even though it feels like a condition."
+  },
+
+  "b2.syntax.locutions_conjonctives": {
+    usage: "Bookish conjunctions: dès lors que (since), pour autant que (as far as), en admettant / supposant que (assuming).",
+    more: [
+      ["Dès lors que tu es prêt, nous partons.", "Since you're ready, we're leaving."],
+      ["Pour autant que je sache, il est parti.", "As far as I know, he has left."],
+      ["En supposant qu'il vienne, que ferons-nous ?", "Supposing he comes, what will we do?"]
+    ],
+    tip: "en supposant / en admettant que take the subjunctive. pour autant que takes the subjunctive in the 'as far as' sense."
+  },
+
+  "b2.expressions.idiomatiques": {
+    usage: "Fixed verb + noun phrases you must learn whole: avoir le droit de, mettre au point, tenir compte de, tenir à, se rendre compte de.",
+    more: [
+      ["Tu as le droit de partir.", "You have the right to leave."],
+      ["Il tient compte de mon avis.", "He takes my opinion into account."],
+      ["Je me rends compte de mon erreur.", "I realise my mistake."]
+    ],
+    tip: "tenir à = to care about (je tiens à toi); tenir compte de = to take into account. Don't confuse the two."
+  },
+
+  "b2.adverbs.attitude": {
+    usage: "Sentence adverbs that comment on the whole statement: étonnamment, heureusement, malheureusement, franchement.",
+    more: [
+      ["Étonnamment, il a réussi.", "Surprisingly, he succeeded."],
+      ["Heureusement, personne n'a été blessé.", "Fortunately, nobody was hurt."],
+      ["Franchement, je n'y crois pas.", "Frankly, I don't believe it."]
+    ],
+    tip: "These stand at the front, set off by a comma, and modify the sentence, not a verb. heureusement ≠ 'happily'."
+  },
+
+  "b2.syntax.insertion": {
+    usage: "Insert a comment with je pense, dit-il, semble-t-il, paraît-il, set off by commas.",
+    more: [
+      ["Il viendra, je pense, demain.", "He'll come tomorrow, I think."],
+      ["« Je suis prêt », dit-il.", "“I'm ready,” he said."],
+      ["Il a, paraît-il, démissionné.", "He has reportedly resigned."]
+    ],
+    tip: "dit-il inverts and takes no -t-. semble-t-il and paraît-il are fixed impersonal tags meaning 'apparently'."
+  },
+
+  "b2.expressions.registre_shift": {
+    usage: "Deliberately switch register for effect — or avoid mixing them. Formal: nous, passive, nominalisation, subjunctive. Informal: on, tu, ellipsis, fillers.",
+    more: [
+      ["Formel : Nous vous prions de bien vouloir patienter.", "Formal: We beg you to kindly wait."],
+      ["Familier : Tu peux me filer un coup de main ?", "Casual: Can you give me a hand?"],
+      ["Neutre : Pouvez-vous m'aider ?", "Neutral: Can you help me?"]
+    ],
+    tip: "Formal and informal grammar are not interchangeable: 'Nous vous prions' cannot sit next to 'filer un coup de main'. Keep one register per text."
   }
 };
