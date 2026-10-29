@@ -1986,14 +1986,17 @@ function renderNotebook() {
     if (!kp) return "";
     const item = kp.items.filter(function (x) { return x.id === n.itemId; })[0];
     if (!item) return "";
-    return "<tr>"
-      + "<td>" + (i + 1) + "</td>"
-      + '<td class="q">' + esc(item.prompt) + '<div class="exp">' + esc(kp.title) + "</div></td>"
-      + '<td class="good">' + esc(item.answer) + "</td>"
-      + '<td><span class="miss-chip">×' + n.wrong + "</span></td>"
-      + '<td><button class="btn sm ghost" data-nb-practice="' + n.itemId + '">Practise</button></td>'
-      + '<td><button class="btn sm subtle" data-nb-remove="' + n.itemId + '">Remove</button></td>'
-      + "</tr>";
+    const qHtml = esc(item.prompt).replace(/___/g, '<span class="blank">____</span>');
+    return '<div class="nb-item">'
+      + '<div class="nb-main">'
+      + '<div class="nb-q">' + qHtml + "</div>"
+      + '<div class="nb-meta">' + esc(kp.title) + ' · missed <b class="nb-miss">' + n.wrong + "×</b></div>"
+      + '<div class="nb-ans"><span>Answer</span><b>' + esc(item.answer) + "</b></div>"
+      + "</div>"
+      + '<div class="nb-acts">'
+      + '<button class="btn sm" data-nb-practice="' + n.itemId + '">Practise</button>'
+      + '<button class="btn sm subtle" data-nb-remove="' + n.itemId + '">Remove</button>'
+      + "</div></div>";
   }).join("");
 
   const savedHtml = savedKps.length
@@ -2021,7 +2024,7 @@ function renderNotebook() {
     + " · " + savedKps.length + " saved point" + (savedKps.length === 1 ? "" : "s") + "</span>"
     + "</div>"
     + (nb.length
-      ? '<div class="card"><table class="result-table"><thead><tr><th>#</th><th>Question</th><th>Answer</th><th>Missed</th><th></th><th></th></tr></thead><tbody>' + rows + "</tbody></table></div>"
+      ? '<div class="card"><div class="nb-list">' + rows + "</div></div>"
       : '<div class="empty">No mistakes yet. Finish a kwiz and anything you miss shows up here.</div>')
     + '<h2 style="font-size:16px;margin:22px 0 2px">Saved points</h2>'
     + '<p class="small">Points you bookmarked to come back to.</p>'
