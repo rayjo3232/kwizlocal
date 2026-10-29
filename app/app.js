@@ -11,6 +11,7 @@ let prelearn = null;
 let placement = loadPlacement();
 let exam = loadExam();
 let examTimer = null;
+let drawerReturn = null;   // element to give focus back to when the drawer closes
 
 const app = document.getElementById("app");
 const tooltip = document.getElementById("tooltip");
@@ -186,10 +187,18 @@ function toast(msg) {
   el._t = setTimeout(function () { el.classList.remove("show"); }, 1800);
 }
 
+/* Resolve an item id against a point: hand-written questions first, then the
+   sentence bank (ids prefixed "sent."). */
+function findItem(kp, itemId) {
+  if (!kp) return null;
+  if (String(itemId).indexOf("sent.") === 0) return sentItem(itemId);
+  return kp.items.filter(function (i) { return i.id === itemId; })[0] || null;
+}
+
 function getItem(ref) {
   const kp = KP_BY_ID[ref.kpId];
   if (!kp) return null;
-  const item = kp.items.filter(function (i) { return i.id === ref.itemId; })[0];
+  const item = findItem(kp, ref.itemId);
   return item ? { kp: kp, item: item } : null;
 }
 
@@ -363,7 +372,7 @@ function levelRegion(svg, rect, levelId, kps, showCategories) {
   svg.push('<rect x="' + rect.x + '" y="' + rect.y + '" width="' + rect.w + '" height="' + rect.h
     + '" rx="8" fill="#FAFBFC" stroke="#E6E8EB"/>');
   svg.push('<text x="' + (rect.x + 10) + '" y="' + (rect.y + 15) + '" font-size="10.5" font-weight="700" fill="#6B7480">'
-    + esc(name) + ' · ' + lvScore + '%</text>');
+    + esc(name) + ' · score ' + lvScore + '</text>');
   svg.push('<rect data-level="' + levelId + '" x="' + rect.x + '" y="' + rect.y + '" width="' + rect.w
     + '" height="' + Math.min(22, rect.h) + '" fill="transparent" style="cursor:pointer"/>');
   const pad = 4;
@@ -403,6 +412,14 @@ function levelCardsHtml(compact) {
         const s = state.kps[k.id];
         return s && s.n && Engine.display(s.p, s.n) < 50;
       }).length;
+      const due = list.filter(function (k) {
+        const s = state.kps[k.id];
+        return s && s.dueAt && s.dueAt <= Date.now();
+      }).length;
+      const unseen = list.filter(function (k) {
+        const s = state.kps[k.id];
+        return !s || !s.n;
+      }).length;
       const cats = groupByCategory(list);
       const bar = cats.map(function (c) {
         const w = Math.max(8, Math.round(c.kps.length / list.length * 100));
@@ -413,7 +430,9 @@ function levelCardsHtml(compact) {
         + "<em>" + (score == null ? "—" : score) + "</em></span>"
         + '<span class="bmap-lv-bar">' + bar + "</span>"
         + '<span class="bmap-lv-meta">' + list.length + " points"
-        + (weak ? ' · <b class="weak">' + weak + " weak</b>" : "") + "</span>"
+        + (unseen ? ' · <b class="new">' + unseen + " new</b>" : "")
+        + (weak ? ' · <b class="weak">' + weak + " weak</b>" : "")
+        + (due ? ' · <b class="due">' + due + " due</b>" : "") + "</span>"
         + "</button>";
     }).join("")
     + "</div>";
@@ -442,6 +461,25 @@ function renderMap(height, compact) {
   return levelCardsHtml(compact);
 }
 
+/* Phone fallback for the hexagon grid: the same points as readable rows. */
+function kpListHtml(list) {
+  return '<div class="map-list">'
+    + list.map(function (kp) {
+      const s = state.kps[kp.id];
+      const n = s ? s.n : 0;
+      const sc = s ? Engine.display(s.p, s.n) : 0;
+      return '<div class="map-row" data-kp="' + kp.id + '">'
+        + '<span class="mr-dot" style="background:' + Engine.colorFor(sc, n) + '"></span>'
+        + '<span class="mr-body"><b>' + esc(kp.title) + "</b>"
+        + "<small>" + esc(CATEGORIES[kp.category] || kp.category) + " · " + esc(kp.level) + "</small></span>"
+        + badge(Engine.statusOf(state, kp))
+        + '<span class="mr-score" style="color:' + scoreColor(sc, n) + '">' + (n ? sc : "—") + "</span>"
+        + '<button class="btn sm ghost" data-practice="' + kp.id + '">Practise</button>'
+        + "</div>";
+    }).join("")
+    + "</div>";
+}
+
 function hexMapSvg(H, focus) {
   const width = 1000;
   const list = KPS.filter(function (k) {
@@ -453,7 +491,7 @@ function hexMapSvg(H, focus) {
   svg.push('<text x="10" y="40" font-size="11" fill="#666">' + list.length + " knowledge points · tap one for details</text>");
   kpCells(svg, list, 8, 54, width - 16, H - 62);
   svg.push("</svg>");
-  return svg.join("");
+  return '<div class="map-svg-wrap">' + svg.join("") + "</div>" + kpListHtml(list);
 }
 
 /* ---------------- dashboard ---------------- */
@@ -584,7 +622,9 @@ function renderDashboard() {
     return '<div class="level-row' + (isCurrent ? " current" : "") + '">'
       + '<span class="name">' + esc(l.name) + '</span>'
       + '<span class="mini-bar"><span style="width:' + bar + '%"></span></span>'
-      + '<span class="pct' + (sc < 40 ? " low" : "") + '">' + sc + '%</span>'
+      /* A display score, not a percentage — labelling it "%" made it read as
+         an accuracy rate. */
+      + '<span class="pct' + (sc < 40 ? " low" : "") + '" title="Confidence score, −100 to 100">' + sc + '</span>'
       + '<button class="btn sm ghost" data-kwiz-level="' + l.id + '">Kwiz</button>'
       + "</div>";
   }).join("");
@@ -601,6 +641,26 @@ function renderDashboard() {
       + "</div>";
   }).join("");
 
+  /* ---- one primary action, then at most three reasons to do something else.
+     The old first screen offered five equal-weight buttons (placement, quick,
+     full, weak, brainmap, learn-new) plus achievements and a level table, so
+     nothing read as "do this next". ---- */
+  const unseen = KPS.filter(function (k) { const s = state.kps[k.id]; return !s || !s.n; }).length;
+  const inProgress = !!(session && session.session);
+  const steps = [];
+  if (due) steps.push({ title: "Review what is due", sub: due + " point" + (due === 1 ? "" : "s"), action: "due" });
+  if (weak) steps.push({ title: "Drill your weak points", sub: weak + " below 50", action: "weak" });
+  if (unseen) steps.push({ title: "Learn something new", sub: unseen + " never opened", action: "new" });
+  const stepsHtml = steps.slice(0, 3).map(function (st) {
+    return '<button class="next-step" data-step="' + st.action + '">'
+      + '<span class="ns-body"><b>' + esc(st.title) + "</b><small>" + esc(st.sub) + "</small></span>"
+      + '<span class="ns-go">→</span></button>';
+  }).join("");
+
+  const primaryBtn = inProgress
+    ? '<button class="btn block" id="resumeBtn">Resume · ' + (session.index + 1) + " / " + session.session.items.length + " done</button>"
+    : '<button class="btn block" data-start="3">Quick · 3 questions<small>about a minute</small></button>';
+
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Your French Dashboard</h1>'
     + '<p>' + KPS.length + ' knowledge points · A0 to B2 · everything stored on this computer</p></div>'
@@ -615,26 +675,26 @@ function renderDashboard() {
     + '<span class="streak-lbl">day streak</span></div>'
     + '</div>'
 
+    + '<section class="card hero">'
+    + '<div class="hero-top"><div class="avatar">K</div><div class="hero-copy">'
+    + '<div class="hello">' + (today ? "Welcome back." : "Hello!") + "</div>"
+    + "<p>" + (inProgress
+      ? "You left a session part-finished — pick it up where you stopped."
+      : "Short on time? Three questions takes about a minute.") + "</p></div></div>"
+    + primaryBtn
+    + '<div class="hero-sub">'
+    + (inProgress ? '<button class="btn subtle" data-start="3">Start a fresh quick kwiz</button>' : "")
+    + '<button class="btn subtle" data-start="10">Full kwiz · 10</button>'
+    + "</div>"
+    + (stepsHtml ? '<div class="next-steps"><div class="ns-title">Or, in order of urgency</div>' + stepsHtml + "</div>" : "")
     + (state.attempts.length === 0 && !state.seeded && !state.placement
-      ? '<div class="firstrun"><div><b>First time here?</b> Take a 20-question placement test to fill your Brainmap in about 5 minutes.</div>'
-        + '<span class="spacer"></span><button class="btn sm" data-placement>Start placement</button>'
+      ? '<div class="firstrun"><div><b>First time here?</b> A 20-question placement test tells you where you are in about 5 minutes.</div>'
+        + '<span class="spacer"></span><button class="btn sm ghost" data-placement>Start placement</button>'
         + '<a href="#/settings" class="small">or load demo data</a></div>'
       : "")
-    + (session && session.session
-      ? '<div class="resume">You have a session in progress · ' + (session.index + 1) + " / " + session.session.items.length
-        + '<span class="spacer"></span><button class="btn sm" id="resumeBtn">Resume</button></div>'
-      : "")
-    + '<div class="kwizbot">'
-    + '<div class="avatar">K</div>'
-    + '<div class="body"><div class="hello">Hello!</div>'
-    + '<p>Short on time? Three questions takes about a minute. '
-    + (due ? '<button class="linkbtn" data-due>' + due + " points are due</button>" : "Nothing due") + ", "
-    + weak + " still weak.</p>"
-    + '<div class="actions"><button class="btn" data-start="3">Quick · 3 questions</button>'
-    + '<button class="btn subtle" data-start="10">Full kwiz · 10</button>'
-    + (weak ? '<button class="btn ghost" data-weak="1">Weak points</button>' : "")
-    + '<a href="#/brainmap" class="small">Brainmap</a>'
-    + '<button class="linkbtn" id="newPointBtn2">Learn something new →</button></div></div></div>'
+    + "</section>"
+
+    + weeklyHtml()
 
     + '<div class="grid2 section-gap">'
     + '<section class="card"><h2 style="font-size:15px;margin-bottom:4px">Your achievements</h2>'
@@ -661,8 +721,6 @@ function renderDashboard() {
     + '<section class="card"><h2 style="font-size:15px;margin-bottom:4px">Choose your own adventure</h2>'
     + levelRows + "</section></div>"
 
-    + weeklyHtml()
-
     + '<section class="card section-gap dash-map"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
     + '<h2 style="font-size:15px">Your Brainmap</h2><span class="spacer" style="flex:1"></span>'
     + '<a href="#/brainmap" class="small">Open full map</a></div>'
@@ -682,6 +740,14 @@ function renderDashboard() {
   });
   const npb2 = document.getElementById("newPointBtn2");
   if (npb2) npb2.addEventListener("click", startNewPoint);
+  document.querySelectorAll("[data-step]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      const step = b.getAttribute("data-step");
+      if (step === "due") startDueSession();
+      else if (step === "weak") startWeakSession();
+      else startNewPoint();
+    });
+  });
   document.querySelectorAll("[data-kwiz-level]").forEach(function (b) {
     b.addEventListener("click", function () {
       const lvl = b.getAttribute("data-kwiz-level");
@@ -706,7 +772,7 @@ function renderDashboard() {
 function legendHtml() {
   return '<div class="legend">'
     + '<span><i style="background:#DDE0E4"></i>Not seen</span>'
-    + '<span><i style="background:#D51C1B"></i>Mislearned</span>'
+    + '<span><i style="background:#D51C1B"></i>Needs review</span>'
     + '<span><i style="background:#F2D24B"></i>Weak</span>'
     + '<span><i style="background:#8FCB9B"></i>Getting there</span>'
     + '<span><i style="background:#5FB56F"></i>Strong</span>'
@@ -797,6 +863,20 @@ function bindMap() {
     cell.addEventListener("mouseleave", function () { tooltip.hidden = true; });
     cell.addEventListener("click", function () { openDrawer(kpId); });
   });
+
+  /* Phone list rows: tap the row for the drawer, tap Practise to drill it. */
+  document.querySelectorAll(".map-row[data-kp]").forEach(function (row) {
+    row.addEventListener("click", function (e) {
+      if (e.target && e.target.closest && e.target.closest("[data-practice]")) return;
+      openDrawer(row.getAttribute("data-kp"));
+    });
+  });
+  document.querySelectorAll(".map-list [data-practice]").forEach(function (b) {
+    b.addEventListener("click", function (e) {
+      e.stopPropagation();
+      startFocusSession(b.getAttribute("data-practice"));
+    });
+  });
 }
 
 function openDrawer(kpId) {
@@ -829,8 +909,13 @@ function openDrawer(kpId) {
     + "</div>";
 
   drawerBody.innerHTML = html;
+  if (drawer.hidden) drawerReturn = document.activeElement;
   drawer.hidden = false;
   scrim.hidden = false;
+  /* Focus goes into the dialog and stays there until it closes. */
+  const first = drawer.querySelector(".icon-btn");
+  if (first) first.focus();
+  document.addEventListener("keydown", drawerKeys);
 
   drawerBody.querySelectorAll("[data-practice]").forEach(function (b) {
     b.addEventListener("click", function () { closeDrawer(); startFocusSession(b.getAttribute("data-practice")); });
@@ -872,6 +957,22 @@ function openDrawer(kpId) {
 function closeDrawer() {
   drawer.hidden = true;
   scrim.hidden = true;
+  document.removeEventListener("keydown", drawerKeys);
+  if (drawerReturn && drawerReturn.focus) drawerReturn.focus();
+  drawerReturn = null;
+}
+
+/* Esc closes; Tab cycles inside the dialog instead of escaping to the page
+   behind the scrim. */
+function drawerKeys(e) {
+  if (e.key === "Escape") { e.preventDefault(); closeDrawer(); return; }
+  if (e.key !== "Tab") return;
+  const focusables = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 }
 
 /* ---------------- sessions ---------------- */
@@ -890,9 +991,30 @@ function snapshotScores(items) {
   return snap;
 }
 
+/* Swap in a real sentence for a couple of questions once a point is
+   established — same grammar, new vocabulary, so you cannot memorise the
+   hand-written question instead of learning the rule. */
+function addSentenceVariety(items) {
+  if (!SENTENCE_BANK.length) return items;
+  const usedKp = {};
+  let swaps = 0;
+  return items.map(function (ref) {
+    const st = state.kps[ref.kpId];
+    if (!st || st.n < 3 || swaps >= 2 || usedKp[ref.kpId]) return ref;
+    const taken = {};
+    items.forEach(function (x) { taken[x.itemId] = true; });
+    const id = sentIdsFor(ref.kpId, st.n + swaps).filter(function (x) { return !taken[x]; })[0];
+    if (!id) return ref;
+    usedKp[ref.kpId] = true;
+    swaps++;
+    return { kpId: ref.kpId, itemId: id, difficulty: ref.difficulty, fromSentence: true };
+  });
+}
+
 function startSession(size) {
   const n = size || 10;
   const built = Engine.buildSession(state, n);
+  built.items = addSentenceVariety(built.items);
   session = {
     session: built,
     before: snapshotScores(built.items),
@@ -902,6 +1024,144 @@ function startSession(size) {
   };
   saveSession();
   navigate("#/kwiz");
+}
+
+/* Pick questions by rotating through the points instead of sorting one flat
+   pool by difficulty. The old approach had a coverage bug: with many weak
+   points, the easiest items from the easiest points filled the session every
+   time, so the harder points never came up and the same questions kept
+   reappearing. Rotation gives one question per point before any point gets a
+   second, and recent items are skipped so a session is not a rerun. */
+function pickByRotation(kps, size, perKpCap) {
+  const n = size || 10;
+  const cap = perKpCap || 2;
+  const recent = {};
+  state.attempts.slice(-80).forEach(function (a) { recent[a.itemId] = true; });
+
+  /* Points practised in the previous session go to the back of the queue, so
+     a long list of weak points actually gets covered over several sessions
+     instead of the same ten every time. */
+  const last = (state.sessions || [])[(state.sessions || []).length - 1];
+  const seenLast = {};
+  if (last && last.answers) {
+    last.answers.forEach(function (a) { if (a.correct !== null) seenLast[a.kpId] = true; });
+  }
+  const ordered = kps.filter(function (k) { return !seenLast[k.id]; })
+    .concat(kps.filter(function (k) { return seenLast[k.id]; }));
+
+  const queues = ordered.map(function (kp) {
+    const all = kp.items.filter(function (i) { return i.stage !== "guided"; });
+    const fresh = all.filter(function (i) { return !recent[i.id]; });
+    let pool = (fresh.length ? fresh : all).slice();
+    pool.sort(function (a, b) { return a.difficulty - b.difficulty; });
+    /* Cycle the starting item by how often the point has been answered, so the
+       same point serves a different question each time it comes round. */
+    const st = state.kps[kp.id];
+    const seen = st ? st.n : 0;
+    const off = pool.length ? seen % pool.length : 0;
+    if (off) pool = pool.slice(off).concat(pool.slice(0, off));
+
+    /* Once a point is established, real sentences from the bank lead — the
+       hand-written questions are there to teach the rule, the sentences are
+       there to prove it survives contact with a real sentence. */
+    const sents = sentIdsFor(kp.id, seen).filter(function (id) { return !recent[id]; })
+      .map(function (id) { return { id: id, difficulty: 3, stage: "kwiz", fromSentence: true }; });
+    if (sents.length) pool = seen >= 3 ? sents.concat(pool) : pool.concat(sents);
+
+    return { kp: kp, pool: pool, used: 0 };
+  }).filter(function (q) { return q.pool.length; });
+
+  const picked = [];
+  let guard = 0;
+  while (picked.length < n && guard < 20) {
+    guard++;
+    let added = false;
+    for (let i = 0; i < queues.length && picked.length < n; i++) {
+      const q = queues[i];
+      if (!q.pool.length || q.used >= cap) continue;
+      const it = q.pool.shift();
+      picked.push({ kpId: q.kp.id, itemId: it.id, difficulty: it.difficulty });
+      q.used += 1;
+      added = true;
+    }
+    if (!added) break;
+  }
+  return picked;
+}
+
+/* ---- sentence bank as kwiz material ----
+
+   The 13k-sentence bank was only reachable from its own page. Each grammar tag
+   maps to the points that tag actually exercises, so a kwiz can drop in a real
+   sentence once you have seen the hand-written questions for that point. Only
+   "gap" items qualify: word-order items need their own interface. */
+const SENT_TAG_KPS = {
+  negation: ["a1.negation.ne_pas", "a1.syntax.negation_rien_jamais"],
+  question: ["a1.questions.est_ce_que", "a0.syntax.questions_intonation", "b1.syntax.inversion"],
+  relative: ["b1.relative.qui_que", "b1.syntax.relative_dont", "a2.syntax.relative_ou"],
+  conditionnel: ["b1.conditional.present", "b1.syntax.si_clauses", "b1.verbs.conditional_past"],
+  subjonctif: ["b1.subjunctive.present", "b1.verbs.subjunctive_conj"],
+  passe_compose: ["a2.passe_compose.avoir", "a2.passe_compose.etre", "a2.imparfait_vs_pc", "a2.verbs.pronominaux_passe"],
+  futur: ["b1.future.simple", "a1.verbs.futur_proche"],
+  prepositions: ["a1.prepositions.place", "a1.prepositions.time", "a2.prepositions.geography", "a1.aller.prepositions"],
+  articles: ["a0.articles.definite", "a0.articles.indefinite", "a1.articles.partitive"],
+  pronouns: ["a2.pronouns.cod", "a2.pronouns.coi", "a2.pronouns.y_en", "a1.pronouns.stress", "b1.pronoun_order"],
+  adverbs: ["a2.adjectives.adverbs_ment", "b1.comparison"]
+};
+
+const SENT_KP_TAGS = (function () {
+  const out = {};
+  Object.keys(SENT_TAG_KPS).forEach(function (tag) {
+    SENT_TAG_KPS[tag].forEach(function (kpId) {
+      (out[kpId] = out[kpId] || []).push(tag);
+    });
+  });
+  return out;
+})();
+
+const SENT_LEVEL_DIFF = { A1: 1, A2: 2, B1: 3, B2: 4 };
+let SENT_TAG_INDEX = null;
+
+function sentTagIndex() {
+  if (SENT_TAG_INDEX) return SENT_TAG_INDEX;
+  SENT_TAG_INDEX = {};
+  SENTENCE_BANK.forEach(function (s, i) {
+    if (s[5] !== "gap" || !s[3] || !s[4] || !s[4].length) return;
+    (SENT_TAG_INDEX[s[2]] = SENT_TAG_INDEX[s[2]] || []).push(i);
+  });
+  return SENT_TAG_INDEX;
+}
+
+/* Turn a bank row into an item shaped like a hand-written choice question. */
+function sentItem(itemId) {
+  const i = parseInt(String(itemId).slice(5), 10);
+  const s = SENTENCE_BANK[i];
+  if (!s) return null;
+  return {
+    id: itemId,
+    type: "choice",
+    prompt: blankWord(s[0], s[3]) || s[0],
+    options: s[4],
+    answer: s[3],
+    explain: s[1],
+    difficulty: SENT_LEVEL_DIFF[s[6]] || 2,
+    stage: "kwiz",
+    fromSentence: true
+  };
+}
+
+/* Candidate sentence ids for a point, rotated by how often it has been seen. */
+function sentIdsFor(kpId, offset) {
+  const tags = SENT_KP_TAGS[kpId];
+  if (!tags || !SENTENCE_BANK.length) return [];
+  const idx = sentTagIndex();
+  const ids = [];
+  tags.forEach(function (t) {
+    (idx[t] || []).forEach(function (i) { ids.push("sent." + i); });
+  });
+  if (!ids.length) return [];
+  const start = (offset * 11) % ids.length;
+  return ids.slice(start).concat(ids.slice(0, start)).slice(0, 8);
 }
 
 function startSessionFromItems(items) {
@@ -918,14 +1178,7 @@ function startSessionFromItems(items) {
 }
 
 function startSessionFromKps(kps, size) {
-  const pool = [];
-  kps.forEach(function (kp) {
-    kp.items.filter(function (i) { return i.stage !== "guided"; }).forEach(function (i) {
-      pool.push({ kpId: kp.id, itemId: i.id, difficulty: i.difficulty + Math.random() * 0.2 });
-    });
-  });
-  pool.sort(function (a, b) { return a.difficulty - b.difficulty; });
-  startSessionFromItems(pool.slice(0, size || 8));
+  startSessionFromItems(pickByRotation(kps, size || 8, 2));
 }
 
 function startFocusSession(kpId) {
@@ -944,13 +1197,10 @@ function startDueSession() {
     return st && st.dueAt && st.dueAt <= Date.now();
   });
   if (due.length < 4) { startSession(); return; }
-  const items = [];
-  due.forEach(function (kp) {
-    kp.items.filter(function (i) { return i.stage !== "guided"; }).slice(0, 1).forEach(function (i) {
-      items.push({ kpId: kp.id, itemId: i.id });
-    });
-  });
-  startSessionFromItems(items.slice(0, 10));
+  /* Most overdue first, then one question per point — taking "the first item"
+     for every due point meant the same five questions came back forever. */
+  due.sort(function (a, b) { return state.kps[a.id].dueAt - state.kps[b.id].dueAt; });
+  startSessionFromItems(pickByRotation(due, 10, 1));
 }
 
 /* Practise everything currently sitting below the "weak" line,
@@ -961,6 +1211,7 @@ function startWeakSession() {
     return s && s.n && Engine.display(s.p, s.n) < 50;
   });
   if (!weakKps.length) { toast("No weak points right now — nice"); return; }
+  weakKps.sort(function (a, b) { return Engine.scoreOf(state, a.id) - Engine.scoreOf(state, b.id); });
   startSessionFromKps(weakKps, 10);
 }
 
@@ -1028,25 +1279,29 @@ function renderKwiz() {
   let feedback = "";
   if (answered) {
     const l = session.last;
-    const moveHtml = (l.delta != null)
+    const moveHtml = (l.delta != null && !l.noMastery)
       ? '<div class="score-move"><span class="sm-name">' + esc(kp.title.split(":")[0]) + "</span>"
         + '<span class="from">' + l.before + '</span><span class="arrow">→</span>'
         + '<span class="to">' + l.after + "</span>"
         + '<span class="delta ' + (l.delta > 0 ? "up" : l.delta < 0 ? "down" : "flat") + '">'
         + (l.delta > 0 ? "+" : "") + l.delta + "</span></div>"
       : "";
+    const ctxNote = l.noMastery
+      ? '<div class="ctx-note">Context question — a real sentence from the bank. It counts towards this session but not towards your confidence score.</div>'
+      : "";
     if (l.skip) {
-      feedback = '<div class="feedback skip"><div class="mark">–</div><div class="body">'
+      feedback = '<div class="feedback skip" role="status" aria-live="polite"><div class="mark">–</div><div class="body">'
         + "<b>Skipped — no penalty.</b>"
         + '<div class="answer-line">' + esc(item.answer) + "</div>"
         + esc(item.explain) + "</div></div>";
     } else if (l.correct) {
-      feedback = '<div class="feedback ok"><div class="mark">✓</div><div class="body">'
-        + "<b>Correct.</b>" + moveHtml + esc(item.explain) + "</div></div>";
+      feedback = '<div class="feedback ok" role="status" aria-live="polite"><div class="mark">✓</div><div class="body">'
+        + "<b>Correct.</b>" + moveHtml + ctxNote + esc(item.explain) + "</div></div>";
     } else {
-      feedback = '<div class="feedback bad"><div class="mark">×</div><div class="body">'
-        + "<b>Not quite.</b>" + moveHtml
+      feedback = '<div class="feedback bad" role="status" aria-live="polite"><div class="mark">×</div><div class="body">'
+        + "<b>Not quite.</b>" + moveHtml + ctxNote
         + '<div class="answer-line">' + esc(item.answer) + "</div>"
+        + (item.type === "choice" && !item.fromSentence ? whyWrongHtml(kp.id, l.given) : "")
         + esc(item.explain)
         + '<div style="margin-top:6px"><a href="#/prelearn/' + kp.id + '" class="small" style="color:var(--blue);font-weight:600">Learn this point →</a></div>'
         + "</div></div>";
@@ -1063,7 +1318,7 @@ function renderKwiz() {
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">' + (ref.retry ? '<span class="retry-badge">Retry</span> ' : "") + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
-    + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/___/g, '<span class="blank">____</span>') + "</div>"
+    + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
     + inputHtml + hint + feedback
     + '<div class="kwiz-actions">'
     + (answered
@@ -1146,19 +1401,21 @@ function checkAnswer() {
   /* Apply the mastery update immediately so the feedback can show the exact
      score movement for this answer, and so a half-finished session still
      counts. finishSession skips answers already marked applied. */
-  const beforeScore = Engine.scoreOf(state, ref.kpId);
-  Engine.updateKp(state, ref.kpId, correct);
-  if (!correct) Engine.noteWrong(state, item.id, ref.kpId);
-  state.attempts.push({ itemId: item.id, kpId: ref.kpId, correct: correct, at: Date.now() });
-  state.plan = null;
+  const res = Engine.applyAttempt(state, {
+    kpId: ref.kpId, itemId: item.id, correct: correct,
+    source: item.fromSentence ? "sentence" : "kwiz",
+    noMastery: !!item.fromSentence
+  });
   saveState();
-  const afterScore = Engine.scoreOf(state, ref.kpId);
+  const beforeScore = res.before;
+  const afterScore = res.after;
 
   session.answers.push({
-    itemId: item.id, kpId: ref.kpId, correct: correct, given: given, applied: true
+    itemId: item.id, kpId: ref.kpId, correct: correct, given: given, applied: true,
+    noMastery: !!item.fromSentence
   });
   session.last = {
-    correct: correct, given: given, skip: false,
+    correct: correct, given: given, skip: false, noMastery: !!item.fromSentence,
     before: beforeScore, after: afterScore, delta: afterScore - beforeScore
   };
   session.phase = "feedback";
@@ -1178,8 +1435,11 @@ function checkAnswer() {
 function skipAnswer() {
   const ref = session.session.items[session.index];
   const pair = getItem(ref);
-  session.answers.push({ itemId: pair.item.id, kpId: ref.kpId, correct: null, given: "" });
-  session.last = { correct: false, given: "", skip: true };
+  /* A skip is not a wrong answer: nothing is written to mastery, the Notebook
+     or the attempts log. It only records that the question went unanswered. */
+  session.answers.push({ itemId: pair.item.id, kpId: ref.kpId, correct: null, given: "", applied: true });
+  const now = Engine.scoreOf(state, ref.kpId);
+  session.last = { correct: false, given: "", skip: true, before: now, after: now, delta: 0 };
   session.phase = "feedback";
   saveSession();
   renderKwiz();
@@ -1193,6 +1453,9 @@ function continueSession() {
   if (session.index >= session.session.items.length) {
     const record = Engine.finishSession(state, session.session, session.answers);
     record.before = session.before || {};
+    /* Freeze the scores this session produced. Later practice must never
+       rewrite an old report's "What changed". */
+    record.after = snapshotScores(session.session.items);
     record.durationMs = Math.max(0, Date.now() - (session.startedAt || Date.now()));
     state.plan = null;
     saveState();
@@ -1233,11 +1496,12 @@ function renderResult(id) {
      is "what did I write / what was right / why". */
   const rows = record.answers.map(function (a, i) {
     const kp = KP_BY_ID[a.kpId];
-    const item = kp.items.filter(function (x) { return x.id === a.itemId; })[0];
+    const item = findItem(kp, a.itemId);
+    if (!item) return "";
     const cls = a.correct === null ? "skip" : a.correct ? "good" : "bad";
     const mark = a.correct === null ? "–" : a.correct ? "✓" : "×";
     const yours = a.correct === null ? "skipped" : (a.given || "—");
-    const qHtml = esc(item.prompt).replace(/___/g, '<span class="blank">____</span>');
+    const qHtml = esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>');
     return '<div class="res-row ' + cls + '">'
       + '<div class="res-mark">' + mark + "</div>"
       + '<div class="res-main">'
@@ -1248,6 +1512,7 @@ function renderResult(id) {
         ? '<div class="res-a ok"><span>Correct</span><b>' + esc(item.answer) + "</b></div>"
         : "")
       + "</div>"
+      + (a.noMastery ? '<div class="res-ctx">Context question from the sentence bank · not scored</div>' : "")
       + (item.explain ? '<div class="res-exp">' + esc(item.explain) + "</div>" : "")
       + "</div>"
       + '<a class="res-study" href="#/prelearn/' + kp.id + '">Study</a>'
@@ -1259,16 +1524,20 @@ function renderResult(id) {
   /* Score movement per knowledge point, compared with the snapshot taken
      when the session started. Skipped items leave scores untouched. */
   const before = record.before || {};
+  const after = record.after || {};
   const touched = {};
   record.answers.forEach(function (a) {
-    if (a.correct === null) return;
+    if (a.correct === null || a.noMastery) return;
     if (!touched[a.kpId]) touched[a.kpId] = { right: 0, total: 0 };
     touched[a.kpId].total += 1;
     if (a.correct) touched[a.kpId].right += 1;
   });
   const changes = Object.keys(touched).map(function (kpid) {
     const s = state.kps[kpid];
-    const now = s && s.n ? Engine.display(s.p, s.n) : 0;
+    const live = s && s.n ? Engine.display(s.p, s.n) : 0;
+    /* Prefer the frozen snapshot: an old report keeps its own numbers even
+       after you practise the same points again. */
+    const now = after[kpid] != null ? after[kpid] : live;
     const prev = before[kpid] != null ? before[kpid] : 0;
     return {
       kp: KP_BY_ID[kpid], prev: prev, now: now, delta: now - prev,
@@ -1277,27 +1546,35 @@ function renderResult(id) {
   }).sort(function (a, b) { return Math.abs(b.delta) - Math.abs(a.delta); });
 
   const hasBefore = record.before && Object.keys(record.before).length > 0;
+  const changeRow = function (c) {
+    const cls = c.delta > 0 ? "up" : c.delta < 0 ? "down" : "flat";
+    const sign = c.delta > 0 ? "+" : "";
+    return '<div class="change-row">'
+      + '<span class="name">' + esc(c.kp.title) + "<small>" + esc(c.kp.level) + " · " + c.right + " / " + c.total + " correct</small></span>"
+      + '<span class="from">' + c.prev + '</span><span class="arrow">→</span>'
+      + '<span class="to">' + c.now + "</span>"
+      + '<span class="delta ' + cls + '">' + sign + c.delta + "</span></div>";
+  };
+  /* Biggest three by default; the rest stay one tap away instead of pushing
+     the actual next action off the screen. */
   const changeHtml = (hasBefore && changes.length)
     ? '<div class="card section-gap"><h2 style="font-size:15px;margin-bottom:2px">What changed</h2>'
       + '<p class="small" style="margin:0 0 6px">Your confidence score per point, before and after this session.</p>'
-      + changes.map(function (c) {
-        const cls = c.delta > 0 ? "up" : c.delta < 0 ? "down" : "flat";
-        const sign = c.delta > 0 ? "+" : "";
-        return '<div class="change-row">'
-          + '<span class="name">' + esc(c.kp.title) + "<small>" + esc(c.kp.level) + " · " + c.right + " / " + c.total + " correct</small></span>"
-          + '<span class="from">' + c.prev + '</span><span class="arrow">→</span>'
-          + '<span class="to">' + c.now + "</span>"
-          + '<span class="delta ' + cls + '">' + sign + c.delta + "</span></div>";
-      }).join("")
+      + changes.slice(0, 3).map(changeRow).join("")
+      + (changes.length > 3
+        ? "<details class=\"res-more\"><summary>Show all " + changes.length + " points</summary>"
+          + changes.slice(3).map(changeRow).join("") + "</details>"
+        : "")
       + "</div>"
     : "";
 
+  const answered = record.answered != null ? record.answered : record.total - (record.skipped || 0);
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
     + '<div class="result-head"><h1 style="font-size:24px">'
-    + (record.correct === record.total ? "Perfect!" : record.correct / record.total >= 0.6 ? "Nice effort!" : "Keep going!")
+    + (answered && record.correct === answered ? "Perfect!" : answered && record.correct / answered >= 0.6 ? "Nice effort!" : "Keep going!")
     + "</h1>"
     + '<div class="stars">' + stars(record.stars) + "</div>"
-    + '<div class="result-score">' + record.correct + " of " + record.total + " correct"
+    + '<div class="result-score">' + record.correct + " of " + answered + " correct"
     + (record.skipped ? " · " + record.skipped + " skipped" : "")
     + (record.durationMs ? " · " + fmtDuration(record.durationMs) : "") + "</div></div>"
     + changeHtml
@@ -1305,10 +1582,12 @@ function renderResult(id) {
     + '<h2 style="font-size:15px;margin-bottom:2px">Every question</h2>'
     + '<p class="small" style="margin:0 0 4px">Tap Study to open the grammar behind a question.</p>'
     + '<div class="res-list">' + rows + "</div></div>"
-    + '<div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap">'
-    + (wrong.length ? '<button class="btn ghost" id="mistakesBtn">Practise ' + wrong.length + ' mistake' + (wrong.length > 1 ? "s" : "") + "</button>" : "")
-    + '<button class="btn" data-start="' + record.total + '">Again · ' + record.total + " questions</button>"
-    + '<button class="btn subtle" id="newPointBtn">Learn a new point</button>'
+    + '<div class="res-actions">'
+    + (wrong.length
+      ? '<button class="btn" id="mistakesBtn">Practise ' + wrong.length + ' mistake' + (wrong.length > 1 ? "s" : "") + "</button>"
+      : '<button class="btn" id="newPointBtn">Learn a new point</button>')
+    + '<button class="btn subtle" data-start="' + record.total + '">Again · ' + record.total + " questions</button>"
+    + (wrong.length ? '<button class="btn subtle" id="newPointBtn">Learn a new point</button>' : "")
     + '<a class="btn subtle" href="#/">Back to dashboard</a></div>'
     + (wrong.length
       ? '<p class="small" style="text-align:center;margin-top:12px">'
@@ -1377,7 +1656,7 @@ function renderPlacement() {
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">Find your level · ' + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
-    + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/___/g, '<span class="blank">____</span>') + "</div>"
+    + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
     + inputHtml
     + '<div class="kwiz-actions">'
     + '<button class="btn" id="pNext">Next</button>'
@@ -1437,7 +1716,10 @@ function placementNext(skip) {
 function finishPlacement() {
   const counts = {}, hits = {};
   LEVELS.forEach(function (l) { counts[l.id] = 0; hits[l.id] = 0; });
+
+  /* Skipped questions are not evidence: they do not enter the denominator. */
   placement.answers.forEach(function (a) {
+    if (a.correct === null) return;
     const kp = KP_BY_ID[a.kpId];
     counts[kp.level] += 1;
     if (a.correct) hits[kp.level] += 1;
@@ -1445,34 +1727,25 @@ function finishPlacement() {
 
   const pct = {};
   LEVELS.forEach(function (l) {
-    pct[l.id] = counts[l.id] ? hits[l.id] / counts[l.id] : 0;
+    pct[l.id] = counts[l.id] ? hits[l.id] / counts[l.id] : null;
   });
 
   let est = "A0";
-  LEVELS.forEach(function (l) { if (pct[l.id] >= 0.6) est = l.id; });
+  LEVELS.forEach(function (l) { if (pct[l.id] != null && pct[l.id] >= 0.6) est = l.id; });
 
-  const estIdx = LEVELS.map(function (l) { return l.id; }).indexOf(est);
-
-  KPS.forEach(function (k) {
-    const acc = pct[k.level];
-    const lvlIdx = LEVELS.map(function (l) { return l.id; }).indexOf(k.level);
-    const rel = estIdx - lvlIdx;
-    const p = Math.max(0.12, Math.min(0.95, 0.30 + 0.60 * acc + 0.08 * rel + (Math.random() - 0.5) * 0.06));
-    const n = counts[k.level] || 3;
-    const c = Math.round(n * acc);
-    state.kps[k.id] = {
-      p: p, n: n, correct: c, wrong: n - c,
-      state: p >= 0.85 ? "mastered" : "testing",
-      dueAt: Date.now() + (0.5 + Math.random() * 2.5) * 86400000,
-      lastSeen: Date.now()
-    };
-  });
-
+  /* Only the questions actually answered become evidence. A 20-question test
+     cannot speak for every point in the course, so everything else stays
+     genuinely untested instead of being filled with invented attempts. */
   placement.answers.forEach(function (a) {
-    state.attempts.push({ itemId: a.itemId, kpId: a.kpId, correct: !!a.correct, at: Date.now() });
+    Engine.applyAttempt(state, {
+      kpId: a.kpId, itemId: a.itemId, correct: a.correct, source: "placement"
+    });
   });
 
-  state.placement = { at: Date.now(), level: est, scores: pct, counts: counts };
+  state.placement = {
+    at: Date.now(), level: est, scores: pct, counts: counts, hits: hits,
+    answered: placement.answers.filter(function (a) { return a.correct !== null; }).length
+  };
   state.plan = null;
   saveState();
 
@@ -1485,18 +1758,30 @@ function finishPlacement() {
 function renderPlacementResult() {
   const r = placement.result;
   const rows = LEVELS.map(function (l) {
+    const seen = r.counts[l.id] || 0;
+    if (!seen) {
+      return '<div class="level-row">'
+        + '<span class="name">' + esc(l.name) + "</span>"
+        + '<span class="mini-bar"><span style="width:0"></span></span>'
+        + '<span class="pct">not tested</span></div>';
+    }
     const p = Math.round(r.pct[l.id] * 100);
     return '<div class="level-row">'
       + '<span class="name">' + esc(l.name) + "</span>"
       + '<span class="mini-bar"><span style="width:' + p + '%"></span></span>'
-      + '<span class="pct">' + r.hits[l.id] + " / " + r.counts[l.id] + "</span>"
+      + '<span class="pct">' + r.hits[l.id] + " / " + seen + "</span>"
       + "</div>";
   }).join("");
+
+  const answered = placement.answers.filter(function (a) { return a.correct !== null; }).length;
+  const skipped = placement.answers.length - answered;
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
     + '<div class="result-head"><div class="tiny" style="letter-spacing:.12em">YOUR ESTIMATED LEVEL</div>'
     + '<h1 style="font-size:52px;margin:4px 0">' + esc(r.level) + "</h1>"
-    + '<p class="small">Based on ' + placement.answers.length + " questions. Your Brainmap will keep adjusting from here.</p></div>"
+    + '<p class="small">Based on ' + answered + " answered question" + (answered === 1 ? "" : "s")
+    + (skipped ? " (" + skipped + " skipped)" : "")
+    + ". Only those points were measured — the rest of your Brainmap is still blank on purpose.</p></div>"
     + '<div class="card">' + rows + "</div>"
     + '<div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap">'
     + '<a class="btn" href="#/">Start learning</a>'
@@ -1593,7 +1878,7 @@ function renderExam() {
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">TCF-style · ' + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
-    + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/___/g, '<span class="blank">____</span>') + "</div>"
+    + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
     + inputHtml
     + '<div class="kwiz-actions">'
     + '<button class="btn" id="eNext">Next</button>'
@@ -1666,28 +1951,32 @@ function examNext(skip) {
 function finishExam(auto) {
   if (examTimer) { clearInterval(examTimer); examTimer = null; }
   const total = exam.items.length;
-  let correct = 0;
+  let correct = 0, skipped = 0;
   const sections = { structures: { c: 0, t: 0 }, reading: { c: 0, t: 0 } };
 
   exam.answers.forEach(function (a) {
+    /* Unanswered is not wrong: no mastery change, no Notebook entry, and it
+       stays out of the score denominator. */
+    if (a.correct === null) { skipped++; return; }
     const kp = KP_BY_ID[a.kpId];
     const sec = kp.category === "reading" ? "reading" : "structures";
     sections[sec].t += 1;
     if (a.correct) { correct++; sections[sec].c += 1; }
-    else Engine.noteWrong(state, a.itemId, a.kpId);
-    Engine.updateKp(state, a.kpId, a.correct);
-    state.attempts.push({
-      itemId: a.itemId, kpId: a.kpId, correct: a.correct, at: Date.now()
+    Engine.applyAttempt(state, {
+      kpId: a.kpId, itemId: a.itemId, correct: a.correct, source: "exam"
     });
   });
 
   Engine.touchStreak(state);
 
-  const score = Math.round(correct / total * 699);
+  const answered = total - skipped;
+  const score = answered ? Math.round(correct / answered * 699) : 0;
   const record = {
     at: Date.now(), score: score, band: tcfBand(score),
-    correct: correct, total: total, sections: sections, auto: !!auto,
-    before: exam.before || {}
+    correct: correct, total: total, answered: answered, skipped: skipped,
+    sections: sections, auto: !!auto,
+    before: exam.before || {},
+    after: snapshotScores(exam.items)
   };
 
   state.exams = state.exams || [];
@@ -1707,11 +1996,13 @@ function renderExamResult() {
 
   /* Exams now feed the Brainmap, so surface what moved. */
   const before = r.before || {};
+  const after = r.after || {};
   const seenKp = {};
-  exam.answers.forEach(function (a) { seenKp[a.kpId] = true; });
+  exam.answers.forEach(function (a) { if (a.correct !== null) seenKp[a.kpId] = true; });
   const moves = Object.keys(seenKp).map(function (kpid) {
     const s = state.kps[kpid];
-    const now = s && s.n ? Engine.display(s.p, s.n) : 0;
+    const live = s && s.n ? Engine.display(s.p, s.n) : 0;
+    const now = after[kpid] != null ? after[kpid] : live;
     const prev = before[kpid] != null ? before[kpid] : 0;
     return { kp: KP_BY_ID[kpid], prev: prev, now: now, delta: now - prev };
   }).sort(function (a, b) { return Math.abs(b.delta) - Math.abs(a.delta); });
@@ -1736,7 +2027,8 @@ function renderExamResult() {
 
   const rows = wrong.map(function (a, i) {
     const kp = KP_BY_ID[a.kpId];
-    const item = kp.items.filter(function (x) { return x.id === a.itemId; })[0];
+    const item = findItem(kp, a.itemId);
+    if (!item) return "";
     return "<tr><td>" + (i + 1) + "</td>"
       + '<td class="q">' + esc(item.prompt) + "</td>"
       + '<td class="bad">' + esc(a.given || "—") + "</td>"
@@ -1748,7 +2040,8 @@ function renderExamResult() {
     + '<div class="result-head"><div class="tiny" style="letter-spacing:.12em">TCF-STYLE ESTIMATE</div>'
     + '<div class="exam-score">' + r.score + ' <span style="font-size:16px;color:var(--muted)">/ 699</span></div>'
     + '<div style="margin:6px 0 2px"><span class="badge ok" style="font-size:12px">' + esc(r.band) + "</span></div>"
-    + '<p class="small">' + r.correct + " / " + r.total + " correct"
+    + '<p class="small">' + r.correct + " / " + (r.answered != null ? r.answered : r.total) + " correct"
+    + (r.skipped ? " · " + r.skipped + " skipped" : "")
     + (r.auto ? " · time expired" : "") + " · this is a practice estimate, not an official score.</p></div>"
 
     + '<div class="card"><div class="level-row"><span class="name">Structures</span>'
@@ -1777,6 +2070,24 @@ function renderExamResult() {
 }
 
 /* ---------------- pre-learn ---------------- */
+
+/* Why the option you picked is wrong, for the twenty points people miss most.
+   Falls back to "" so any point without curated feedback just shows the
+   standard explanation. */
+function distractFor(kpId, given) {
+  if (typeof DISTRACT === "undefined" || !DISTRACT[kpId]) return "";
+  const map = DISTRACT[kpId];
+  const key = Engine.normalize(given);
+  if (!key) return "";
+  const hit = Object.keys(map).filter(function (k) { return Engine.normalize(k) === key; })[0];
+  return hit ? map[hit] : "";
+}
+
+function whyWrongHtml(kpId, given) {
+  const why = distractFor(kpId, given);
+  if (!why) return "";
+  return '<div class="why-wrong"><b>Why not « ' + esc(given) + " »?</b> " + esc(why) + "</div>";
+}
 
 /* Optional Chinese subtitle for a point title. */
 function zhOf(kp) {
@@ -1946,7 +2257,7 @@ function renderPrelearn(kpId) {
   const kp = KP_BY_ID[kpId];
   if (!kp) { app.innerHTML = '<div class="container"><div class="empty">Unknown point.</div></div>'; return; }
   if (!prelearn || prelearn.kpId !== kpId) {
-    prelearn = { kpId: kpId, step: 1, g: 0, c: 0, checkCorrect: 0, feedback: null, given: "" };
+    prelearn = { kpId: kpId, step: 1, g: 0, c: 0, checkCorrect: 0, feedback: null, given: "", revealed: false };
   }
 
   const stepHtml = function (n, label) {
@@ -1957,43 +2268,85 @@ function renderPrelearn(kpId) {
   let body = "";
 
   if (prelearn.step === 1) {
-    body = '<div class="rule-box"><b>One rule:</b> ' + frify(kp.rule) + "</div>"
-      + usageHtml(kp)
-      + '<div class="ex-list">' + exampleList(kp).map(function (e) {
+    /* First screen = the one rule, two examples, the single most likely
+       mistake, and the button. Everything else is one tap away in <details>,
+       so the primer stays a 3-minute read on a phone instead of a wall. */
+    const ex = exampleList(kp);
+    const firstEx = ex.slice(0, 2);
+    const restEx = ex.slice(2);
+    const rows = commonMistakes(kp);
+    const exHtml = function (list) {
+      return '<div class="ex-list">' + list.map(function (e) {
         return '<div class="ex-item"><div class="fr">' + esc(e[0]) + '</div><div class="en">' + esc(e[1]) + "</div></div>";
-      }).join("") + "</div>"
-      + mistakesHtml(kp)
-      + '<div class="pitfall"><b>Watch out:</b> ' + frify(kp.pitfall) + "</div>"
-      + tipHtml(kp)
-      + '<div style="margin-top:18px"><button class="btn" id="step1Next">I am ready →</button>'
-      + '<span class="small" style="margin-left:10px">About 3 minutes</span></div>';
+      }).join("") + "</div>";
+    };
+    const rowHtml = function (r) {
+      return '<div class="mb-row"><span class="x">✗</span><span class="w">' + esc(r.wrong) + "</span>"
+        + '<span class="v">✓</span><span class="r">' + esc(r.right) + "</span></div>";
+    };
+    const usage = usageHtml(kp);
+    const tip = tipHtml(kp);
+
+    body = '<div class="rule-box"><b>One rule:</b> ' + frify(kp.rule) + "</div>"
+      + exHtml(firstEx)
+      + (rows.length
+        ? '<div class="mistakes-block"><div class="mb-title">The usual mix-up</div>' + rowHtml(rows[0]) + "</div>"
+        : "")
+      + '<div style="margin-top:18px"><button class="btn block" id="step1Next">I am ready →</button>'
+      + '<p class="small" style="text-align:center;margin:8px 0 0">Next: two guided questions, then three on your own.</p></div>'
+      + '<div class="prelearn-more">'
+      + (restEx.length
+        ? "<details><summary>More examples<span class=\"cnt\">" + restEx.length + "</span></summary>" + exHtml(restEx) + "</details>"
+        : "")
+      + (usage
+        ? "<details><summary>When to use it</summary>" + usage + "</details>"
+        : "")
+      + (rows.length > 1
+        ? "<details><summary>Common mistakes<span class=\"cnt\">" + rows.length + "</span></summary>"
+          + '<div class="mistakes-block">' + rows.slice(1).map(rowHtml).join("") + "</div></details>"
+        : "")
+      + (kp.pitfall
+        ? "<details><summary>Watch out</summary><div class=\"pitfall\" style=\"margin-top:8px\">" + frify(kp.pitfall) + "</div></details>"
+        : "")
+      + (tip ? "<details><summary>Tip</summary>" + tip + "</details>" : "")
+      + "</div>";
   }
 
   if (prelearn.step === 2) {
     const item = kp.items[prelearn.g];
     const fb = prelearn.feedback;
+    const reveal = prelearn.revealed;
     body = '<div class="check-progress">Guided practice · ' + (prelearn.g + 1) + " of 2</div>"
       + passageHtml(item)
-      + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/___/g, '<span class="blank">____</span>') + "</div>"
+      + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
       + (item.type === "choice"
         ? '<div class="options">' + item.options.map(function (o) {
             let cls = "option";
             if (fb) {
-              if (Engine.normalize(o) === Engine.normalize(item.answer)) cls += " correct";
-              else if (prelearn.given === o) cls += " wrong";
+              /* After a miss we only mark the choice you made, so "Try again"
+                 is a real retry rather than a second look at the answer. */
+              if (prelearn.given === o && fb !== "ok") cls += " wrong";
+              else if ((fb === "ok" || reveal) && Engine.normalize(o) === Engine.normalize(item.answer)) cls += " correct";
             }
             return '<button class="' + cls + '" data-g-option="' + esc(o) + '"' + (fb ? " disabled" : "") + ">" + esc(o) + "</button>";
           }).join("") + "</div>"
         : '<input class="answer-input" id="gInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">")
       + (item.hint ? '<p class="small" style="margin-top:10px">Hint: ' + esc(item.hint) + "</p>" : "")
       + (fb ? '<div class="feedback ' + (fb === "ok" ? "ok" : "bad") + '"><div class="mark">' + (fb === "ok" ? "✓" : "×")
-          + '</div><div class="body"><b>' + (fb === "ok" ? "Correct." : "Not quite — try again.") + "</b>"
-          + (fb === "bad" ? '<div class="answer-line">' + esc(item.answer) + "</div>" : "")
-          + esc(item.explain) + "</div></div>" : "")
+          + '</div><div class="body"><b>'
+          + (fb === "ok" ? "Correct." : reveal ? "Here is the answer." : "Not quite — try again.")
+          + "</b>"
+          + ((fb === "ok" || reveal)
+            ? '<div class="answer-line">' + esc(item.answer) + "</div>" + esc(item.explain)
+            : "")
+          + "</div></div>" : "")
       + '<div class="kwiz-actions">'
-      + (fb === "ok"
+      + (fb === "ok" || reveal
         ? '<button class="btn" id="gNext">Continue</button>'
-        : '<button class="btn" id="gCheck">Check</button>')
+        : fb === "bad"
+          ? '<button class="btn" id="gRetry">Try again</button>'
+            + '<button class="btn subtle" id="gShow">Show answer</button>'
+          : '<button class="btn" id="gCheck">Check</button>')
       + "</div>";
   }
 
@@ -2024,7 +2377,7 @@ function renderPrelearn(kpId) {
       body = '<div class="check-progress">Check · ' + (prelearn.c + 1) + " of " + items.length
         + " · " + prelearn.checkCorrect + " correct so far</div>"
         + passageHtml(item)
-        + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/___/g, '<span class="blank">____</span>') + "</div>"
+        + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
         + (item.type === "choice"
           ? '<div class="options">' + item.options.map(function (o) {
               let cls = "option";
@@ -2037,7 +2390,9 @@ function renderPrelearn(kpId) {
           : '<input class="answer-input" id="cInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">")
         + (fb ? '<div class="feedback ' + (fb === "ok" ? "ok" : "bad") + '"><div class="mark">' + (fb === "ok" ? "✓" : "×")
             + '</div><div class="body"><b>' + (fb === "ok" ? "Correct." : "Not quite.") + "</b>"
-            + '<div class="answer-line">' + esc(item.answer) + "</div>" + esc(item.explain) + "</div></div>" : "")
+            + '<div class="answer-line">' + esc(item.answer) + "</div>"
+            + (fb === "bad" && item.type === "choice" ? whyWrongHtml(kp.id, prelearn.given) : "")
+            + esc(item.explain) + "</div></div>" : "")
         + '<div class="kwiz-actions">'
         + (fb ? '<button class="btn" id="cNext">Continue</button>' : '<button class="btn" id="cCheck">Check</button>')
         + "</div>";
@@ -2091,7 +2446,23 @@ function bindPrelearn(kp) {
       prelearn.g += 1;
       prelearn.feedback = null;
       prelearn.given = "";
+      prelearn.revealed = false;
       if (prelearn.g >= 2) { prelearn.step = 3; prelearn.c = 0; prelearn.checkCorrect = 0; }
+      renderPrelearn(kp.id);
+    });
+    /* A wrong guided answer used to dead-end here: every control was disabled
+       and the only button was another Check. Now you can retry, or reveal and
+       move on — both routes reach the Check step. */
+    const gRetry = document.getElementById("gRetry");
+    if (gRetry) gRetry.addEventListener("click", function () {
+      prelearn.feedback = null;
+      prelearn.given = "";
+      prelearn.revealed = false;
+      renderPrelearn(kp.id);
+    });
+    const gShow = document.getElementById("gShow");
+    if (gShow) gShow.addEventListener("click", function () {
+      prelearn.revealed = true;
       renderPrelearn(kp.id);
     });
   }
@@ -2139,7 +2510,7 @@ function bindPrelearn(kp) {
       if (sp) sp.addEventListener("click", function () { startFocusSession(kp.id); });
       const rg = document.getElementById("retryGuided");
       if (rg) rg.addEventListener("click", function () {
-        prelearn.step = 2; prelearn.g = 0; prelearn.feedback = null; prelearn.given = "";
+        prelearn.step = 2; prelearn.g = 0; prelearn.feedback = null; prelearn.given = ""; prelearn.revealed = false;
         renderPrelearn(kp.id);
       });
     }
@@ -2149,27 +2520,34 @@ function bindPrelearn(kp) {
 /* ---------------- notebook ---------------- */
 
 function renderNotebook() {
-  const nb = Engine.notebookItems(state);
+  const everyNote = Engine.notebookItems(state);
+  /* Resolved entries keep their history but leave the review queue. */
+  const nb = everyNote.filter(function (n) { return !n.resolved; });
+  const done = everyNote.filter(function (n) { return n.resolved; });
   const savedIds = (state.notebook && state.notebook.kps) || [];
   const savedKps = savedIds.map(function (id) { return KP_BY_ID[id]; }).filter(Boolean);
 
-  const rows = nb.map(function (n, i) {
+  const rowHtml = function (n) {
     const kp = KP_BY_ID[n.kpId];
     if (!kp) return "";
-    const item = kp.items.filter(function (x) { return x.id === n.itemId; })[0];
+    const item = findItem(kp, n.itemId);
     if (!item) return "";
-    const qHtml = esc(item.prompt).replace(/___/g, '<span class="blank">____</span>');
-    return '<div class="nb-item">'
+    const qHtml = esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>');
+    return '<div class="nb-item' + (n.resolved ? " resolved" : "") + '">'
       + '<div class="nb-main">'
       + '<div class="nb-q">' + qHtml + "</div>"
-      + '<div class="nb-meta">' + esc(kp.title) + ' · missed <b class="nb-miss">' + n.wrong + "×</b></div>"
+      + '<div class="nb-meta">' + esc(kp.title) + ' · missed <b class="nb-miss">' + n.wrong + "×</b>"
+      + (n.resolved ? ' · <span class="nb-ok">resolved</span>' : "") + "</div>"
       + '<div class="nb-ans"><span>Answer</span><b>' + esc(item.answer) + "</b></div>"
       + "</div>"
       + '<div class="nb-acts">'
       + '<button class="btn sm" data-nb-practice="' + n.itemId + '">Practise</button>'
       + '<button class="btn sm subtle" data-nb-remove="' + n.itemId + '">Remove</button>'
       + "</div></div>";
-  }).join("");
+  };
+
+  const rows = nb.map(rowHtml).join("");
+  const doneRows = done.map(rowHtml).join("");
 
   const savedHtml = savedKps.length
     ? '<div class="lib-grid" style="margin-top:10px">' + savedKps.map(function (kp) {
@@ -2187,17 +2565,24 @@ function renderNotebook() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Notebook</h1>'
-    + '<p>Wrong answers land here automatically. Review them until they stop being mistakes.</p></div>'
+    + '<p>Wrong answers land here automatically. Get two right on the same point and the entry resolves itself.</p></div>'
     + '<div class="nb-actions">'
     + (nb.length ? '<button class="btn" id="nbPractiseAll">Practise all ' + nb.length + "</button>" : "")
     + (nb.length ? '<button class="btn subtle" id="nbClear">Clear mistakes</button>' : "")
     + '<span class="spacer"></span>'
-    + '<span class="small">' + nb.length + " mistake" + (nb.length === 1 ? "" : "s")
+    + '<span class="small">' + nb.length + " to review"
+    + (done.length ? " · " + done.length + " resolved" : "")
     + " · " + savedKps.length + " saved point" + (savedKps.length === 1 ? "" : "s") + "</span>"
     + "</div>"
     + (nb.length
       ? '<div class="card"><div class="nb-list">' + rows + "</div></div>"
-      : '<div class="empty">No mistakes yet. Finish a kwiz and anything you miss shows up here.</div>')
+      : '<div class="empty">' + (done.length
+        ? "Nothing left to review — every mistake here has been answered correctly since."
+        : "No mistakes yet. Finish a kwiz and anything you miss shows up here.") + "</div>")
+    + (done.length
+      ? "<details class=\"nb-done\"><summary>Resolved<span class=\"cnt\">" + done.length + "</span></summary>"
+        + '<div class="nb-list">' + doneRows + "</div></details>"
+      : "")
     + '<h2 style="font-size:16px;margin:22px 0 2px">Saved points</h2>'
     + '<p class="small">Points you bookmarked to come back to.</p>'
     + savedHtml
@@ -2218,7 +2603,7 @@ function renderNotebook() {
   document.querySelectorAll("[data-nb-practice]").forEach(function (b) {
     b.addEventListener("click", function () {
       const itemId = b.getAttribute("data-nb-practice");
-      const n = nb.filter(function (x) { return x.itemId === itemId; })[0];
+      const n = everyNote.filter(function (x) { return x.itemId === itemId; })[0];
       if (n) startSessionFromItems([{ kpId: n.kpId, itemId: n.itemId }]);
     });
   });

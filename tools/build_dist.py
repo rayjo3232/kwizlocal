@@ -29,6 +29,7 @@ FILES = [
     "zh.js",
     "vocab.js",
     "gloss.js",
+    "distract.js",
     "verbs.js",
     "sentences.js",
     "manifest.json",

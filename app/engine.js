@@ -247,17 +247,38 @@ const Engine = (function () {
     return state.notebook;
   }
 
-  /* Wrong answers land here automatically; repeats bump a counter instead of duplicating. */
+  /* Wrong answers land here automatically; repeats bump a counter instead of
+     duplicating. A repeat also reopens an entry that had been resolved. */
   function noteWrong(state, itemId, kpId) {
     const nb = ensureNotebook(state);
     const found = nb.items.filter(function (x) { return x.itemId === itemId; })[0];
     if (found) {
       found.wrong += 1;
       found.lastAt = Date.now();
+      found.resolved = false;
+      found.resolvedAt = null;
     } else {
-      nb.items.push({ itemId: itemId, kpId: kpId, wrong: 1, at: Date.now(), lastAt: Date.now() });
+      nb.items.push({
+        itemId: itemId, kpId: kpId, wrong: 1,
+        at: Date.now(), lastAt: Date.now(), resolved: false
+      });
     }
     return nb;
+  }
+
+  /* Two correct answers on two different questions is the bar for calling a
+     mistake fixed. The history is kept; the entry just leaves the queue. */
+  function resolveNotebook(state, kpId) {
+    const nb = ensureNotebook(state);
+    let changed = 0;
+    nb.items.forEach(function (x) {
+      if (x.kpId === kpId && !x.resolved) {
+        x.resolved = true;
+        x.resolvedAt = Date.now();
+        changed++;
+      }
+    });
+    return changed;
   }
 
   function removeNote(state, itemId) {
@@ -278,46 +299,107 @@ const Engine = (function () {
     return nb.kps.indexOf(kpId) >= 0;
   }
 
-  /* Most-missed first, then most recent. */
+  /* Unresolved first, then most-missed, then most recent. */
   function notebookItems(state) {
     const nb = ensureNotebook(state);
     return nb.items.slice().sort(function (a, b) {
+      if (!!a.resolved !== !!b.resolved) return a.resolved ? 1 : -1;
       if (b.wrong !== a.wrong) return b.wrong - a.wrong;
       return b.lastAt - a.lastAt;
     });
   }
 
+  /* The badge count is the review queue, so resolved entries stop counting. */
   function notebookCount(state) {
     const nb = ensureNotebook(state);
-    return nb.items.length + nb.kps.length;
+    return nb.items.filter(function (x) { return !x.resolved; }).length + nb.kps.length;
   }
 
   function clearNotebook(state) {
     state.notebook = { items: [], kps: [] };
   }
 
+  /* The single place where an answer becomes learning evidence.
+
+     correct is tri-state and the distinction matters:
+       true  -> mastery up, attempt logged
+       false -> mastery down, attempt logged, question goes to the Notebook
+       null  -> skipped: no evidence at all (no BKT move, no Notebook entry,
+                not counted in the accuracy denominator)
+
+     Everything that scores an answer (kwiz, placement, exam, pre-learn) goes
+     through here, so those three cases can never drift apart again. */
+  function applyAttempt(state, a) {
+    if (!Array.isArray(state.attempts)) state.attempts = [];
+    const before = scoreOf(state, a.kpId);
+
+    if (a.correct === null || a.correct === undefined) {
+      return { skipped: true, before: before, after: before, delta: 0 };
+    }
+
+    const correct = !!a.correct;
+
+    /* Sentence-bank questions are context, not evidence: the blank is a noun
+       slot, so getting it wrong says nothing about whether you know the
+       grammar point the sentence happens to contain. Log it, score it in the
+       session, but leave mastery and the Notebook alone. */
+    if (a.noMastery) {
+      state.attempts.push({
+        itemId: a.itemId, kpId: a.kpId, correct: correct,
+        at: a.at || Date.now(), source: a.source || "sentence", noMastery: true
+      });
+      return { skipped: false, before: before, after: before, delta: 0, noMastery: true };
+    }
+
+    updateKp(state, a.kpId, correct);
+    const kpState = ensure(state, a.kpId);
+
+    if (correct) {
+      /* Track distinct questions answered right since the last miss. */
+      if (!Array.isArray(kpState.correctSince)) kpState.correctSince = [];
+      if (kpState.correctSince.indexOf(a.itemId) < 0) kpState.correctSince.push(a.itemId);
+      if (kpState.correctSince.length > 8) kpState.correctSince = kpState.correctSince.slice(-8);
+      if (kpState.correctSince.length >= 2) resolveNotebook(state, a.kpId);
+    } else {
+      kpState.correctSince = [];
+      noteWrong(state, a.itemId, a.kpId);
+    }
+    state.attempts.push({
+      itemId: a.itemId,
+      kpId: a.kpId,
+      correct: correct,
+      at: a.at || Date.now(),
+      source: a.source || "kwiz"
+    });
+    state.plan = null;
+
+    const after = scoreOf(state, a.kpId);
+    return { skipped: false, before: before, after: after, delta: after - before };
+  }
+
   function finishSession(state, session, answers) {
     let correct = 0, skipped = 0;
     answers.forEach(function (a) {
-      if (a.correct === null) { skipped++; return; }
+      if (a.correct === null || a.correct === undefined) { skipped++; return; }
       if (a.correct) correct++;
       /* Answers already scored at answer time (kwiz) must not be counted twice. */
       if (a.applied) return;
-      if (!a.correct) noteWrong(state, a.itemId, a.kpId);
-      updateKp(state, a.kpId, a.correct);
-      state.attempts.push({
-        itemId: a.itemId, kpId: a.kpId, correct: a.correct, at: Date.now()
+      applyAttempt(state, {
+        kpId: a.kpId, itemId: a.itemId, correct: a.correct,
+        source: a.source || "kwiz"
       });
     });
 
     const total = answers.length;
-    const ratio = total ? correct / total : 0;
-    const stars = correct === total ? 5 : ratio >= 0.8 ? 4 : ratio >= 0.6 ? 3 : ratio >= 0.4 ? 2 : 1;
+    const answered = total - skipped;
+    const ratio = answered ? correct / answered : 0;
+    const stars = answered && correct === answered ? 5 : ratio >= 0.8 ? 4 : ratio >= 0.6 ? 3 : ratio >= 0.4 ? 2 : 1;
 
     const record = {
       id: session.id,
       at: Date.now(),
       total: total,
+      answered: answered,
       correct: correct,
       skipped: skipped,
       stars: stars,
@@ -438,12 +520,14 @@ const Engine = (function () {
     colorFor: colorFor,
     statusOf: statusOf,
     updateKp: updateKp,
+    applyAttempt: applyAttempt,
     levelScore: levelScore,
     levelStats: levelStats,
     buildSession: buildSession,
     finishSession: finishSession,
     touchStreak: touchStreak,
     noteWrong: noteWrong,
+    resolveNotebook: resolveNotebook,
     removeNote: removeNote,
     toggleKpSave: toggleKpSave,
     isKpSaved: isKpSaved,

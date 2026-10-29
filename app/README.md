@@ -100,6 +100,19 @@ collapses to one column.
 | "I already know this" — mark a point as mastered from the drawer | done |
 | "Practise N weak points" — a session across every point below 50 | done |
 | Study plan stays stable between renders (reshuffles after each session) | done |
+| **Tri-state answering**: right / wrong / skipped are three different things — a skip never moves mastery, never enters the Notebook, and never counts in the accuracy denominator | done |
+| **One scoring pipeline**: `Engine.applyAttempt` is the only place an answer becomes evidence (kwiz, placement, exam, pre-learn) | done |
+| **Honest placement**: only the 20 questions actually answered are measured; the other points stay blank instead of being filled with invented attempts | done |
+| **Frozen result snapshots**: a finished report keeps its own before/after scores, even after you practise the same points again | done |
+| **Resolved Notebook entries**: two correct answers on two different questions retires a mistake (history kept, queue cleared); missing it again reopens it | done |
+| **Distractor feedback**: the 20 most-confused points explain why the option you picked is wrong (`app/distract.js`) | done |
+| **Rotation-based session building**: one question per point before any point repeats, recent items skipped, a point serves a different question each time | done |
+| **Sentence bank in the main kwiz**: once a point is established, real sentences from the 13k bank join the rotation as *context* questions — scored in the session, deliberately not scored in the mastery model | done |
+| **Dashboard with one primary action**: daily goal → Quick · 3 → two secondary options → at most three ranked next steps; achievements and the study plan moved below | done |
+| **Pre-learn primer**: rule + two examples + one mix-up + the CTA on the first screen; extra examples, usage, mistakes, watch-out and tip collapsed into `<details>` | done |
+| **Phone Brainmap**: the innermost hexagon grid becomes a readable list (title, area, level, score, Practise) instead of hiding the SVG labels | done |
+| **French-first typography**: French examples 18px dark roman, English glosses 14px muted — the target language leads | done |
+| **Accessibility floor**: 4.5:1 contrast on buttons, brand text, badges and muted copy; drawer is a real dialog with Esc, focus trap and focus restore; answer feedback is `aria-live` | done |
 | Audio | **not included** (by choice) |
 | Chinese explanations | **not included** (English only) |
 | FSRS-grade scheduling | simplified interval, not full FSRS |
@@ -185,6 +198,21 @@ items: it fills the `___` slot of each prompt, so a row reads
 #   https://downloads.tatoeba.org/exports/per_language/fra/fra-eng_links.tsv.bz2
 python tools/build_sentences.py --target 16000
 ```
+
+### These also feed the main kwiz — as context, not as evidence
+
+`SENT_TAG_KPS` in `app/app.js` maps each grammar tag to the points it belongs
+to. Once a point has three attempts behind it, `pickByRotation` and
+`addSentenceVariety` start mixing gap-fill sentences from that tag into normal
+sessions, so you meet the structure in real vocabulary instead of re-reading
+the same hand-written question.
+
+They are deliberately **not scored in the mastery model**. The blank in a bank
+sentence is always a noun slot, so getting it wrong says nothing about whether
+you know the grammar the sentence happens to contain — attributing it to the
+point would be the same mis-attribution bug as the old placement test. The
+answer counts towards the session score and is logged with `noMastery: true`;
+mastery, the Notebook and the Brainmap are left alone, and the feedback says so.
 
 Pipeline: 729k French sentences × 442k fra-eng links → 207k clean pairs after
 filtering (length, length ratio, profanity, digits, proper nouns) → 120k
