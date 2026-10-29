@@ -98,6 +98,19 @@
 <script>
 /* Service worker only works over http(s); skip it when opened as a file. */
 if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+  var swOpenedAt = Date.now();
+
+  /* A new build just activated. Reload once so the page picks up the new
+     assets — but only if the user has not started working yet, because
+     reloading mid-exercise is worse than being one version behind. */
+  navigator.serviceWorker.addEventListener("message", function (e) {
+    if (!e.data || e.data.type !== "SW_UPDATED") return;
+    if (Date.now() - swOpenedAt > 4000) return;
+    if (sessionStorage.getItem("sw-reloaded") === e.data.version) return;
+    sessionStorage.setItem("sw-reloaded", e.data.version);
+    location.reload();
+  });
+
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("sw.js").catch(function () {});
   });
