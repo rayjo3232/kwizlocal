@@ -243,26 +243,72 @@ function groupByCategory(list) {
   });
 }
 
+/* Pointy-top hexagon, the shape Kwiziq tiles its Brainmap with. */
+function hexPath(cx, cy, r) {
+  let d = "";
+  for (let i = 0; i < 6; i++) {
+    const a = Math.PI / 180 * (60 * i - 30);
+    d += (i ? "L" : "M") + (cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1);
+  }
+  return d + "Z";
+}
+
+/* Largest honeycomb that fits n cells into w×h. Bisection on the radius is
+   simpler and more reliable than solving the packing by hand. */
+function hexGrid(n, w, h) {
+  let lo = 8, hi = 46, best = null;
+  for (let iter = 0; iter < 24; iter++) {
+    const R = (lo + hi) / 2;
+    const hexW = Math.sqrt(3) * R;
+    const rowStep = 1.5 * R;
+    /* Never lay out more columns than there are cells — otherwise a handful
+       of points would be measured against a full-width grid and rejected. */
+    const cols = Math.max(1, Math.min(n, Math.floor((w + hexW * 0.5) / hexW)));
+    const rows = Math.ceil(n / cols);
+    const totalW = cols * hexW + hexW * 0.5;
+    const totalH = (rows - 1) * rowStep + 2 * R;
+    if (totalW <= w && totalH <= h) {
+      best = { R: R, hexW: hexW, rowStep: rowStep, cols: cols, rows: rows, totalW: totalW, totalH: totalH };
+      lo = R;
+    } else {
+      hi = R;
+    }
+  }
+  return best;
+}
+
 function kpCells(svg, kps, x, y, w, h, labels) {
-  if (w <= 2 || h <= 2) return;
-  const cells = treemap(kps.map(function (k) { return { kp: k, value: k.weight }; }), x, y, w, h);
-  cells.forEach(function (c) {
-    const kp = c.item.kp;
+  if (w <= 2 || h <= 2 || !kps.length) return;
+  const g = hexGrid(kps.length, w, h);
+  if (!g) return;
+
+  const startX = x + (w - g.totalW) / 2;
+  const startY = y + (h - g.totalH) / 2;
+
+  kps.forEach(function (kp, i) {
+    const row = Math.floor(i / g.cols);
+    const col = i % g.cols;
+    const offset = row % 2 ? g.hexW / 2 : 0;
+    const cx = startX + col * g.hexW + g.hexW / 2 + offset;
+    const cy = startY + row * g.rowStep + g.R;
+
     const st = state.kps[kp.id];
     const sc = st ? Engine.display(st.p, st.n) : 0;
     const n = st ? st.n : 0;
     const fill = Engine.colorFor(sc, n);
-    const gap = 2;
-    const cx = c.x + gap, cy = c.y + gap;
-    const cw = Math.max(2, c.w - gap * 2), ch = Math.max(2, c.h - gap * 2);
-    svg.push('<rect class="map-cell" data-kp="' + kp.id + '" x="' + cx + '" y="' + cy + '" width="' + cw
-      + '" height="' + ch + '" rx="3" fill="' + fill + '"/>');
-    if (labels !== false && cw > 62 && ch > 22) {
+
+    svg.push('<path class="map-cell" data-kp="' + kp.id + '" d="' + hexPath(cx, cy, g.R * 0.93)
+      + '" fill="' + fill + '"/>');
+
+    if (labels !== false && g.R >= 14) {
       const short = kp.category === "reading" ? kp.title.replace("Reading: ", "") : kp.title.split(":")[0];
-      const maxChars = Math.max(4, Math.floor((cw - 10) / 5.6));
+      const fs = Math.max(7, Math.min(11, g.R * 0.42));
+      /* A hexagon only offers about 60% of its width as usable line length. */
+      const maxChars = Math.max(3, Math.floor((g.hexW * 0.62) / (fs * 0.55)));
       const label = short.length > maxChars ? short.slice(0, maxChars - 1) + "…" : short;
       const dark = (n === 0 || (sc >= 0 && sc < 50));
-      svg.push('<text class="map-label' + (dark ? " dark" : "") + '" x="' + (cx + 5) + '" y="' + (cy + 13) + '">'
+      svg.push('<text class="map-label' + (dark ? " dark" : "") + '" x="' + cx.toFixed(1) + '" y="'
+        + (cy + fs * 0.35).toFixed(1) + '" text-anchor="middle" style="font-size:' + fs.toFixed(1) + 'px">'
         + esc(label) + '</text>');
     }
   });

@@ -4,7 +4,7 @@
    browser treat the new files as new — without a bump, cache-first would
    serve the previous build forever. */
 
-const CACHE = "kwizlocal-v7";
+const CACHE = "kwizlocal-v8";
 
 /* Workers Static Assets answers /index.html with a 307 to /, and a redirect
    inside cache.addAll can abort the whole install. "./" alone is enough —
@@ -27,7 +27,9 @@ const ASSETS = [
   "./fonts/InterVariable.woff2",
   "./fonts/Lora-Regular-subset-latin-latin-extended.woff2",
   "./fonts/Lora-Italic-subset-latin-latin-extended.woff2",
-  "./fonts/Lora-Bold-subset-latin-latin-extended.woff2"
+  "./fonts/Lora-Bold-subset-latin-latin-extended.woff2",
+  "./fonts/Poppins-Bold.woff2",
+  "./fonts/Poppins-ExtraBold.woff2"
 ];
 
 let cachePromise = null;
