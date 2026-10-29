@@ -151,7 +151,7 @@ const DEEP = {
       ["des yeux bleus", "blue eyes"],
       ["des chaussures marron", "brown shoes"]
     ],
-    tip: "rose, orange and marron are named after flowers, fruit and chestnuts, so they stay frozen: des fleurs orange, never oranges."
+    tip: "rose, orange and marron are named after a flower, a fruit and a chestnut, so as colours they never change: des fleurs orange, not des fleurs oranges. Note the trap — the fruit itself is normal: j'achète des oranges."
   },
 
   "a0.expressions.time": {

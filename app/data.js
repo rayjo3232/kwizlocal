@@ -755,7 +755,7 @@ const KPS = [
       ["fill", "une fleur ___ (blanc)", null, "blanche", "blanc → blanche (feminine)."],
       ["choice", "des livres ___ (noir)", ["noir", "noirs", "noires"], "noirs", "Masculine plural → -s."],
       ["fill", "une robe ___ (vert)", null, "verte", "Feminine singular → -e."],
-      ["choice", "des chaussures ___ (orange)", ["orange", "oranges", "orangées"], "orange", "orange is invariable."],
+      ["choice", "des chaussures ___ (orange)", ["orange", "oranges", "orangées"], "orange", "orange is a colour here, so it stays invariable: des chaussures orange. (The fruit is variable — des oranges — but shoes aren't fruit!)"],
       ["fill", "des yeux ___ (bleu)", null, "bleus", "Masculine plural → -s."]
     ]),
 
