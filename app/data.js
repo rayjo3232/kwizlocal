@@ -150,7 +150,7 @@ const KPS = [
       ["fill", "Tu ___ raison.", null, "as", "tu + avoir = tu as."],
       ["fill", "Nous ___ deux enfants.", null, "avons", "nous + avoir = nous avons."],
       ["choice", "Elles ___ faim.", ["a", "ont", "avez"], "ont", "elles + avoir = elles ont."],
-      ["fill", "J'___ un chat.", null, "ai", "avoir: j'ai."]
+      ["fill", "J'___ besoin d'aide.", null, "ai", "avoir: j'ai besoin de… — the same form in a different phrase."]
     ]),
 
   K("a0.er.present", "A0", "verbs",
@@ -242,7 +242,7 @@ const KPS = [
       ["fill", "Il vient ___ partir.", null, "de", "The pattern is venir + de + infinitive."],
       ["choice", "Nous ___ d'arriver.", ["venons", "venez", "vient"], "venons", "nous + venir = venons."],
       ["fill", "Elles viennent ___ finir.", null, "de", "de becomes d' only before a vowel; finir starts with a consonant."],
-      ["fill", "Je ___ de manger.", null, "viens", "venir de + infinitive."]
+      ["fill", "Ils ___ d'arriver. (venir)", null, "viennent", "ils + venir = ils viennent: ils viennent d'arriver."]
     ]),
 
   /* ---------------- A2 ---------------- */

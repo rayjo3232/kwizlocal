@@ -4,7 +4,9 @@ const path = require("path");
 const vm = require("vm");
 
 const APP = path.join(__dirname, "..", "app");
-const src = fs.readFileSync(path.join(APP, "data.js"), "utf8");
+const src = ["data.js", "extra.js"]
+  .map(function (f) { return fs.readFileSync(path.join(APP, f), "utf8"); })
+  .join("\n;\n");
 const sandbox = { console };
 vm.createContext(sandbox);
 vm.runInContext(src + "\n;globalThis.__data = { KPS: KPS, LEVELS: LEVELS, CATEGORIES: CATEGORIES };", sandbox);
@@ -30,7 +32,16 @@ KPS.forEach(function (kp) {
   /* 5 is the baseline; a point that needs more drill material (tense contrast,
      for example) may carry up to 12. Pre-learn still uses items 2–4. */
   if (kp.items.length < 5) fail(kp.id + ": " + kp.items.length + " items (expected at least 5)");
-  if (kp.items.length > 12) fail(kp.id + ": " + kp.items.length + " items (max 12)");
+  if (kp.items.length > 16) fail(kp.id + ": " + kp.items.length + " items (max 16)");
+
+  /* The same prompt twice inside one point is a data bug, not variety: the
+     learner sees the identical question again and learns nothing. */
+  const prompts = {};
+  kp.items.forEach(function (it) {
+    const key = String(it.prompt).trim().toLowerCase();
+    if (prompts[key]) fail(kp.id + ": duplicate prompt (" + it.prompt + ")");
+    prompts[key] = true;
+  });
 
   kp.items.forEach(function (it) {
     if (!it.answer) fail(it.id + ": missing answer");
@@ -74,5 +85,21 @@ console.log("");
 console.log("points:", KPS.length, "items:", itemIds.size);
 console.log("by level:", JSON.stringify(byLevel));
 console.log("by item type:", JSON.stringify(byType));
+
+/* Depth per level: the thing that keeps a learner from memorising the
+   question instead of the rule. Report it so a regression is visible. */
+const depth = {};
+KPS.filter(function (k) { return k.category !== "reading"; }).forEach(function (k) {
+  const d = depth[k.level] = depth[k.level] || { n: 0, items: 0, min: 99 };
+  d.n++; d.items += k.items.length;
+  d.min = Math.min(d.min, k.items.length);
+});
+const depthStr = Object.keys(depth).map(function (l) {
+  const d = depth[l];
+  return l + " avg " + (d.items / d.n).toFixed(1) + " min " + d.min;
+}).join(" · ");
+console.log("depth (non-reading):", depthStr);
+const thin = KPS.filter(function (k) { return k.category !== "reading" && k.items.length < 8; });
+if (thin.length) console.log("thin points (<8 items):", thin.length, thin.slice(0, 8).map(function (k) { return k.id; }).join(", "));
 console.log(problems ? "\n" + problems + " problem(s) found." : "\nNo problems found.");
 process.exit(problems ? 1 : 0);

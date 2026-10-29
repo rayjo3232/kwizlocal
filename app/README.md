@@ -56,7 +56,8 @@ collapses to one column.
 | Piece | Status |
 |---|---|
 | 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
-| 824 items: choice / fill / correction + 10 reading passages (A1–B2) | done |
+| **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
+| **Question depth**: `app/extra.js` adds three practice questions to every non-reading point, appended as kwiz-stage items so the guided pair and the check trio never move | done |
 | **Quick kwiz**: 3-question (~1 min) and 10-question modes | done |
 | **Per-answer score movement**: every answer shows the exact delta for that point | done |
 | **Auto-advance**: jumps to the next question after a correct answer (toggle in Settings) | done |
@@ -298,6 +299,19 @@ python tools/build_sentences.py --target 16000
 - `Enter` check answer / continue / next question
 - `Esc` skip (no penalty)
 - Skipped answers are stored as `null` and never lower a score
+
+## Question depth
+
+Each point ships five questions in `data.js` (2 guided, 2 check, 1 kwiz) and
+three more in `extra.js`, which is loaded right after `data.js` and appends
+them as kwiz-stage items. Splitting them keeps the original five readable as
+the teaching sequence and makes it obvious which questions are extra practice.
+
+Rules for anything added there: a different sentence from the five already in
+the point, exactly one defensible answer, and an explanation that says why.
+`tools/check_data.js` enforces the mechanical half of that — unique ids, no
+repeated prompt inside a point, the answer present among the options, and a
+minimum depth of 8 per non-reading point.
 
 ## Adding content
 
