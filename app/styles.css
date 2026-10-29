@@ -1,27 +1,49 @@
+/* Typography follows Kwiziq: Inter for the interface, Lora (serif) for
+   anything the learner reads as language content. The serif/sans split is
+   what makes the two languages separate without shouting. */
+@font-face{
+  font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;
+  src:url("fonts/InterVariable.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Lora";font-style:normal;font-weight:400;font-display:swap;
+  src:url("fonts/Lora-Regular-subset-latin-latin-extended.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Lora";font-style:italic;font-weight:400;font-display:swap;
+  src:url("fonts/Lora-Italic-subset-latin-latin-extended.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Lora";font-style:normal;font-weight:700;font-display:swap;
+  src:url("fonts/Lora-Bold-subset-latin-latin-extended.woff2") format("woff2");
+}
+
 :root{
-  --brand:#F26500;
-  --brand-dark:#D95A00;
-  --brand-soft:#FFF2E8;
-  --brand-line:#FFD9BF;
-  --ink:#14181D;
-  --ink2:#39424D;
-  --muted:#6B7480;
-  --faint:#9AA3AE;
-  --line:#E6E8EB;
-  --line2:#F0F1F3;
-  --bg:#F7F9FB;
+  --brand:#ff6a00;
+  --brand-dark:#e05c00;
+  --brand-soft:#FFF3EA;
+  --brand-line:#FFD6BC;
+  --ink:#262626;
+  --ink2:#3d3d3d;
+  --muted:#666666;
+  --faint:#8f8f8f;
+  --line:#e5e5e5;
+  --line2:#f0f0f0;
+  --bg:#f7f8fa;
   --card:#FFFFFF;
   --green:#3E9B4F;
   --green-soft:#EDF7EF;
-  --red:#D51C1B;
+  --red:#d51c1b;
   --red-soft:#FDEDED;
   --yellow:#C98A00;
   --yellow-soft:#FFF7E0;
   --blue:#0B6FB8;
-  --blue-soft:#EAF4FB;
+  --blue-soft:#e5f4ff;
   --radius:10px;
   --shadow:0 1px 3px rgba(20,24,29,.06);
-  --font:"Inter","Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --font:"Inter","Helvetica Neue",-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  /* language content — French examples and their English glosses */
+  --font-content:"Lora",Georgia,"Times New Roman",serif;
 }
 *{box-sizing:border-box}
 [hidden]{display:none !important}
@@ -36,13 +58,14 @@ button{font-family:inherit}
 button:focus{outline:none}
 button:focus-visible{outline:2px solid #FFB27A;outline-offset:2px}
 
-/* French mentioned inside English prose: italic + cooler ink so the two
-   languages never blur together. Only for inline mentions — full French
-   sentences use .fr inside .ex-item, which stays upright and dark. */
+/* French mentioned inside English prose. Kwiziq's trick: the switch is made
+   by *typeface*, not by colour — serif italic inside sans-serif roman reads
+   as "this is the other language" without any highlighting. */
 .fr-inline{
+  font-family:var(--font-content);
   font-style:italic;
-  color:#17547E;
-  font-weight:600;
+  font-weight:400;
+  color:var(--ink2);
   letter-spacing:.005em;
 }
 /* Chinese subtitle under a point title. */
@@ -368,13 +391,27 @@ p{margin:0 0 12px}
   padding:14px 16px;font-size:14.5px;line-height:1.75;
 }
 .ex-list{margin-top:16px}
-.ex-item{padding:11px 0;border-bottom:1px solid var(--line2)}
-.ex-item:last-child{border-bottom:none}
-.ex-item .fr{
-  font-size:16px;font-weight:650;color:var(--ink);
-  letter-spacing:-.01em;line-height:1.5;
+.ex-item{
+  padding:11px 0;border-bottom:1px solid var(--line2);
+  border-radius:3px;transition:background-color 150ms ease;
 }
-.ex-item .en{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.5}
+.ex-item:hover{background:var(--blue-soft)}
+.ex-item:last-child{border-bottom:none}
+/* Kwiziq reverses the usual emphasis: the French sits back in italic grey
+   (it is the thing being learned) while the English gloss carries the ink,
+   because that is what you actually read to grasp the meaning. */
+.ex-item .fr{
+  font-family:var(--font-content);
+  font-style:italic;font-weight:400;
+  font-size:16px;line-height:1.5;color:var(--muted);
+  letter-spacing:.005em;
+}
+.ex-item .en{
+  font-family:var(--font-content);
+  font-style:normal;font-weight:400;
+  font-size:14px;line-height:1.55;color:var(--ink);
+  margin-top:2px;
+}
 .pitfall{
   margin-top:16px;background:var(--red-soft);border-left:3px solid var(--red);
   padding:11px 14px;font-size:13.5px;line-height:1.65;color:#7A2A29;border-radius:0 6px 6px 0;

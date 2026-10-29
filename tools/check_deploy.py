@@ -51,6 +51,18 @@ def main() -> int:
         if name and not (APP / name).exists():
             problems.append(f"sw.js precaches {name} but the file is missing")
 
+    # fonts referenced from CSS must exist and be precached, or the phone
+    # silently falls back to a system serif and the whole design collapses
+    css = read("styles.css")
+    for m in re.finditer(r'url\("([^"]+)"\)', css):
+        ref = m.group(1)
+        if ref.startswith(("http://", "https://", "data:")):
+            continue
+        if not (APP / ref).exists():
+            problems.append(f"styles.css references missing asset {ref}")
+        if ref not in cached:
+            problems.append(f"styles.css asset {ref} is not precached by sw.js")
+
     # manifest icons must exist and be listed
     manifest = json.loads(read("manifest.json"))
     for icon in manifest.get("icons", []):

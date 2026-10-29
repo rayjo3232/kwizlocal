@@ -65,6 +65,12 @@ def main() -> int:
     else:
         missing.append("icons/")
 
+    fonts = SRC / "fonts"
+    if fonts.exists():
+        shutil.copytree(fonts, DST / "fonts")
+    else:
+        missing.append("fonts/")
+
     # GitHub Pages ignores files beginning with an underscore without this.
     (DST / ".nojekyll").write_text("", encoding="utf-8")
 
