@@ -89,21 +89,37 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
-/* English prose that quotes French. Three passes, each cheap and safe:
+/* English prose that quotes French. Four passes:
    1. *asterisks* — French marked by hand in the data
-   2. any word carrying an accent — English almost never uses one
-   3. high-frequency French function words with no English homograph
+   2. multi-word phrases, parked on placeholders so the word rules below
+      cannot split them (est-ce que must not become est + ce + que)
+   3. any word carrying an accent — English almost never uses one
+   4. high-frequency French function words with no English homograph
    Wrapping twice is harmless (nested <i> looks identical), so we do not
    bother tracking what is already inside a tag. */
 function frify(text) {
-  return esc(text)
-    .replace(/\*([^*]+)\*/g, '<i class="fr-inline">$1</i>')
-    .replace(/([A-Za-z\u00C0-\u017F]*[\u00E0\u00E2\u00E7\u00E9\u00E8\u00EA\u00EB\u00EE\u00EF\u00F4\u00FB\u00F9\u00FC\u00FF\u0153\u00C0\u00C2\u00C7\u00C9\u00C8\u00CA\u00CB\u00CE\u00CF\u00D4\u00DB\u00D9\u00DC\u0178\u0152][A-Za-z\u00C0-\u017F'\u2019-]*)/g,
-      '<i class="fr-inline">$1</i>')
-    /* (?<!['’]) keeps quelqu'un and l'un whole — otherwise the "un" inside
-       an elided word gets italicised on its own. */
-    .replace(/(?<!['\u2019])\b(le|la|les|un|une|des|du|au|aux|je|tu|nous|vous|ils|elles|est|sont|ne|pas|dans|pour|avec|mais|donc|tr\u00E8s|plus|moins)\b/g,
-      '<i class="fr-inline">$1</i>');
+  var s = esc(text);
+
+  s = s.replace(/\*([^*]+)\*/g, '<i class="fr-inline">$1</i>');
+
+  var held = [];
+  s = s.replace(/(?<![\w-])(qu'est-ce qu['e]|est-ce qu['e]|n'est-ce pas|est-ce|c'est|ce sont|il n'y a|il y a|s'il vous pla[iî]t|s'il te pla[iî]t|d'accord|au revoir)/gi,
+    function (m) {
+      held.push(m);
+      return "\uE000" + (held.length - 1) + "\uE001";
+    });
+
+  s = s.replace(/([A-Za-z\u00C0-\u017F]*[\u00E0\u00E2\u00E7\u00E9\u00E8\u00EA\u00EB\u00EE\u00EF\u00F4\u00FB\u00F9\u00FC\u00FF\u0153\u00C0\u00C2\u00C7\u00C9\u00C8\u00CA\u00CB\u00CE\u00CF\u00D4\u00DB\u00D9\u00DC\u0178\u0152][A-Za-z\u00C0-\u017F'\u2019-]*)/g,
+    '<i class="fr-inline">$1</i>');
+
+  /* (?<!['’]) keeps quelqu'un and l'un whole — otherwise the "un" inside
+     an elided word gets italicised on its own. */
+  s = s.replace(/(?<!['\u2019])\b(le|la|les|un|une|des|du|au|aux|je|tu|nous|vous|ils|elles|est|sont|ne|pas|dans|pour|avec|mais|donc|tr\u00E8s|plus|moins|que|qui|ce|cet|cette|ces)\b/g,
+    '<i class="fr-inline">$1</i>');
+
+  return s.replace(/\uE000(\d+)\uE001/g, function (m, i) {
+    return '<i class="fr-inline">' + held[+i] + "</i>";
+  });
 }
 
 function stars(n) {
