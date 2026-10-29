@@ -6,7 +6,7 @@
     "note": "Frequency per million words, max of film subtitles and books."
   },
   "scanned_rows": 142694,
-  "kept": 300,
+  "kept": 600,
   "items": [
     {
       "w": "être",
@@ -2706,6 +2706,2706 @@
       "genre": "m",
       "freq": 256.15,
       "rank": 300,
+      "level": "A2"
+    },
+    {
+      "w": "milieu",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 256.08,
+      "rank": 301,
+      "level": "A2"
+    },
+    {
+      "w": "lettre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 256.01,
+      "rank": 302,
+      "level": "A2"
+    },
+    {
+      "w": "manquer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 253.94,
+      "rank": 303,
+      "level": "A2"
+    },
+    {
+      "w": "ensemble",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 253.47,
+      "rank": 304,
+      "level": "A2"
+    },
+    {
+      "w": "mauvais",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 252.69,
+      "rank": 305,
+      "level": "A2"
+    },
+    {
+      "w": "film",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 252.66,
+      "rank": 306,
+      "level": "A2"
+    },
+    {
+      "w": "heureux",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 248.45,
+      "rank": 307,
+      "level": "A2"
+    },
+    {
+      "w": "travers",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 247.64,
+      "rank": 308,
+      "level": "A2"
+    },
+    {
+      "w": "sauver",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 246.54,
+      "rank": 309,
+      "level": "A2"
+    },
+    {
+      "w": "pays",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 241.55,
+      "rank": 310,
+      "level": "A2"
+    },
+    {
+      "w": "imaginer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 241.15,
+      "rank": 311,
+      "level": "A2"
+    },
+    {
+      "w": "rencontrer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 241.04,
+      "rank": 312,
+      "level": "A2"
+    },
+    {
+      "w": "autant",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 240.41,
+      "rank": 313,
+      "level": "A2"
+    },
+    {
+      "w": "crier",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 239.73,
+      "rank": 314,
+      "level": "A2"
+    },
+    {
+      "w": "voler",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 238.82,
+      "rank": 315,
+      "level": "A2"
+    },
+    {
+      "w": "fermer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 238.65,
+      "rank": 316,
+      "level": "A2"
+    },
+    {
+      "w": "général",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 236.89,
+      "rank": 317,
+      "level": "A2"
+    },
+    {
+      "w": "feu",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 236.15,
+      "rank": 318,
+      "level": "A2"
+    },
+    {
+      "w": "valoir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 236.07,
+      "rank": 319,
+      "level": "A2"
+    },
+    {
+      "w": "ordre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 235.34,
+      "rank": 320,
+      "level": "A2"
+    },
+    {
+      "w": "ok",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 234.89,
+      "rank": 321,
+      "level": "A2"
+    },
+    {
+      "w": "expliquer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 233.92,
+      "rank": 322,
+      "level": "A2"
+    },
+    {
+      "w": "docteur",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 233.86,
+      "rank": 323,
+      "level": "A2"
+    },
+    {
+      "w": "plaisir",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 233.85,
+      "rank": 324,
+      "level": "A2"
+    },
+    {
+      "w": "ombre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "",
+      "freq": 233.45,
+      "rank": 325,
+      "level": "A2"
+    },
+    {
+      "w": "apercevoir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 233.11,
+      "rank": 326,
+      "level": "A2"
+    },
+    {
+      "w": "suffire",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 232.08,
+      "rank": 327,
+      "level": "A2"
+    },
+    {
+      "w": "chemin",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 231.42,
+      "rank": 328,
+      "level": "A2"
+    },
+    {
+      "w": "verre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 230.07,
+      "rank": 329,
+      "level": "A2"
+    },
+    {
+      "w": "important",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 229.36,
+      "rank": 330,
+      "level": "A2"
+    },
+    {
+      "w": "glisser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 229.32,
+      "rank": 331,
+      "level": "A2"
+    },
+    {
+      "w": "reconnaître",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 229.19,
+      "rank": 332,
+      "level": "A2"
+    },
+    {
+      "w": "bord",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 228.11,
+      "rank": 333,
+      "level": "A2"
+    },
+    {
+      "w": "compter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 227.78,
+      "rank": 334,
+      "level": "A2"
+    },
+    {
+      "w": "joli",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 226.45,
+      "rank": 335,
+      "level": "A2"
+    },
+    {
+      "w": "ajouter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 224.66,
+      "rank": 336,
+      "level": "A2"
+    },
+    {
+      "w": "recevoir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 224.46,
+      "rank": 337,
+      "level": "A2"
+    },
+    {
+      "w": "avant",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 224.38,
+      "rank": 338,
+      "level": "A2"
+    },
+    {
+      "w": "hier",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 223.77,
+      "rank": 339,
+      "level": "A2"
+    },
+    {
+      "w": "chien",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 223.53,
+      "rank": 340,
+      "level": "A2"
+    },
+    {
+      "w": "lèvre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 222.03,
+      "rank": 341,
+      "level": "A2"
+    },
+    {
+      "w": "genre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 221.51,
+      "rank": 342,
+      "level": "A2"
+    },
+    {
+      "w": "meilleur",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 221.17,
+      "rank": 343,
+      "level": "A2"
+    },
+    {
+      "w": "jambe",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 220.95,
+      "rank": 344,
+      "level": "A2"
+    },
+    {
+      "w": "marier",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 220.51,
+      "rank": 345,
+      "level": "A2"
+    },
+    {
+      "w": "vent",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 220.27,
+      "rank": 346,
+      "level": "A2"
+    },
+    {
+      "w": "arme",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 220.22,
+      "rank": 347,
+      "level": "A2"
+    },
+    {
+      "w": "agir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 219.73,
+      "rank": 348,
+      "level": "A2"
+    },
+    {
+      "w": "cause",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 218.6,
+      "rank": 349,
+      "level": "A2"
+    },
+    {
+      "w": "tendre",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 218.38,
+      "rank": 350,
+      "level": "A2"
+    },
+    {
+      "w": "endroit",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 218.24,
+      "rank": 351,
+      "level": "A2"
+    },
+    {
+      "w": "état",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 218.18,
+      "rank": 352,
+      "level": "A2"
+    },
+    {
+      "w": "sens",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 217.5,
+      "rank": 353,
+      "level": "A2"
+    },
+    {
+      "w": "âge",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 217.43,
+      "rank": 354,
+      "level": "A2"
+    },
+    {
+      "w": "esprit",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 216.28,
+      "rank": 355,
+      "level": "A2"
+    },
+    {
+      "w": "salle",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 215.81,
+      "rank": 356,
+      "level": "A2"
+    },
+    {
+      "w": "reste",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 214.54,
+      "rank": 357,
+      "level": "A2"
+    },
+    {
+      "w": "décider",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 214.19,
+      "rank": 358,
+      "level": "A2"
+    },
+    {
+      "w": "dos",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 213.99,
+      "rank": 359,
+      "level": "A2"
+    },
+    {
+      "w": "offrir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 213.99,
+      "rank": 360,
+      "level": "A2"
+    },
+    {
+      "w": "merde",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 213.05,
+      "rank": 361,
+      "level": "A2"
+    },
+    {
+      "w": "fort",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 212.77,
+      "rank": 362,
+      "level": "A2"
+    },
+    {
+      "w": "inquiéter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 212.16,
+      "rank": 363,
+      "level": "A2"
+    },
+    {
+      "w": "possible",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 211.96,
+      "rank": 364,
+      "level": "A2"
+    },
+    {
+      "w": "bouger",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 211.9,
+      "rank": 365,
+      "level": "A2"
+    },
+    {
+      "w": "partie",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 211.49,
+      "rank": 366,
+      "level": "A2"
+    },
+    {
+      "w": "apporter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 209.91,
+      "rank": 367,
+      "level": "A2"
+    },
+    {
+      "w": "photo",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 209.1,
+      "rank": 368,
+      "level": "A2"
+    },
+    {
+      "w": "arbre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 208.58,
+      "rank": 369,
+      "level": "A2"
+    },
+    {
+      "w": "compte",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 208.38,
+      "rank": 370,
+      "level": "A2"
+    },
+    {
+      "w": "bleu",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 207.64,
+      "rank": 371,
+      "level": "A2"
+    },
+    {
+      "w": "droit",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 207.62,
+      "rank": 372,
+      "level": "A2"
+    },
+    {
+      "w": "propre",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 207.5,
+      "rank": 373,
+      "level": "A2"
+    },
+    {
+      "w": "serrer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 207.5,
+      "rank": 374,
+      "level": "A2"
+    },
+    {
+      "w": "soudain",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 207.3,
+      "rank": 375,
+      "level": "A2"
+    },
+    {
+      "w": "vendre",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 206.95,
+      "rank": 376,
+      "level": "A2"
+    },
+    {
+      "w": "école",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 206.88,
+      "rank": 377,
+      "level": "A2"
+    },
+    {
+      "w": "chef",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "",
+      "freq": 205.95,
+      "rank": 378,
+      "level": "A2"
+    },
+    {
+      "w": "cher",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 205.75,
+      "rank": 379,
+      "level": "A2"
+    },
+    {
+      "w": "cacher",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 204.13,
+      "rank": 380,
+      "level": "A2"
+    },
+    {
+      "w": "papier",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 203.11,
+      "rank": 381,
+      "level": "A2"
+    },
+    {
+      "w": "boulot",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 202.97,
+      "rank": 382,
+      "level": "A2"
+    },
+    {
+      "w": "remettre",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 202.5,
+      "rank": 383,
+      "level": "A2"
+    },
+    {
+      "w": "traverser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 200.81,
+      "rank": 384,
+      "level": "A2"
+    },
+    {
+      "w": "battre",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 200.35,
+      "rank": 385,
+      "level": "A2"
+    },
+    {
+      "w": "répéter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 200.14,
+      "rank": 386,
+      "level": "A2"
+    },
+    {
+      "w": "coin",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 199.26,
+      "rank": 387,
+      "level": "A2"
+    },
+    {
+      "w": "couleur",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 198.72,
+      "rank": 388,
+      "level": "A2"
+    },
+    {
+      "w": "découvrir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 198.18,
+      "rank": 389,
+      "level": "A2"
+    },
+    {
+      "w": "journal",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 197.7,
+      "rank": 390,
+      "level": "A2"
+    },
+    {
+      "w": "haut",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 196.76,
+      "rank": 391,
+      "level": "A2"
+    },
+    {
+      "w": "coucher",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 196.22,
+      "rank": 392,
+      "level": "A2"
+    },
+    {
+      "w": "approcher",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 196.15,
+      "rank": 393,
+      "level": "A2"
+    },
+    {
+      "w": "odeur",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 195.68,
+      "rank": 394,
+      "level": "A2"
+    },
+    {
+      "w": "avancer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 195.0,
+      "rank": 395,
+      "level": "A2"
+    },
+    {
+      "w": "oreille",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 194.12,
+      "rank": 396,
+      "level": "A2"
+    },
+    {
+      "w": "après",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 193.68,
+      "rank": 397,
+      "level": "A2"
+    },
+    {
+      "w": "adorer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 193.67,
+      "rank": 398,
+      "level": "A2"
+    },
+    {
+      "w": "vérité",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 193.24,
+      "rank": 399,
+      "level": "A2"
+    },
+    {
+      "w": "gentil",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 192.64,
+      "rank": 400,
+      "level": "A2"
+    },
+    {
+      "w": "effet",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 192.36,
+      "rank": 401,
+      "level": "A2"
+    },
+    {
+      "w": "pleurer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 191.64,
+      "rank": 402,
+      "level": "A2"
+    },
+    {
+      "w": "bébé",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 191.63,
+      "rank": 403,
+      "level": "A2"
+    },
+    {
+      "w": "nouvelle",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "f",
+      "freq": 191.15,
+      "rank": 404,
+      "level": "A2"
+    },
+    {
+      "w": "jeu",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 190.44,
+      "rank": 405,
+      "level": "A2"
+    },
+    {
+      "w": "amener",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 190.32,
+      "rank": 406,
+      "level": "A2"
+    },
+    {
+      "w": "aussitôt",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 189.93,
+      "rank": 407,
+      "level": "A2"
+    },
+    {
+      "w": "pierre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 189.86,
+      "rank": 408,
+      "level": "A2"
+    },
+    {
+      "w": "image",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 188.92,
+      "rank": 409,
+      "level": "A2"
+    },
+    {
+      "w": "parent",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 188.38,
+      "rank": 410,
+      "level": "A2"
+    },
+    {
+      "w": "dur",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 187.84,
+      "rank": 411,
+      "level": "A2"
+    },
+    {
+      "w": "pauvre",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 187.77,
+      "rank": 412,
+      "level": "A2"
+    },
+    {
+      "w": "peau",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 187.77,
+      "rank": 413,
+      "level": "A2"
+    },
+    {
+      "w": "service",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 187.67,
+      "rank": 414,
+      "level": "A2"
+    },
+    {
+      "w": "bas",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 187.09,
+      "rank": 415,
+      "level": "A2"
+    },
+    {
+      "w": "jardin",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 185.81,
+      "rank": 416,
+      "level": "A2"
+    },
+    {
+      "w": "promettre",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 185.26,
+      "rank": 417,
+      "level": "A2"
+    },
+    {
+      "w": "mentir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 185.16,
+      "rank": 418,
+      "level": "A2"
+    },
+    {
+      "w": "soeur",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 184.99,
+      "rank": 419,
+      "level": "A2"
+    },
+    {
+      "w": "bientôt",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 184.96,
+      "rank": 420,
+      "level": "A2"
+    },
+    {
+      "w": "permettre",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 184.19,
+      "rank": 421,
+      "level": "A2"
+    },
+    {
+      "w": "tellement",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 183.7,
+      "rank": 422,
+      "level": "A2"
+    },
+    {
+      "w": "disparaître",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 183.31,
+      "rank": 423,
+      "level": "A2"
+    },
+    {
+      "w": "mouvement",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 182.97,
+      "rank": 424,
+      "level": "A2"
+    },
+    {
+      "w": "certain",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 182.64,
+      "rank": 425,
+      "level": "A2"
+    },
+    {
+      "w": "utiliser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 182.44,
+      "rank": 426,
+      "level": "A2"
+    },
+    {
+      "w": "dehors",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 180.79,
+      "rank": 427,
+      "level": "A2"
+    },
+    {
+      "w": "préférer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 179.44,
+      "rank": 428,
+      "level": "A2"
+    },
+    {
+      "w": "journée",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 179.39,
+      "rank": 429,
+      "level": "A2"
+    },
+    {
+      "w": "partout",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 179.39,
+      "rank": 430,
+      "level": "A2"
+    },
+    {
+      "w": "cheval",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 179.26,
+      "rank": 431,
+      "level": "A2"
+    },
+    {
+      "w": "content",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 178.94,
+      "rank": 432,
+      "level": "A2"
+    },
+    {
+      "w": "parole",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 178.31,
+      "rank": 433,
+      "level": "A2"
+    },
+    {
+      "w": "cesser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 177.77,
+      "rank": 434,
+      "level": "A2"
+    },
+    {
+      "w": "nez",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 177.64,
+      "rank": 435,
+      "level": "A2"
+    },
+    {
+      "w": "roi",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 177.53,
+      "rank": 436,
+      "level": "A2"
+    },
+    {
+      "w": "café",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 177.3,
+      "rank": 437,
+      "level": "A2"
+    },
+    {
+      "w": "cours",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "",
+      "freq": 176.76,
+      "rank": 438,
+      "level": "A2"
+    },
+    {
+      "w": "forme",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 176.69,
+      "rank": 439,
+      "level": "A2"
+    },
+    {
+      "w": "au-dessus",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 176.35,
+      "rank": 440,
+      "level": "A2"
+    },
+    {
+      "w": "réveiller",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 175.94,
+      "rank": 441,
+      "level": "A2"
+    },
+    {
+      "w": "aide",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "",
+      "freq": 175.59,
+      "rank": 442,
+      "level": "A2"
+    },
+    {
+      "w": "d'abord",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 175.45,
+      "rank": 443,
+      "level": "A2"
+    },
+    {
+      "w": "préparer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 174.33,
+      "rank": 444,
+      "level": "A2"
+    },
+    {
+      "w": "sac",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 174.26,
+      "rank": 445,
+      "level": "A2"
+    },
+    {
+      "w": "numéro",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 173.48,
+      "rank": 446,
+      "level": "A2"
+    },
+    {
+      "w": "ramener",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 172.7,
+      "rank": 447,
+      "level": "A2"
+    },
+    {
+      "w": "enlever",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 172.47,
+      "rank": 448,
+      "level": "A2"
+    },
+    {
+      "w": "chéri",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "",
+      "freq": 171.98,
+      "rank": 449,
+      "level": "A2"
+    },
+    {
+      "w": "empêcher",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 171.28,
+      "rank": 450,
+      "level": "A2"
+    },
+    {
+      "w": "lâcher",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 171.08,
+      "rank": 451,
+      "level": "A2"
+    },
+    {
+      "w": "choisir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 170.48,
+      "rank": 452,
+      "level": "A2"
+    },
+    {
+      "w": "musique",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 169.8,
+      "rank": 453,
+      "level": "A2"
+    },
+    {
+      "w": "conduire",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 169.64,
+      "rank": 454,
+      "level": "A2"
+    },
+    {
+      "w": "faute",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 169.26,
+      "rank": 455,
+      "level": "A2"
+    },
+    {
+      "w": "ensuite",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 169.19,
+      "rank": 456,
+      "level": "A2"
+    },
+    {
+      "w": "calmer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 168.54,
+      "rank": 457,
+      "level": "A2"
+    },
+    {
+      "w": "frapper",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 168.31,
+      "rank": 458,
+      "level": "A2"
+    },
+    {
+      "w": "nu",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 168.04,
+      "rank": 459,
+      "level": "A2"
+    },
+    {
+      "w": "libre",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 167.91,
+      "rank": 460,
+      "level": "A2"
+    },
+    {
+      "w": "mariage",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 167.39,
+      "rank": 461,
+      "level": "A2"
+    },
+    {
+      "w": "bureau",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 167.13,
+      "rank": 462,
+      "level": "A2"
+    },
+    {
+      "w": "chanter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 166.34,
+      "rank": 463,
+      "level": "A2"
+    },
+    {
+      "w": "présenter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 165.88,
+      "rank": 464,
+      "level": "A2"
+    },
+    {
+      "w": "accepter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 165.84,
+      "rank": 465,
+      "level": "A2"
+    },
+    {
+      "w": "lancer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 165.07,
+      "rank": 466,
+      "level": "A2"
+    },
+    {
+      "w": "fleur",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 164.39,
+      "rank": 467,
+      "level": "A2"
+    },
+    {
+      "w": "rouler",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 163.45,
+      "rank": 468,
+      "level": "A2"
+    },
+    {
+      "w": "confiance",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 162.9,
+      "rank": 469,
+      "level": "A2"
+    },
+    {
+      "w": "bonheur",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 162.36,
+      "rank": 470,
+      "level": "A2"
+    },
+    {
+      "w": "ligne",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 162.3,
+      "rank": 471,
+      "level": "A2"
+    },
+    {
+      "w": "installer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 162.23,
+      "rank": 472,
+      "level": "A2"
+    },
+    {
+      "w": "froid",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 161.69,
+      "rank": 473,
+      "level": "A2"
+    },
+    {
+      "w": "signe",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 161.28,
+      "rank": 474,
+      "level": "A2"
+    },
+    {
+      "w": "bonsoir",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 161.17,
+      "rank": 475,
+      "level": "A2"
+    },
+    {
+      "w": "téléphone",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 160.8,
+      "rank": 476,
+      "level": "A2"
+    },
+    {
+      "w": "casser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 160.61,
+      "rank": 477,
+      "level": "A2"
+    },
+    {
+      "w": "prochain",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 160.27,
+      "rank": 478,
+      "level": "A2"
+    },
+    {
+      "w": "remonter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 160.14,
+      "rank": 479,
+      "level": "A2"
+    },
+    {
+      "w": "facile",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 159.35,
+      "rank": 480,
+      "level": "A2"
+    },
+    {
+      "w": "apparaître",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 159.26,
+      "rank": 481,
+      "level": "A2"
+    },
+    {
+      "w": "front",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 159.12,
+      "rank": 482,
+      "level": "A2"
+    },
+    {
+      "w": "hôtel",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 158.92,
+      "rank": 483,
+      "level": "A2"
+    },
+    {
+      "w": "debout",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 158.85,
+      "rank": 484,
+      "level": "A2"
+    },
+    {
+      "w": "rêve",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 158.75,
+      "rank": 485,
+      "level": "A2"
+    },
+    {
+      "w": "retour",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 158.65,
+      "rank": 486,
+      "level": "A2"
+    },
+    {
+      "w": "copain",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 158.62,
+      "rank": 487,
+      "level": "A2"
+    },
+    {
+      "w": "attention",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 158.52,
+      "rank": 488,
+      "level": "A2"
+    },
+    {
+      "w": "malade",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 158.27,
+      "rank": 489,
+      "level": "A2"
+    },
+    {
+      "w": "manière",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 157.77,
+      "rank": 490,
+      "level": "A2"
+    },
+    {
+      "w": "ressembler",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 157.5,
+      "rank": 491,
+      "level": "A2"
+    },
+    {
+      "w": "sentiment",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 157.3,
+      "rank": 492,
+      "level": "A2"
+    },
+    {
+      "w": "près",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 156.96,
+      "rank": 493,
+      "level": "A2"
+    },
+    {
+      "w": "clair",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 156.69,
+      "rank": 494,
+      "level": "A2"
+    },
+    {
+      "w": "ignorer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 156.55,
+      "rank": 495,
+      "level": "A2"
+    },
+    {
+      "w": "lentement",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 156.55,
+      "rank": 496,
+      "level": "A2"
+    },
+    {
+      "w": "parvenir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 156.42,
+      "rank": 497,
+      "level": "A2"
+    },
+    {
+      "w": "fête",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 155.97,
+      "rank": 498,
+      "level": "A2"
+    },
+    {
+      "w": "pencher",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 155.88,
+      "rank": 499,
+      "level": "A2"
+    },
+    {
+      "w": "couper",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 155.82,
+      "rank": 500,
+      "level": "A2"
+    },
+    {
+      "w": "oser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 155.54,
+      "rank": 501,
+      "level": "A2"
+    },
+    {
+      "w": "cri",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 155.41,
+      "rank": 502,
+      "level": "A2"
+    },
+    {
+      "w": "impression",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 155.27,
+      "rank": 503,
+      "level": "A2"
+    },
+    {
+      "w": "ancien",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 154.86,
+      "rank": 504,
+      "level": "A2"
+    },
+    {
+      "w": "gris",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 154.86,
+      "rank": 505,
+      "level": "A2"
+    },
+    {
+      "w": "super",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 154.83,
+      "rank": 506,
+      "level": "A2"
+    },
+    {
+      "w": "habitude",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 154.46,
+      "rank": 507,
+      "level": "A2"
+    },
+    {
+      "w": "taire",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 154.46,
+      "rank": 508,
+      "level": "A2"
+    },
+    {
+      "w": "passage",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 154.39,
+      "rank": 509,
+      "level": "A2"
+    },
+    {
+      "w": "seigneur",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 153.82,
+      "rank": 510,
+      "level": "A2"
+    },
+    {
+      "w": "flic",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 153.5,
+      "rank": 511,
+      "level": "A2"
+    },
+    {
+      "w": "marche",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 152.97,
+      "rank": 512,
+      "level": "A2"
+    },
+    {
+      "w": "refuser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 152.77,
+      "rank": 513,
+      "level": "A2"
+    },
+    {
+      "w": "capitaine",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 152.69,
+      "rank": 514,
+      "level": "A2"
+    },
+    {
+      "w": "âme",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 151.62,
+      "rank": 515,
+      "level": "A2"
+    },
+    {
+      "w": "pensée",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 151.55,
+      "rank": 516,
+      "level": "A2"
+    },
+    {
+      "w": "maître",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 151.49,
+      "rank": 517,
+      "level": "A2"
+    },
+    {
+      "w": "dame",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 151.35,
+      "rank": 518,
+      "level": "A2"
+    },
+    {
+      "w": "léger",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 151.01,
+      "rank": 519,
+      "level": "A2"
+    },
+    {
+      "w": "cul",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 150.81,
+      "rank": 520,
+      "level": "A2"
+    },
+    {
+      "w": "difficile",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 150.58,
+      "rank": 521,
+      "level": "A2"
+    },
+    {
+      "w": "sol",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 150.34,
+      "rank": 522,
+      "level": "A2"
+    },
+    {
+      "w": "joie",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 150.2,
+      "rank": 523,
+      "level": "A2"
+    },
+    {
+      "w": "cour",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 150.14,
+      "rank": 524,
+      "level": "A2"
+    },
+    {
+      "w": "pareil",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 149.66,
+      "rank": 525,
+      "level": "A2"
+    },
+    {
+      "w": "lendemain",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 149.26,
+      "rank": 526,
+      "level": "A2"
+    },
+    {
+      "w": "tromper",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 149.09,
+      "rank": 527,
+      "level": "A2"
+    },
+    {
+      "w": "escalier",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 148.85,
+      "rank": 528,
+      "level": "A2"
+    },
+    {
+      "w": "simple",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 148.58,
+      "rank": 529,
+      "level": "A2"
+    },
+    {
+      "w": "jurer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 148.41,
+      "rank": 530,
+      "level": "A2"
+    },
+    {
+      "w": "exister",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 148.18,
+      "rank": 531,
+      "level": "A2"
+    },
+    {
+      "w": "robe",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 148.18,
+      "rank": 532,
+      "level": "A2"
+    },
+    {
+      "w": "entier",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 147.91,
+      "rank": 533,
+      "level": "A2"
+    },
+    {
+      "w": "plan",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 147.54,
+      "rank": 534,
+      "level": "A2"
+    },
+    {
+      "w": "vide",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 147.5,
+      "rank": 535,
+      "level": "A2"
+    },
+    {
+      "w": "prison",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 147.49,
+      "rank": 536,
+      "level": "A2"
+    },
+    {
+      "w": "depuis",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 147.19,
+      "rank": 537,
+      "level": "A2"
+    },
+    {
+      "w": "sale",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 146.86,
+      "rank": 538,
+      "level": "A2"
+    },
+    {
+      "w": "armée",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 146.55,
+      "rank": 539,
+      "level": "A2"
+    },
+    {
+      "w": "ton",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 146.35,
+      "rank": 540,
+      "level": "A2"
+    },
+    {
+      "w": "poche",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "",
+      "freq": 146.28,
+      "rank": 541,
+      "level": "A2"
+    },
+    {
+      "w": "lourd",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 145.88,
+      "rank": 542,
+      "level": "A2"
+    },
+    {
+      "w": "vert",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 145.14,
+      "rank": 543,
+      "level": "A2"
+    },
+    {
+      "w": "doux",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 145.07,
+      "rank": 544,
+      "level": "A2"
+    },
+    {
+      "w": "église",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 145.07,
+      "rank": 545,
+      "level": "A2"
+    },
+    {
+      "w": "carte",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 144.96,
+      "rank": 546,
+      "level": "A2"
+    },
+    {
+      "w": "paix",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 144.86,
+      "rank": 547,
+      "level": "A2"
+    },
+    {
+      "w": "exactement",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 144.62,
+      "rank": 548,
+      "level": "A2"
+    },
+    {
+      "w": "drôle",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 144.48,
+      "rank": 549,
+      "level": "A2"
+    },
+    {
+      "w": "vue",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 144.39,
+      "rank": 550,
+      "level": "A2"
+    },
+    {
+      "w": "village",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 143.99,
+      "rank": 551,
+      "level": "A2"
+    },
+    {
+      "w": "retenir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 143.92,
+      "rank": 552,
+      "level": "A2"
+    },
+    {
+      "w": "président",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 143.39,
+      "rank": 553,
+      "level": "A2"
+    },
+    {
+      "w": "sec",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 142.84,
+      "rank": 554,
+      "level": "A2"
+    },
+    {
+      "w": "grave",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "",
+      "freq": 142.48,
+      "rank": 555,
+      "level": "A2"
+    },
+    {
+      "w": "terminer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 142.38,
+      "rank": 556,
+      "level": "A2"
+    },
+    {
+      "w": "remarquer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 142.16,
+      "rank": 557,
+      "level": "A2"
+    },
+    {
+      "w": "ventre",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 141.96,
+      "rank": 558,
+      "level": "A2"
+    },
+    {
+      "w": "goût",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 141.82,
+      "rank": 559,
+      "level": "A2"
+    },
+    {
+      "w": "espèce",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 141.69,
+      "rank": 560,
+      "level": "A2"
+    },
+    {
+      "w": "patron",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 141.53,
+      "rank": 561,
+      "level": "A2"
+    },
+    {
+      "w": "début",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 141.49,
+      "rank": 562,
+      "level": "A2"
+    },
+    {
+      "w": "amuser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 141.41,
+      "rank": 563,
+      "level": "A2"
+    },
+    {
+      "w": "présent",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 141.01,
+      "rank": 564,
+      "level": "A2"
+    },
+    {
+      "w": "fixer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 140.95,
+      "rank": 565,
+      "level": "A2"
+    },
+    {
+      "w": "intéresser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 140.8,
+      "rank": 566,
+      "level": "A2"
+    },
+    {
+      "w": "phrase",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 140.47,
+      "rank": 567,
+      "level": "A2"
+    },
+    {
+      "w": "médecin",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 140.19,
+      "rank": 568,
+      "level": "A2"
+    },
+    {
+      "w": "rapport",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 140.08,
+      "rank": 569,
+      "level": "A2"
+    },
+    {
+      "w": "voyage",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 140.07,
+      "rank": 570,
+      "level": "A2"
+    },
+    {
+      "w": "cependant",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 139.73,
+      "rank": 571,
+      "level": "A2"
+    },
+    {
+      "w": "pardonner",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 139.46,
+      "rank": 572,
+      "level": "A2"
+    },
+    {
+      "w": "avis",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 139.22,
+      "rank": 573,
+      "level": "A2"
+    },
+    {
+      "w": "embrasser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 138.97,
+      "rank": 574,
+      "level": "A2"
+    },
+    {
+      "w": "époque",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 138.51,
+      "rank": 575,
+      "level": "A2"
+    },
+    {
+      "w": "feuille",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 138.04,
+      "rank": 576,
+      "level": "A2"
+    },
+    {
+      "w": "mener",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 137.7,
+      "rank": 577,
+      "level": "A2"
+    },
+    {
+      "w": "danser",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 137.36,
+      "rank": 578,
+      "level": "A2"
+    },
+    {
+      "w": "effort",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 136.62,
+      "rank": 579,
+      "level": "A2"
+    },
+    {
+      "w": "intérieur",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 135.88,
+      "rank": 580,
+      "level": "A2"
+    },
+    {
+      "w": "différent",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 135.8,
+      "rank": 581,
+      "level": "A2"
+    },
+    {
+      "w": "saisir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 135.74,
+      "rank": 582,
+      "level": "A2"
+    },
+    {
+      "w": "présence",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 135.54,
+      "rank": 583,
+      "level": "A2"
+    },
+    {
+      "w": "cuisine",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 135.41,
+      "rank": 584,
+      "level": "A2"
+    },
+    {
+      "w": "rejoindre",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 134.8,
+      "rank": 585,
+      "level": "A2"
+    },
+    {
+      "w": "gauche",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "",
+      "freq": 134.59,
+      "rank": 586,
+      "level": "A2"
+    },
+    {
+      "w": "sauter",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 134.59,
+      "rank": 587,
+      "level": "A2"
+    },
+    {
+      "w": "génial",
+      "pos": "ADJ",
+      "posLabel": "adjective",
+      "genre": "m",
+      "freq": 134.47,
+      "rank": 588,
+      "level": "A2"
+    },
+    {
+      "w": "simplement",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 134.32,
+      "rank": 589,
+      "level": "A2"
+    },
+    {
+      "w": "dollar",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 134.1,
+      "rank": 590,
+      "level": "A2"
+    },
+    {
+      "w": "boîte",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 134.05,
+      "rank": 591,
+      "level": "A2"
+    },
+    {
+      "w": "annoncer",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 133.92,
+      "rank": 592,
+      "level": "A2"
+    },
+    {
+      "w": "sûrement",
+      "pos": "ADV",
+      "posLabel": "adverb",
+      "genre": "",
+      "freq": 133.67,
+      "rank": 593,
+      "level": "A2"
+    },
+    {
+      "w": "couvrir",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 133.51,
+      "rank": 594,
+      "level": "A2"
+    },
+    {
+      "w": "larme",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 133.51,
+      "rank": 595,
+      "level": "A2"
+    },
+    {
+      "w": "hôpital",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 133.15,
+      "rank": 596,
+      "level": "A2"
+    },
+    {
+      "w": "éloigner",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 133.11,
+      "rank": 597,
+      "level": "A2"
+    },
+    {
+      "w": "siècle",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "m",
+      "freq": 132.91,
+      "rank": 598,
+      "level": "A2"
+    },
+    {
+      "w": "mesure",
+      "pos": "NOM",
+      "posLabel": "noun",
+      "genre": "f",
+      "freq": 132.84,
+      "rank": 599,
+      "level": "A2"
+    },
+    {
+      "w": "échapper",
+      "pos": "VER",
+      "posLabel": "verb",
+      "genre": "",
+      "freq": 132.64,
+      "rank": 600,
       "level": "A2"
     }
   ]

@@ -2032,3 +2032,62 @@ KPS.forEach(function (kp) {
     (KP_DEPENDENTS[p] = KP_DEPENDENTS[p] || []).push(kp.id);
   });
 });
+
+/* English translations for the graded reading passages, keyed by point id.
+   The passage text lives on each item (it is repeated per question so the
+   reader always sees it); this map lets the reader reveal a translation
+   without storing the English ten times. */
+const READING_EN = {
+  "reading.a1.intro":
+    "Hello! My name is Marie. I am twenty-five and I live in Lyon, in France. " +
+    "I am a student at the university. I study foreign languages: English and Spanish. " +
+    "I really like music and cinema. At the weekend I meet my friends in a small café " +
+    "near the station. We talk for hours and we drink hot chocolate.",
+  "reading.a1.bakery":
+    "It is eight in the morning. Paul goes into the bakery near his home. " +
+    "\u00ab Hello madam! I would like a baguette and two croissants, please. \u00bb " +
+    "The baker smiles: \u00ab Here you are. That is three euros twenty. \u00bb Paul pays and leaves. " +
+    "He is still hungry, so he eats a croissant straight away in the street.",
+  "reading.a2.weekend":
+    "Next Saturday, Julie and her brother are going hiking in the mountains. " +
+    "They are going to leave early in the morning, around seven, because the journey takes two hours. " +
+    "They must take water, a sandwich and good shoes. " +
+    "The forecast says sun but also wind. In the evening they will come back tired but happy, " +
+    "and they will eat a pizza together.",
+  "reading.a2.rent":
+    "Flat to rent. Quiet area, near the town centre. Three rooms: a living room, " +
+    "a bedroom and a fitted kitchen. Second floor, no lift. " +
+    "The rent is six hundred euros a month, charges included. Available from the first of September. " +
+    "To view it, call 06 12 34 56 78 after six in the evening.",
+  "reading.b1.neighbourhood":
+    "For ten years the neighbourhood has changed a lot. Before, there were mainly small shops " +
+    "and workshops. Today the old buildings have been renovated and many restaurants have opened. " +
+    "Some residents are delighted: the area is livelier and safer. " +
+    "Others miss the time when rents were affordable. The council promises to build " +
+    "social housing, but the works will not start for two years.",
+  "reading.b2.phones":
+    "Should mobile phones be banned at school? The debate comes back regularly. " +
+    "Supporters of a ban believe these devices distract pupils and harm concentration. " +
+    "They also point out that social media can encourage bullying between classmates. " +
+    "On the other hand, some teachers stress that a phone can become a useful teaching tool, " +
+    "provided it is supervised. Rather than a total ban, they propose clear rules " +
+    "adapted to pupils' age.",
+  "reading.b1.email":
+    "Hi Marie, I am writing to you from Lyon. I arrived last night and I found a small flat near the station. " +
+    "It is a bit noisy, but not very expensive. Tomorrow I start my internship at a travel agency. " +
+    "I am a little nervous, but very happy. I miss you! See you soon, Lucas",
+  "reading.b1.notice":
+    "NOTICE TO RESIDENTS. The pool will be closed from 10 to 20 July for repairs. " +
+    "During this period, residents can use the municipal pool, on rue Victor-Hugo, free of charge, " +
+    "on presentation of their badge. The gym stays open. Thank you for your understanding.",
+  "reading.b2.article":
+    "Remote work has changed the lives of millions of employees. According to a recent study, " +
+    "62% of employees prefer to work at least two days a week from home. " +
+    "Companies see it as a way to cut costs, but some managers fear a drop in cooperation. " +
+    "Experts recommend a hybrid model, with fixed days in the office to maintain the bond between teams.",
+  "reading.b2.job_ad":
+    "We are looking for a marketing assistant for our Bordeaux office. " +
+    "Duties: manage social media, write newsletters and take part in advertising campaigns. " +
+    "Profile: at least a bachelor's degree, fluent English, command of digital tools. " +
+    "Contract: six-month fixed-term, full-time. Send a CV and cover letter before 30 September."
+};

@@ -28,6 +28,7 @@ FILES = [
     "deep.js",
     "zh.js",
     "vocab.js",
+    "gloss.js",
     "verbs.js",
     "sentences.js",
     "manifest.json",

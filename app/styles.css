@@ -319,6 +319,25 @@ p{margin:0 0 12px}
 .drawer-body .ex:last-child{border-bottom:none}
 .drawer-body .ex b{font-weight:650}
 .drawer-body .ex span{display:block;color:var(--muted);font-size:12px}
+.drawer-body .ex .ex-fr{font-weight:650;line-height:1.7;font-family:var(--font-content)}
+.ex-fr .w{
+  font:inherit;font-weight:inherit;color:inherit;background:none;border:none;
+  padding:0 1px;margin:0;cursor:pointer;border-bottom:1px dotted transparent;
+  border-radius:2px;
+}
+.ex-fr .w:hover{color:var(--brand-dark);border-bottom-color:var(--brand)}
+.ex-fr .w:active{background:var(--brand-soft)}
+
+/* gloss popover (tap a French word) */
+.gloss-pop{
+  position:fixed;z-index:210;max-width:250px;
+  background:#fff;border:1px solid var(--line);border-radius:9px;
+  box-shadow:0 8px 26px rgba(20,24,29,.16);padding:8px 11px;
+  font-size:12.5px;line-height:1.5;
+}
+.gloss-pop b{display:block;font-size:13px;color:var(--ink);margin-bottom:2px;font-weight:750}
+.gloss-pop span{color:var(--ink2)}
+.gloss-pop span.muted{color:var(--faint);font-style:italic}
 .drawer-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
 .scrim{position:fixed;inset:0;background:rgba(20,24,29,.25);z-index:65}
 
@@ -329,6 +348,11 @@ p{margin:0 0 12px}
 .kwiz-top .fill{height:6px;background:var(--brand);border-radius:3px;transition:width .25s}
 .kwiz-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:26px 26px 22px;box-shadow:var(--shadow)}
 .kwiz-kicker{font-size:10.5px;font-weight:800;letter-spacing:.1em;color:var(--brand);text-transform:uppercase;margin-bottom:8px}
+.retry-badge{
+  display:inline-block;background:#FFF3EA;border:1px solid var(--brand-line);
+  color:var(--brand-dark);border-radius:4px;padding:1px 5px;margin-right:4px;
+  letter-spacing:.06em;
+}
 .kwiz-prompt{font-size:19px;line-height:1.65;font-weight:600;margin-bottom:18px}
 .kwiz-prompt .blank{color:var(--brand)}
 .answer-input{
@@ -643,11 +667,27 @@ p{margin:0 0 12px}
 .wk-weak{margin-top:10px;font-size:12px;color:var(--ink2)}
 .wk-empty{font-size:12.5px;color:var(--muted)}
 
-/* seven-day activity strip under the weekly numbers */
-.act-bars{
-  display:flex;align-items:flex-end;gap:7px;
+/* activity strip under the weekly numbers (7-day / 30-day toggle) */
+.act-head{
+  display:flex;align-items:center;gap:8px;
   margin-top:13px;padding-top:12px;border-top:1px solid var(--line2);
 }
+.act-title{
+  font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint);
+}
+.act-toggle{margin-left:auto;display:flex;gap:2px;background:#F1F4F6;border-radius:6px;padding:2px}
+.act-toggle button{
+  font:inherit;font-size:10px;font-weight:800;color:var(--muted);
+  background:none;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;
+}
+.act-toggle button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.09)}
+.act-bars{
+  display:flex;align-items:flex-end;gap:7px;margin-top:10px;
+}
+.act-bars.thin{gap:2px;margin-top:8px}
+.act-bars.thin .act-track{height:34px;border-radius:2px}
+.act-bars.thin .act-bar{border-radius:2px 2px 0 0}
 .act-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
 .act-track{
   width:100%;height:46px;display:flex;align-items:flex-end;
@@ -939,8 +979,21 @@ kbd{
   max-height:240px;overflow:auto;
 }
 .passage-meta{
+  display:flex;align-items:center;gap:8px;
   font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   color:var(--faint);margin-bottom:6px;
+}
+.passage-fr{font-family:var(--font-content);line-height:1.7}
+.passage-toggle{
+  margin-left:auto;font:inherit;font-size:9.5px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--brand-dark);background:var(--brand-soft);
+  border:1px solid var(--brand-line);border-radius:5px;padding:2px 7px;cursor:pointer;
+}
+.passage-toggle:hover{background:#FFE7D6}
+.passage-en{
+  margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);
+  font-family:var(--font-content);font-style:italic;color:var(--muted);
+  line-height:1.65;font-size:12.5px;
 }
 
 .exam-timer{font-variant-numeric:tabular-nums;font-weight:800;color:var(--brand);font-size:13px;min-width:48px;text-align:right}

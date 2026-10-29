@@ -28,6 +28,7 @@ kwizlocal-site.zip
 # large data sources, re-downloadable (URLs are in app/README.md)
 content/tatoeba/
 content/lexique/
+content/dict/
 content/fr_50k.txt
 
 # not used by the browser app

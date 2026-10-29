@@ -78,7 +78,12 @@ collapses to one column.
 | **Reading practice**: one passage at a time, weakest first, 5 questions each | done |
 | **Sentence practice**: ~14k mined Tatoeba sentences (gap-fill + word order), semantic distractors, filter by grammar tag and CEFR level | done |
 | **Common mistakes**: every point shows a wrong-vs-right table, generated from its own choice items | done |
-| **Deep explanations**: 51 core points carry usage notes, 2–3 extra examples and a memory tip | done |
+| **Deep explanations**: 136 of 146 points carry usage notes, extra examples and a memory tip | done |
+| **Related points**: every lesson drawer cross-links to what it builds on and what it leads to | done |
+| **Adaptive retry**: a point you miss in a full kwiz comes back two questions later (3-question quick kwiz stays short) | done |
+| **Reading translation**: reveal / hide an English translation under each passage | done |
+| **Tap-a-word gloss**: tap a French word in an example to see its English gloss (FreeDict + hand-written function words) | done |
+| **Activity trend**: 7-day and 30-day bars on the dashboard, height = questions, colour = accuracy | done |
 | **Weekly summary**: questions, accuracy, minutes, sessions, weakest area | done |
 | **Learn → practise → learn**: one-click jump into an untouched point from the dashboard or result page | done |
 | **Translate**: write the French for an English sentence, partial credit by word-level LCS | done |
@@ -102,12 +107,12 @@ collapses to one column.
 ## Vocabulary data
 
 The Vocab page reads `app/vocab.js`, which is generated, not hand-written.
-The current build has **300 words, 236 with example sentences**.
+The current build has **600 words, 483 with example sentences**.
 
 ```bash
 # 1. download Lexique 3.83 (free academic lexicon, ~25 MB TSV)
 #    http://www.lexique.org/databases/Lexique383/
-python tools/build_vocab.py --top 300
+python tools/build_vocab.py --top 600
 
 # 2. attach short French sentences with English translations from Tatoeba
 python tools/fetch_vocab_examples.py --limit-per-word 2 --workers 10
@@ -119,6 +124,17 @@ python tools/fetch_vocab_examples.py --limit-per-word 2 --workers 10
 - The fetch step caches to `content/vocab/examples.json`, so re-running resumes where it stopped.
 - `--emit-only` rebuilds `app/vocab.js` from the cache without any network calls.
 - Want more words? Raise `--top` (e.g. 600 or 1200) and re-run both steps.
+
+## Word glosses
+
+`app/gloss.js` maps a French word to one short English gloss, used by the
+tap-a-word popover in lesson examples. Content words come from **FreeDict
+fra-eng 0.4.1** (GPL/LGPL, local use only); function words (`le`, `pas`, `très`…)
+are hand-written because the frequency list only keeps content words.
+
+```bash
+python tools/build_gloss.py   # needs content/dict/fra-eng/fra-eng.tei
+```
 
 ## Verb data
 

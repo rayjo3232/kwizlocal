@@ -138,11 +138,16 @@ function badge(status) {
 
 function passageHtml(item) {
   if (!item.passage) return "";
+  const kpId = item.id.replace(/\.i\d+$/, "");
+  const en = (typeof READING_EN !== "undefined" && READING_EN[kpId]) || "";
   const words = item.passage.split(/\s+/).filter(Boolean).length;
   const secs = Math.max(15, Math.round(words / 2.6));
   return '<div class="passage"><div class="passage-meta">'
     + words + " words · about " + secs + "s"
-    + "</div>" + esc(item.passage) + "</div>";
+    + (en ? '<button class="passage-toggle" data-passage-toggle="1">Show translation</button>' : "")
+    + '</div><div class="passage-fr">' + esc(item.passage) + "</div>"
+    + (en ? '<div class="passage-en" hidden>' + esc(en) + "</div>" : "")
+    + "</div>";
 }
 
 function typeLabel(item) {
@@ -480,18 +485,22 @@ function weeklyReport() {
   return { questions: questions, correct: correct, minutes: minutes, sessions: sessions.length, weakest: weakest };
 }
 
-/* Seven-day activity strip: bar height = questions answered, colour = accuracy.
+/* Activity strip: bar height = questions answered, colour = accuracy.
    The weekly card used to show totals only, so a flat week and a burst looked
-   identical. This is the small "real-time report" Kwiziq puts on the dashboard. */
+   identical. Toggle between the last week and the last month — the month view
+   is the long-term trend Kwiziq surfaces in its reports. */
+let actRange = 7;
+
 function activityBars() {
   const DAY = ["S", "M", "T", "W", "T", "F", "S"];
   const key = function (ts) {
     const d = new Date(ts);
     return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
   };
+  const n = actRange === 30 ? 30 : 7;
   const days = [];
   const now = new Date();
-  for (let i = 6; i >= 0; i--) {
+  for (let i = n - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
     days.push({ key: key(d), label: DAY[d.getDay()], n: 0, c: 0 });
   }
@@ -504,15 +513,23 @@ function activityBars() {
     if (a.correct) days[i].c += 1;
   });
   const max = Math.max(1, Math.max.apply(null, days.map(function (d) { return d.n; })));
-  return '<div class="act-bars">' + days.map(function (d) {
+  const thin = n > 7;
+  const bars = days.map(function (d) {
     const h = d.n ? Math.max(10, Math.round(d.n / max * 100)) : 0;
     const acc = d.n ? Math.round(d.c / d.n * 100) : 0;
     const cls = !d.n ? "" : acc >= 70 ? "good" : acc >= 40 ? "mid" : "low";
     const tip = d.n ? d.n + " questions · " + acc + "% correct" : "no practice";
     return '<div class="act-col" title="' + tip + '">'
       + '<div class="act-track"><span class="act-bar ' + cls + '" style="height:' + h + '%"></span></div>'
-      + '<span class="act-day">' + d.label + "</span></div>";
-  }).join("") + "</div>";
+      + (thin ? "" : '<span class="act-day">' + d.label + "</span>")
+      + "</div>";
+  }).join("");
+  return '<div class="act-head"><span class="act-title">Last ' + n + " days</span>"
+    + '<span class="act-toggle">'
+    + '<button type="button" data-act-range="7" class="' + (n === 7 ? "on" : "") + '">7d</button>'
+    + '<button type="button" data-act-range="30" class="' + (n === 30 ? "on" : "") + '">30d</button>'
+    + "</span></div>"
+    + '<div class="act-bars' + (thin ? " thin" : "") + '">' + bars + "</div>";
 }
 
 function weeklyHtml() {
@@ -529,7 +546,7 @@ function weeklyHtml() {
     + '<div class="wk-stat"><b>' + w.minutes + "</b><span>minutes</span></div>"
     + '<div class="wk-stat"><b>' + w.sessions + "</b><span>sessions</span></div>"
     + "</div>"
-    + activityBars()
+    + '<div id="actWrap">' + activityBars() + "</div>"
     + (w.weakest
       ? '<div class="wk-weak">Weakest area: <b>' + esc(CATEGORIES[w.weakest.cat] || w.weakest.cat)
         + "</b> (" + w.weakest.avg + ") · "
@@ -797,7 +814,7 @@ function openDrawer(kpId) {
     + usageHtml(kp)
     + "<h4>Examples</h4>"
     + exampleList(kp).map(function (e) {
-      return '<div class="ex"><b>' + esc(e[0]) + "</b><span>" + esc(e[1]) + "</span></div>";
+      return '<div class="ex"><div class="ex-fr">' + glossify(e[0]) + '</div><span>' + esc(e[1]) + "</span></div>";
     }).join("")
     + mistakesHtml(kp)
     + "<h4>Watch out</h4><div class=\"small\">" + frify(kp.pitfall) + "</div>"
@@ -1041,7 +1058,7 @@ function renderKwiz() {
     + '<span class="track"><span class="fill" style="width:' + (session.index / total * 100) + '%"></span></span>'
     + "<span>" + esc(kp.level) + " · " + esc(kp.title.split(":")[0]) + "</span></div>"
     + '<div class="kwiz-card">'
-    + '<div class="kwiz-kicker">' + esc(typeLabel(item)) + "</div>"
+    + '<div class="kwiz-kicker">' + (ref.retry ? '<span class="retry-badge">Retry</span> ' : "") + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
     + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/___/g, '<span class="blank">____</span>') + "</div>"
     + inputHtml + hint + feedback
@@ -1078,6 +1095,36 @@ function renderKwiz() {
   }
 }
 
+/* Adaptive retry: a point you just got wrong comes back a couple of questions
+   later, using a question you have not seen in this session. This is the one
+   behaviour that actually changes whether something sticks, and it mirrors how
+   Kwiziq's kwiz keeps re-testing a weak point instead of moving on.
+   Short sessions (the 3-question quick kwiz) are left alone on purpose — they
+   are meant to finish in about a minute. */
+function maybeQueueRetry(ref) {
+  const s = session && session.session;
+  if (!s || !s.items) return;
+  if (s.items.length < 8) return;                 // keep the quick kwiz quick
+  s.retryKps = s.retryKps || {};
+  if (s.retryKps[ref.kpId]) return;               // one retry per point
+  const kp = KP_BY_ID[ref.kpId];
+  if (!kp) return;
+
+  const used = {};
+  s.items.forEach(function (it) { used[it.itemId] = true; });
+  (session.answers || []).forEach(function (a) { used[a.itemId] = true; });
+
+  /* Prefer another choice item so the retry is quick to answer, then fall
+     back to any unused item from the point. */
+  const fresh = kp.items.filter(function (it) { return !used[it.id]; });
+  if (!fresh.length) return;
+  const pick = fresh.filter(function (it) { return it.type === "choice"; })[0] || fresh[0];
+
+  s.retryKps[ref.kpId] = true;
+  const at = Math.min(s.items.length, session.index + 3);
+  s.items.splice(at, 0, { kpId: ref.kpId, itemId: pick.id, difficulty: pick.difficulty, retry: true });
+}
+
 function checkAnswer() {
   const ref = session.session.items[session.index];
   const pair = getItem(ref);
@@ -1112,6 +1159,7 @@ function checkAnswer() {
     before: beforeScore, after: afterScore, delta: afterScore - beforeScore
   };
   session.phase = "feedback";
+  if (!correct) maybeQueueRetry(ref);
   saveSession();
   renderKwiz();
 
@@ -1735,6 +1783,63 @@ function zhOf(kp) {
 /* Optional longer explanation, keyed by point id. */
 function deepOf(kpId) {
   return (typeof DEEP !== "undefined" && DEEP[kpId]) ? DEEP[kpId] : null;
+}
+
+/* ---- tap-a-word glosses ---- */
+
+function normWord(w) {
+  let s = String(w).toLowerCase().replace(/[\u2019]/g, "'");
+  s = s.replace(/^(?:[ldjmtnsc]|qu)'/, "");
+  s = s.replace(/[^a-z\u00e0-\u00ff'-]/g, "");
+  return s;
+}
+
+function glossFor(word) {
+  if (typeof GLOSS === "undefined") return "";
+  const n = normWord(word);
+  if (!n) return "";
+  const cands = [n, n.replace(/s$/, ""), n.replace(/e$/, ""), n.replace(/x$/, "")];
+  for (let i = 0; i < cands.length; i++) {
+    const c = cands[i];
+    if (c && GLOSS[c]) return GLOSS[c];
+  }
+  return "";
+}
+
+/* Split a French example into clickable word buttons. Splitting and rejoining
+   the same regex keeps the text character-for-character identical. */
+function glossify(fr) {
+  const parts = String(fr == null ? "" : fr).split(/([A-Za-z\u00c0-\u00ff]+(?:['\u2019][A-Za-z\u00c0-\u00ff]+)*)/);
+  return parts.map(function (p) {
+    if (/^[A-Za-z\u00c0-\u00ff]/.test(p)) {
+      return '<button class="w" data-gloss="' + esc(p) + '">' + esc(p) + "</button>";
+    }
+    return esc(p);
+  }).join("");
+}
+
+let glossPop = null;
+function hideGloss() { if (glossPop) glossPop.hidden = true; }
+function showGloss(word, cx, cy) {
+  if (!glossPop) {
+    glossPop = document.createElement("div");
+    glossPop.className = "gloss-pop";
+    glossPop.hidden = true;
+    document.body.appendChild(glossPop);
+  }
+  const g = glossFor(word);
+  glossPop.innerHTML = "<b>" + esc(word) + "</b>"
+    + (g ? "<span>" + esc(g) + "</span>" : '<span class="muted">not in the 600-word deck</span>');
+  glossPop.hidden = false;
+  const w = glossPop.offsetWidth || 180;
+  const h = glossPop.offsetHeight || 50;
+  let left = cx - w / 2;
+  let top = cy + 8;
+  if (left + w > window.innerWidth - 8) left = window.innerWidth - w - 8;
+  if (left < 8) left = 8;
+  if (top + h > window.innerHeight - 8) top = cy - h - 16;
+  glossPop.style.left = Math.round(left) + "px";
+  glossPop.style.top = Math.round(top) + "px";
 }
 
 /* Extra examples from the deep record, merged with the short list. */
@@ -3467,6 +3572,7 @@ function route() {
   const hash = location.hash.replace(/^#/, "") || "/";
   const parts = hash.split("/").filter(Boolean);
   tooltip.hidden = true;
+  hideGloss();
   closeDrawer();
 
   const nav = parts[0] || "dashboard";
@@ -3515,6 +3621,41 @@ function route() {
 }
 
 window.addEventListener("hashchange", route);
+
+/* Reveal / hide the English translation under a reading passage.
+   Delegated so it works on every screen that renders a passage. */
+document.addEventListener("click", function (e) {
+  const btn = e.target && e.target.closest ? e.target.closest("[data-passage-toggle]") : null;
+  if (!btn) return;
+  const box = btn.closest(".passage");
+  const en = box ? box.querySelector(".passage-en") : null;
+  if (!en) return;
+  en.hidden = !en.hidden;
+  btn.textContent = en.hidden ? "Show translation" : "Hide translation";
+});
+
+/* Tap a French word in an example to see its English gloss. */
+document.addEventListener("click", function (e) {
+  const t = e.target;
+  if (t && t.closest && t.closest(".gloss-pop")) return;
+  const w = t && t.closest ? t.closest("[data-gloss]") : null;
+  if (w) {
+    e.preventDefault();
+    const r = w.getBoundingClientRect();
+    showGloss(w.getAttribute("data-gloss"), r.left + r.width / 2, r.bottom);
+    return;
+  }
+  hideGloss();
+});
+
+/* Switch the activity strip between the last week and the last month. */
+document.addEventListener("click", function (e) {
+  const b = e.target && e.target.closest ? e.target.closest("[data-act-range]") : null;
+  if (!b) return;
+  actRange = parseInt(b.getAttribute("data-act-range"), 10) === 30 ? 30 : 7;
+  const wrap = document.getElementById("actWrap");
+  if (wrap) wrap.innerHTML = activityBars();
+});
 
 document.addEventListener("keydown", function (e) {
   if (e.defaultPrevented) return;
@@ -3611,5 +3752,13 @@ document.querySelectorAll("[data-tab-action]").forEach(function (b) {
     if (action === "quick") startSession(3);
   });
 });
+
+/* Keep the "More" sheet's word count honest — it grows with the deck. */
+(function () {
+  const el = document.getElementById("moreVocabCount");
+  if (el && typeof VOCAB !== "undefined" && VOCAB.length) {
+    el.textContent = VOCAB.length + " words · flashcards · cloze";
+  }
+})();
 
 route();

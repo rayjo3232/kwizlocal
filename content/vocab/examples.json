@@ -2844,5 +2844,2927 @@
    "en": "The sea is roaring.",
    "id": 10062018
   }
+ ],
+ "ensemble": [
+  {
+   "fr": "Déjeunons ensemble.",
+   "en": "Let's have lunch together.",
+   "id": 13145248
+  },
+  {
+   "fr": "Étudions ensemble !",
+   "en": "Let's study together!",
+   "id": 13142100
+  }
+ ],
+ "travers": [
+  {
+   "fr": "Tout allait de travers.",
+   "en": "It all went wrong.",
+   "id": 8620038
+  },
+  {
+   "fr": "Tu penses de travers.",
+   "en": "You're not thinking straight.",
+   "id": 4855191
+  }
+ ],
+ "film": [
+  {
+   "fr": "Regardons le film.",
+   "en": "Let's watch the film.",
+   "id": 12359122
+  },
+  {
+   "fr": "Regardons un film.",
+   "en": "Let's watch a movie.",
+   "id": 11912364
+  }
+ ],
+ "heureux": [
+  {
+   "fr": "Soyons heureux !",
+   "en": "Let's be happy!",
+   "id": 9280709
+  },
+  {
+   "fr": "Soyez heureux.",
+   "en": "Be cheerful.",
+   "id": 7693789
+  }
+ ],
+ "milieu": [
+  {
+   "fr": "Au milieu à gauche.",
+   "en": "Centre left.",
+   "id": 5895242
+  },
+  {
+   "fr": "Celle du milieu est mienne.",
+   "en": "The middle one is mine.",
+   "id": 6287743
+  }
+ ],
+ "mauvais": [
+  {
+   "fr": "Kouki sent mauvais.",
+   "en": "Cookie smells.",
+   "id": 13296253
+  },
+  {
+   "fr": "Il sentait mauvais.",
+   "en": "He stank.",
+   "id": 12052294
+  }
+ ],
+ "lettre": [
+  {
+   "fr": "Voici votre lettre.",
+   "en": "Here is your letter.",
+   "id": 11733884
+  },
+  {
+   "fr": "Lisez la lettre.",
+   "en": "Read the letter.",
+   "id": 7367447
+  }
+ ],
+ "manquer": [],
+ "pays": [
+  {
+   "fr": "Quel étrange pays !",
+   "en": "What a strange country!",
+   "id": 9777441
+  },
+  {
+   "fr": "Quel merveilleux pays !",
+   "en": "What a great country!",
+   "id": 7074198
+  }
+ ],
+ "rencontrer": [
+  {
+   "fr": "Vous devez le rencontrer.",
+   "en": "You have to meet him.",
+   "id": 13833891
+  },
+  {
+   "fr": "Tu dois le rencontrer.",
+   "en": "You have to meet him.",
+   "id": 13833889
+  }
+ ],
+ "autant": [
+  {
+   "fr": "Autant pour moi.",
+   "en": "Same for me.",
+   "id": 428802
+  },
+  {
+   "fr": "Autant serrer les dents.",
+   "en": "I might as well tough it out.",
+   "id": 13855159
+  }
+ ],
+ "sauver": [],
+ "général": [
+  {
+   "fr": "Ziri est général.",
+   "en": "Ziri is a general.",
+   "id": 11840190
+  },
+  {
+   "fr": "Oui mon général !",
+   "en": "Sir, yes, sir!",
+   "id": 2219521
+  }
+ ],
+ "imaginer": [],
+ "feu": [
+  {
+   "fr": "Au feu ! Fuyez !",
+   "en": "Fire! Run!",
+   "id": 12205874
+  },
+  {
+   "fr": "Cessez le feu !",
+   "en": "Cease fire!",
+   "id": 10642486
+  }
+ ],
+ "valoir": [
+  {
+   "fr": "Ta montre me semble valoir très cher.",
+   "en": "Your watch seems to be very valuable.",
+   "id": 549393
+  },
+  {
+   "fr": "Ils doivent valoir au moins trois cents dollars.",
+   "en": "These must be worth at least three hundred dollars.",
+   "id": 8691498
+  }
+ ],
+ "crier": [],
+ "voler": [
+  {
+   "fr": "J'aimerais voler.",
+   "en": "I'd like to fly.",
+   "id": 13785742
+  }
+ ],
+ "fermer": [],
+ "ok": [
+  {
+   "fr": "Je suis OK.",
+   "en": "I'm OK.",
+   "id": 12797901
+  },
+  {
+   "fr": "OK, à demain.",
+   "en": "OK, I'll see you tomorrow.",
+   "id": 12194380
+  }
+ ],
+ "docteur": [
+  {
+   "fr": "Merci beaucoup, docteur.",
+   "en": "Thank you very much, doctor.",
+   "id": 13296414
+  },
+  {
+   "fr": "Voici le docteur.",
+   "en": "Here's the doctor.",
+   "id": 12835577
+  }
+ ],
+ "plaisir": [
+  {
+   "fr": "Au plaisir !",
+   "en": "Good-bye!",
+   "id": 6606357
+  },
+  {
+   "fr": "Quel plaisir !",
+   "en": "What a pleasure!",
+   "id": 4626056
+  }
+ ],
+ "ombre": [
+  {
+   "fr": "L’ombre disparaît.",
+   "en": "The shadow is fading.",
+   "id": 11819529
+  },
+  {
+   "fr": "Marche dans mon ombre.",
+   "en": "Walk in my shadow.",
+   "id": 13414362
+  }
+ ],
+ "apercevoir": [
+  {
+   "fr": "Quelqu'un va s'en apercevoir.",
+   "en": "Someone is going to notice.",
+   "id": 11401711
+  },
+  {
+   "fr": "Je commence à apercevoir un motif.",
+   "en": "I'm beginning to see a pattern.",
+   "id": 1102395
+  }
+ ],
+ "ordre": [
+  {
+   "fr": "Tout était en ordre.",
+   "en": "Everything was in order.",
+   "id": 12656542
+  },
+  {
+   "fr": "C'est un ordre !",
+   "en": "That's an order!",
+   "id": 1925496
+  }
+ ],
+ "suffire": [
+  {
+   "fr": "Cela devrait suffire.",
+   "en": "That should suffice.",
+   "id": 7236764
+  },
+  {
+   "fr": "Ça devrait suffire.",
+   "en": "That should be enough.",
+   "id": 3653031
+  }
+ ],
+ "chemin": [
+  {
+   "fr": "Continuez ton chemin !",
+   "en": "Keep going!",
+   "id": 13430409
+  },
+  {
+   "fr": "Continue ton chemin !",
+   "en": "Keep going!",
+   "id": 13430408
+  }
+ ],
+ "expliquer": [],
+ "reconnaître": [
+  {
+   "fr": "Nous devons reconnaître cela.",
+   "en": "We have to acknowledge that.",
+   "id": 5899397
+  },
+  {
+   "fr": "Allez-vous la reconnaître?",
+   "en": "Will you recognise her?",
+   "id": 3968067
+  }
+ ],
+ "bord": [
+  {
+   "fr": "Venez à bord !",
+   "en": "Come aboard.",
+   "id": 12835707
+  },
+  {
+   "fr": "Viens à bord !",
+   "en": "Come aboard.",
+   "id": 12835704
+  }
+ ],
+ "joli": [
+  {
+   "fr": "Joli mème.",
+   "en": "Nice meme.",
+   "id": 12147851
+  },
+  {
+   "fr": "Joli tatouage !",
+   "en": "Cool tattoo!",
+   "id": 9973887
+  }
+ ],
+ "verre": [
+  {
+   "fr": "Finis ton verre !",
+   "en": "Sup up!",
+   "id": 10631999
+  },
+  {
+   "fr": "Buvons un verre.",
+   "en": "Let's have a drink.",
+   "id": 7773472
+  }
+ ],
+ "important": [
+  {
+   "fr": "Tom est important.",
+   "en": "Tom's important.",
+   "id": 2108420
+  },
+  {
+   "fr": "Tout est important.",
+   "en": "Everything matters.",
+   "id": 1582353
+  }
+ ],
+ "glisser": [
+  {
+   "fr": "Laisse glisser.",
+   "en": "Let the good times roll.",
+   "id": 12214963
+  }
+ ],
+ "recevoir": [
+  {
+   "fr": "Merci de nous recevoir.",
+   "en": "Thanks for having us.",
+   "id": 5644464
+  },
+  {
+   "fr": "Merci de me recevoir.",
+   "en": "Thanks for having me.",
+   "id": 1742372
+  }
+ ],
+ "avant": [
+  {
+   "fr": "Je bégayais avant.",
+   "en": "I used to stutter.",
+   "id": 8420290
+  },
+  {
+   "fr": "Continue en avant.",
+   "en": "Go on ahead.",
+   "id": 1112026
+  }
+ ],
+ "compter": [],
+ "hier": [
+  {
+   "fr": "Hier, il pleuvait.",
+   "en": "It rained yesterday.",
+   "id": 11767900
+  },
+  {
+   "fr": "Il bruinait hier.",
+   "en": "It drizzled yesterday.",
+   "id": 8724028
+  }
+ ],
+ "ajouter": [],
+ "chien": [
+  {
+   "fr": "Un chien courait.",
+   "en": "A dog was running.",
+   "id": 13914953
+  },
+  {
+   "fr": "Pauvre chien !",
+   "en": "Poor dog.",
+   "id": 12166237
+  }
+ ],
+ "lèvre": [
+  {
+   "fr": "Ma lèvre se fendait.",
+   "en": "My lip split.",
+   "id": 12330258
+  },
+  {
+   "fr": "Ma lèvre se fendit.",
+   "en": "My lip split.",
+   "id": 12330255
+  }
+ ],
+ "genre": [
+  {
+   "fr": "Je connais ton genre.",
+   "en": "I know your type.",
+   "id": 2384895
+  },
+  {
+   "fr": "Je connais votre genre.",
+   "en": "I know your type.",
+   "id": 2384894
+  }
+ ],
+ "meilleur": [
+  {
+   "fr": "Exige le meilleur.",
+   "en": "Insist on the best.",
+   "id": 11229459
+  },
+  {
+   "fr": "Tom était meilleur.",
+   "en": "Tom was better.",
+   "id": 5386455
+  }
+ ],
+ "jambe": [
+  {
+   "fr": "Lève la jambe.",
+   "en": "Lift your leg.",
+   "id": 8823533
+  },
+  {
+   "fr": "Elle lève sa jambe.",
+   "en": "She lifts her leg.",
+   "id": 13309934
+  }
+ ],
+ "vent": [
+  {
+   "fr": "Le vent faiblit.",
+   "en": "The wind has abated.",
+   "id": 13769310
+  },
+  {
+   "fr": "Le vent change.",
+   "en": "The wind is shifting.",
+   "id": 13769309
+  }
+ ],
+ "arme": [
+  {
+   "fr": "Range ton arme.",
+   "en": "Holster your weapon.",
+   "id": 13371932
+  },
+  {
+   "fr": "Pose ton arme.",
+   "en": "Put down your gun.",
+   "id": 12315777
+  }
+ ],
+ "agir": [
+  {
+   "fr": "Tom veut agir.",
+   "en": "Tom wants to trade.",
+   "id": 10368773
+  },
+  {
+   "fr": "Nous devons agir !",
+   "en": "We have to act!",
+   "id": 6814665
+  }
+ ],
+ "cause": [
+  {
+   "fr": "À cause de quoi?",
+   "en": "Because of what?",
+   "id": 5684109
+  },
+  {
+   "fr": "Rire sans cause est répréhensible.",
+   "en": "One who laughs without reason is bad.",
+   "id": 12972603
+  }
+ ],
+ "tendre": [
+  {
+   "fr": "Il est devenu tendre.",
+   "en": "His heart became soft.",
+   "id": 13668524
+  },
+  {
+   "fr": "La viande était tendre.",
+   "en": "The meat was tender.",
+   "id": 8950706
+  }
+ ],
+ "endroit": [
+  {
+   "fr": "Quel endroit horrible !",
+   "en": "What a horrible place!",
+   "id": 13217255
+  },
+  {
+   "fr": "Un endroit agréable.",
+   "en": "Nice place.",
+   "id": 10505556
+  }
+ ],
+ "état": [
+  {
+   "fr": "Mon état empire.",
+   "en": "I'm getting worse.",
+   "id": 13390191
+  },
+  {
+   "fr": "Nouvel état, nouvelle vie.",
+   "en": "New country, new life.",
+   "id": 905859
+  }
+ ],
+ "marier": [],
+ "sens": [
+  {
+   "fr": "Tu sens mauvais.",
+   "en": "You smell bad.",
+   "id": 8290811
+  },
+  {
+   "fr": "Sens cette fleur.",
+   "en": "Smell this flower.",
+   "id": 5778584
+  }
+ ],
+ "âge": [
+  {
+   "fr": "Elle a mon âge.",
+   "en": "She's my age.",
+   "id": 12856864
+  },
+  {
+   "fr": "Tom a mon âge.",
+   "en": "Tom is just my age.",
+   "id": 9711120
+  }
+ ],
+ "esprit": [
+  {
+   "fr": "Vide ton esprit.",
+   "en": "Clear your head.",
+   "id": 13275471
+  },
+  {
+   "fr": "Détendez votre esprit.",
+   "en": "Relax your mind.",
+   "id": 11585887
+  }
+ ],
+ "salle": [
+  {
+   "fr": "Cette salle est froide.",
+   "en": "This room is cold.",
+   "id": 12761811
+  },
+  {
+   "fr": "La salle est vide.",
+   "en": "The room is empty.",
+   "id": 10530503
+  }
+ ],
+ "dos": [
+  {
+   "fr": "Redressez votre dos !",
+   "en": "Straighten your back!",
+   "id": 13275332
+  },
+  {
+   "fr": "Redresse ton dos !",
+   "en": "Straighten your back!",
+   "id": 8724063
+  }
+ ],
+ "offrir": [
+  {
+   "fr": "J'aime offrir des cadeaux.",
+   "en": "I like to give gifts.",
+   "id": 9436563
+  },
+  {
+   "fr": "J'ai tant à offrir.",
+   "en": "I have so much to offer.",
+   "id": 7353024
+  }
+ ],
+ "fort": [
+  {
+   "fr": "Chantez plus fort !",
+   "en": "Sing louder!",
+   "id": 11213674
+  },
+  {
+   "fr": "Moins fort !",
+   "en": "Not so strong!",
+   "id": 12877123
+  }
+ ],
+ "possible": [
+  {
+   "fr": "Dès que possible.",
+   "en": "As soon as possible.",
+   "id": 13677139
+  },
+  {
+   "fr": "Ça sera possible.",
+   "en": "That will be possible.",
+   "id": 5615409
+  }
+ ],
+ "reste": [
+  {
+   "fr": "Reste éveillée.",
+   "en": "Stay awake.",
+   "id": 14062094
+  },
+  {
+   "fr": "Reste consciente.",
+   "en": "Stay woke.",
+   "id": 12867540
+  }
+ ],
+ "décider": [
+  {
+   "fr": "Laissons-les décider.",
+   "en": "Let's let them decide.",
+   "id": 11965123
+  }
+ ],
+ "merde": [],
+ "inquiéter": [],
+ "photo": [
+  {
+   "fr": "Légende cette photo.",
+   "en": "Caption this photo.",
+   "id": 10779326
+  },
+  {
+   "fr": "Quelle belle photo !",
+   "en": "What a beautiful picture!",
+   "id": 10458154
+  }
+ ],
+ "arbre": [
+  {
+   "fr": "Plante un arbre.",
+   "en": "Plant a tree.",
+   "id": 8718794
+  },
+  {
+   "fr": "Plantez un arbre.",
+   "en": "Plant a tree.",
+   "id": 8718793
+  }
+ ],
+ "compte": [
+  {
+   "fr": "Cette personne compte.",
+   "en": "That person is important.",
+   "id": 13939150
+  },
+  {
+   "fr": "Compte sur elle.",
+   "en": "Be ready for it.",
+   "id": 13674728
+  }
+ ],
+ "bouger": [],
+ "partie": [],
+ "bleu": [
+  {
+   "fr": "Il est bleu.",
+   "en": "He's blue.",
+   "id": 9702506
+  },
+  {
+   "fr": "Bonjour, ciel bleu !",
+   "en": "Hi, the blue sky!",
+   "id": 5255297
+  }
+ ],
+ "apporter": [],
+ "droit": [
+  {
+   "fr": "Regarde droit devant.",
+   "en": "Look straight ahead.",
+   "id": 9416714
+  },
+  {
+   "fr": "Regardez droit devant.",
+   "en": "Look straight ahead.",
+   "id": 9416712
+  }
+ ],
+ "propre": [
+  {
+   "fr": "Il est propre.",
+   "en": "It's blank.",
+   "id": 13277794
+  },
+  {
+   "fr": "Elle est propre.",
+   "en": "It's blank.",
+   "id": 12045472
+  }
+ ],
+ "soudain": [
+  {
+   "fr": "Soudain, elle disparut.",
+   "en": "Suddenly, she disappeared.",
+   "id": 13294732
+  },
+  {
+   "fr": "Elle disparut soudain.",
+   "en": "Suddenly, she disappeared.",
+   "id": 13294730
+  }
+ ],
+ "vendre": [
+  {
+   "fr": "Tout était à vendre.",
+   "en": "Everything was for sale.",
+   "id": 12485082
+  },
+  {
+   "fr": "Tu peux le vendre.",
+   "en": "You can sell it.",
+   "id": 11866291
+  }
+ ],
+ "école": [
+  {
+   "fr": "Notre école est loin.",
+   "en": "Our school is far.",
+   "id": 13652351
+  },
+  {
+   "fr": "Daphne ouvrira une école.",
+   "en": "Daphne will open a school.",
+   "id": 13578519
+  }
+ ],
+ "chef": [
+  {
+   "fr": "Martin est devenu chef.",
+   "en": "Martino became the leader.",
+   "id": 13343798
+  },
+  {
+   "fr": "Tom est le chef.",
+   "en": "Tom is the leader.",
+   "id": 12681405
+  }
+ ],
+ "papier": [
+  {
+   "fr": "Le papier brûle.",
+   "en": "Paper burns.",
+   "id": 9025653
+  },
+  {
+   "fr": "Ciseau, pierre, papier.",
+   "en": "Rock, paper, scissors.",
+   "id": 1537685
+  }
+ ],
+ "serrer": [
+  {
+   "fr": "J'vais la serrer.",
+   "en": "I'm going to hook up with her.",
+   "id": 14066307
+  },
+  {
+   "fr": "Je vais la serrer.",
+   "en": "I'm going to pick her up.",
+   "id": 14066300
+  }
+ ],
+ "boulot": [
+  {
+   "fr": "Viens au boulot.",
+   "en": "Come to work.",
+   "id": 11837246
+  },
+  {
+   "fr": "Au boulot maintenant !",
+   "en": "Let's get this show on the road now!",
+   "id": 10680685
+  }
+ ],
+ "remettre": [
+  {
+   "fr": "Je peux remettre.",
+   "en": "I can reschedule.",
+   "id": 4679101
+  },
+  {
+   "fr": "Elle va se remettre.",
+   "en": "He'll get over it.",
+   "id": 10603643
+  }
+ ],
+ "battre": [
+  {
+   "fr": "Je vais te battre.",
+   "en": "I'll beat you.",
+   "id": 14062041
+  },
+  {
+   "fr": "Elles veulent se battre.",
+   "en": "They want to fight.",
+   "id": 12111691
+  }
+ ],
+ "cher": [
+  {
+   "fr": "Tout devient cher.",
+   "en": "Everything is getting expensive.",
+   "id": 11611436
+  },
+  {
+   "fr": "Exactement, mon cher.",
+   "en": "Exactly, my dear.",
+   "id": 10340951
+  }
+ ],
+ "cacher": [],
+ "répéter": [
+  {
+   "fr": "Veuillez répéter !",
+   "en": "Did you say something?",
+   "id": 4963463
+  },
+  {
+   "fr": "Veuillez répéter !",
+   "en": "Please say that again!",
+   "id": 1073809
+  }
+ ],
+ "coin": [
+  {
+   "fr": "Va au coin !",
+   "en": "Stand in the corner!",
+   "id": 8027090
+  },
+  {
+   "fr": "Juste au coin.",
+   "en": "Just round the corner.",
+   "id": 971361
+  }
+ ],
+ "couleur": [
+  {
+   "fr": "Cette couleur est jolie.",
+   "en": "This color is nice.",
+   "id": 12169860
+  },
+  {
+   "fr": "Choisis ta couleur préférée !",
+   "en": "Choose your favorite color!",
+   "id": 12035249
+  }
+ ],
+ "découvrir": [
+  {
+   "fr": "Ils vont le découvrir !",
+   "en": "They'll find out.",
+   "id": 7414567
+  },
+  {
+   "fr": "Vous venez de les découvrir.",
+   "en": "You have just discovered them.",
+   "id": 13545203
+  }
+ ],
+ "traverser": [],
+ "journal": [
+  {
+   "fr": "Lis le journal !",
+   "en": "Read the paper!",
+   "id": 8955232
+  },
+  {
+   "fr": "Tiens un journal !",
+   "en": "Keep a diary.",
+   "id": 7704231
+  }
+ ],
+ "haut": [
+  {
+   "fr": "Il est haut.",
+   "en": "He is tall.",
+   "id": 12582750
+  },
+  {
+   "fr": "Haut les mains !",
+   "en": "Hands up!",
+   "id": 10665165
+  }
+ ],
+ "coucher": [
+  {
+   "fr": "Allons nous coucher !",
+   "en": "Let's go to bed!",
+   "id": 8629047
+  },
+  {
+   "fr": "Va te coucher !",
+   "en": "Go to bed!",
+   "id": 8549726
+  }
+ ],
+ "odeur": [
+  {
+   "fr": "Quelle horrible odeur !",
+   "en": "What a horrid smell!",
+   "id": 13217268
+  },
+  {
+   "fr": "Quelle odeur épouvantable !",
+   "en": "What a horrid smell!",
+   "id": 13217260
+  }
+ ],
+ "oreille": [
+  {
+   "fr": "Tends l’oreille.",
+   "en": "Listen carefully.",
+   "id": 13685691
+  },
+  {
+   "fr": "Tendez l’oreille.",
+   "en": "Listen carefully.",
+   "id": 13685689
+  }
+ ],
+ "après": [
+  {
+   "fr": "Demandez après lui.",
+   "en": "Ask about him.",
+   "id": 12799589
+  },
+  {
+   "fr": "Tu comprendras après.",
+   "en": "You'll understand later.",
+   "id": 9143575
+  }
+ ],
+ "vérité": [
+  {
+   "fr": "La vérité blesse !",
+   "en": "Truth hurts!",
+   "id": 12588413
+  },
+  {
+   "fr": "Cherche la vérité.",
+   "en": "Seek the truth.",
+   "id": 12321119
+  }
+ ],
+ "gentil": [
+  {
+   "fr": "Ziri fut gentil.",
+   "en": "Ziri was kind.",
+   "id": 11034281
+  },
+  {
+   "fr": "Ziri était gentil.",
+   "en": "Ziri was kind.",
+   "id": 11034279
+  }
+ ],
+ "approcher": [],
+ "effet": [
+  {
+   "fr": "Merci beaucoup, en effet.",
+   "en": "Thank you very much indeed.",
+   "id": 13300465
+  },
+  {
+   "fr": "En effet, Dieu existe.",
+   "en": "Indeed God exists.",
+   "id": 10999662
+  }
+ ],
+ "avancer": [],
+ "bébé": [
+  {
+   "fr": "Le bébé somnole.",
+   "en": "The baby is dozing.",
+   "id": 12675188
+  },
+  {
+   "fr": "Le bébé tète.",
+   "en": "The baby is suckling.",
+   "id": 11837714
+  }
+ ],
+ "adorer": [
+  {
+   "fr": "Tu vas adorer.",
+   "en": "You're going to love it.",
+   "id": 11790307
+  }
+ ],
+ "nouvelle": [
+  {
+   "fr": "Tu es nouvelle.",
+   "en": "You are new.",
+   "id": 13953076
+  },
+  {
+   "fr": "Vous êtes nouvelle.",
+   "en": "You are new.",
+   "id": 13953074
+  }
+ ],
+ "jeu": [
+  {
+   "fr": "Dévoile ton jeu.",
+   "en": "Show your cards.",
+   "id": 2508143
+  },
+  {
+   "fr": "Quel jeu excitant !",
+   "en": "What an exciting game!",
+   "id": 452684
+  }
+ ],
+ "aussitôt": [
+  {
+   "fr": "Aussitôt que possible.",
+   "en": "As soon as possible.",
+   "id": 1141490
+  },
+  {
+   "fr": "Tom est parti aussitôt.",
+   "en": "Tom left immediately.",
+   "id": 9402627
+  }
+ ],
+ "pierre": [
+  {
+   "fr": "Dessinons une pierre.",
+   "en": "Let's draw a stone.",
+   "id": 10808319
+  },
+  {
+   "fr": "Pierre connaît Paul.",
+   "en": "Peter knows Paul.",
+   "id": 8724094
+  }
+ ],
+ "pleurer": [],
+ "image": [
+  {
+   "fr": "Regarde cette image.",
+   "en": "Look at that picture.",
+   "id": 1315069
+  },
+  {
+   "fr": "Regardez cette image.",
+   "en": "Look at that picture.",
+   "id": 430866
+  }
+ ],
+ "dur": [
+  {
+   "fr": "Il bosse dur.",
+   "en": "He works hard.",
+   "id": 14076233
+  },
+  {
+   "fr": "Ziri était dur.",
+   "en": "Ziri was tough.",
+   "id": 10910271
+  }
+ ],
+ "pauvre": [
+  {
+   "fr": "Pauvre chou !",
+   "en": "Poor thing.",
+   "id": 12270462
+  },
+  {
+   "fr": "Pauvre chien !",
+   "en": "Poor dog.",
+   "id": 12166237
+  }
+ ],
+ "amener": [],
+ "peau": [
+  {
+   "fr": "Peau de balle !",
+   "en": "Nothing!",
+   "id": 12877027
+  },
+  {
+   "fr": "Peau de balle !",
+   "en": "Like hell it is!",
+   "id": 2229338
+  }
+ ],
+ "service": [
+  {
+   "fr": "À votre service !",
+   "en": "At your service!",
+   "id": 12264122
+  },
+  {
+   "fr": "Service par amitié.",
+   "en": "Service by friendship.",
+   "id": 10098589
+  }
+ ],
+ "jardin": [
+  {
+   "fr": "Quel charmant jardin !",
+   "en": "What a lovely garden!",
+   "id": 2158712
+  },
+  {
+   "fr": "Quel beau jardin.",
+   "en": "What a beautiful garden!",
+   "id": 15785
+  }
+ ],
+ "parent": [
+  {
+   "fr": "Sois un parent gentil.",
+   "en": "Be a nice parent.",
+   "id": 12476917
+  },
+  {
+   "fr": "Sois un bon parent.",
+   "en": "Be a good parent.",
+   "id": 12476916
+  }
+ ],
+ "promettre": [
+  {
+   "fr": "Nous ne pouvons rien promettre.",
+   "en": "We can't promise anything.",
+   "id": 5923072
+  },
+  {
+   "fr": "Je ne peux rien promettre.",
+   "en": "I can't make any promises.",
+   "id": 2031219
+  }
+ ],
+ "bientôt": [
+  {
+   "fr": "À bientôt.",
+   "en": "See you soon.",
+   "id": 12148197
+  },
+  {
+   "fr": "Partons bientôt.",
+   "en": "Let's go soon.",
+   "id": 11916314
+  }
+ ],
+ "permettre": [
+  {
+   "fr": "Je vais le permettre.",
+   "en": "I will allow it.",
+   "id": 2769063
+  },
+  {
+   "fr": "Si je peux me permettre.",
+   "en": "If I may.",
+   "id": 8664559
+  }
+ ],
+ "bas": [
+  {
+   "fr": "Bas les armes !",
+   "en": "Throw down your weapons.",
+   "id": 11486828
+  },
+  {
+   "fr": "Venez en bas.",
+   "en": "Come downstairs.",
+   "id": 7553295
+  }
+ ],
+ "tellement": [
+  {
+   "fr": "Tom avait tellement peur.",
+   "en": "Tom was so scared.",
+   "id": 14049808
+  },
+  {
+   "fr": "Tom est tellement « woke ».",
+   "en": "Tom is so woke.",
+   "id": 14011876
+  }
+ ],
+ "disparaître": [
+  {
+   "fr": "Tout doit disparaître.",
+   "en": "Everything must go.",
+   "id": 10490522
+  },
+  {
+   "fr": "Vous devez disparaître.",
+   "en": "You have to disappear.",
+   "id": 5684380
+  }
+ ],
+ "mouvement": [
+  {
+   "fr": "Faites votre mouvement.",
+   "en": "Make your move.",
+   "id": 1850119
+  },
+  {
+   "fr": "Fais ton mouvement.",
+   "en": "Make your move.",
+   "id": 1850118
+  }
+ ],
+ "mentir": [],
+ "soeur": [],
+ "dehors": [
+  {
+   "fr": "Retourne dehors !",
+   "en": "Go back outside!",
+   "id": 12716523
+  },
+  {
+   "fr": "Regarde dehors.",
+   "en": "Look outside.",
+   "id": 10649066
+  }
+ ],
+ "journée": [
+  {
+   "fr": "Quelle belle journée !",
+   "en": "What a beautiful day!",
+   "id": 13806139
+  },
+  {
+   "fr": "Quelle excellente journée !",
+   "en": "What a fantastic day!",
+   "id": 13163426
+  }
+ ],
+ "partout": [
+  {
+   "fr": "Il est partout.",
+   "en": "He is everywhere.",
+   "id": 12708609
+  },
+  {
+   "fr": "Elles sont partout.",
+   "en": "They're everywhere.",
+   "id": 12091725
+  }
+ ],
+ "cheval": [
+  {
+   "fr": "Selle mon cheval.",
+   "en": "Saddle my horse.",
+   "id": 8690327
+  },
+  {
+   "fr": "Sellez mon cheval.",
+   "en": "Saddle my horse.",
+   "id": 8690325
+  }
+ ],
+ "content": [
+  {
+   "fr": "Ziri était content.",
+   "en": "Ziri was happy.",
+   "id": 11033825
+  },
+  {
+   "fr": "Ken est content.",
+   "en": "Ken is happy.",
+   "id": 10053812
+  }
+ ],
+ "certain": [
+  {
+   "fr": "Je suis certain.",
+   "en": "I am sure.",
+   "id": 1181577
+  },
+  {
+   "fr": "C'est certain.",
+   "en": "It's certain.",
+   "id": 1157258
+  }
+ ],
+ "utiliser": [],
+ "parole": [
+  {
+   "fr": "Tom tient parole.",
+   "en": "Tom keeps his word.",
+   "id": 5647322
+  },
+  {
+   "fr": "Je tiens parole.",
+   "en": "I keep my word.",
+   "id": 3671110
+  }
+ ],
+ "préférer": [],
+ "nez": [
+  {
+   "fr": "Mon nez saigne.",
+   "en": "My nose is bleeding.",
+   "id": 1476098
+  },
+  {
+   "fr": "Ton nez coule !",
+   "en": "Your nose is running!",
+   "id": 1090007
+  }
+ ],
+ "roi": [
+  {
+   "fr": "Voilà le roi.",
+   "en": "This is the king.",
+   "id": 12890010
+  },
+  {
+   "fr": "Vive le Roi.",
+   "en": "Long live the King.",
+   "id": 11135635
+  }
+ ],
+ "café": [
+  {
+   "fr": "Ton café refroidit.",
+   "en": "Your coffee is getting cold.",
+   "id": 13389071
+  },
+  {
+   "fr": "Buvez un café.",
+   "en": "Drink a cup of coffee.",
+   "id": 13374259
+  }
+ ],
+ "cours": [
+  {
+   "fr": "En cours.",
+   "en": "In Progress.",
+   "id": 8984481
+  },
+  {
+   "fr": "Cours lentement !",
+   "en": "Run slowly!",
+   "id": 7477665
+  }
+ ],
+ "forme": [
+  {
+   "fr": "Le projet prend forme.",
+   "en": "The project is taking shape.",
+   "id": 11226786
+  },
+  {
+   "fr": "Tom semble en forme.",
+   "en": "Tom looks fine.",
+   "id": 9405551
+  }
+ ],
+ "au-dessus": [
+  {
+   "fr": "Je suis au-dessus.",
+   "en": "I'm upstairs.",
+   "id": 4594029
+  },
+  {
+   "fr": "Saute au-dessus du fossé.",
+   "en": "Jump over the ditch.",
+   "id": 14020497
+  }
+ ],
+ "cesser": [
+  {
+   "fr": "Veuillez cesser !",
+   "en": "Enough!",
+   "id": 3265320
+  }
+ ],
+ "d'abord": [
+  {
+   "fr": "Fais ça d'abord.",
+   "en": "Do this first.",
+   "id": 10487481
+  },
+  {
+   "fr": "Les messieurs d'abord.",
+   "en": "Gentlemen first.",
+   "id": 9952770
+  }
+ ],
+ "sac": [
+  {
+   "fr": "Tenez mon sac.",
+   "en": "Hold my bag.",
+   "id": 12160341
+  },
+  {
+   "fr": "Tiens mon sac.",
+   "en": "Hold my bag.",
+   "id": 12160340
+  }
+ ],
+ "numéro": [
+  {
+   "fr": "Arrêtez votre numéro.",
+   "en": "Drop the act.",
+   "id": 11958772
+  },
+  {
+   "fr": "Arrête ton numéro.",
+   "en": "Stop acting.",
+   "id": 6559835
+  }
+ ],
+ "réveiller": [],
+ "aide": [
+  {
+   "fr": "Aide Ziri.",
+   "en": "Help Ziri out.",
+   "id": 11975413
+  },
+  {
+   "fr": "Aide Tom.",
+   "en": "Help Tom.",
+   "id": 6465577
+  }
+ ],
+ "chéri": [
+  {
+   "fr": "Bonjour, chéri.",
+   "en": "Hello, Honey.",
+   "id": 5255252
+  },
+  {
+   "fr": "Dansons, chéri !",
+   "en": "Let's dance, darling!",
+   "id": 2745561
+  }
+ ],
+ "préparer": [
+  {
+   "fr": "Allons nous préparer.",
+   "en": "Let's get prepared.",
+   "id": 9025038
+  }
+ ],
+ "empêcher": [
+  {
+   "fr": "J’aurais pu l’empêcher.",
+   "en": "I could have prevented this.",
+   "id": 11670504
+  },
+  {
+   "fr": "J'aurais pu empêcher ça.",
+   "en": "I could have prevented this.",
+   "id": 7769764
+  }
+ ],
+ "ramener": [
+  {
+   "fr": "Je peux vous ramener.",
+   "en": "I can give you a lift.",
+   "id": 11802965
+  }
+ ],
+ "enlever": [],
+ "musique": [
+  {
+   "fr": "Baisse la musique.",
+   "en": "Turn the music down.",
+   "id": 11534042
+  },
+  {
+   "fr": "Arrête cette musique !",
+   "en": "Stop this music.",
+   "id": 10509348
+  }
+ ],
+ "conduire": [
+  {
+   "fr": "Continuez à conduire.",
+   "en": "Keep driving.",
+   "id": 12873016
+  },
+  {
+   "fr": "Veuillez conduire prudemment.",
+   "en": "Please drive safely.",
+   "id": 7244828
+  }
+ ],
+ "ensuite": [
+  {
+   "fr": "Ensuite, nous dînerons.",
+   "en": "We're going to have dinner afterwards.",
+   "id": 11732706
+  },
+  {
+   "fr": "Arriva ensuite 12 heures.",
+   "en": "Then twelve o'clock came.",
+   "id": 870404
+  }
+ ],
+ "lâcher": [],
+ "choisir": [
+  {
+   "fr": "Vous devriez choisir.",
+   "en": "You have to choose.",
+   "id": 13465620
+  }
+ ],
+ "nu": [
+  {
+   "fr": "Ziri était nu.",
+   "en": "Ziri was naked.",
+   "id": 11682285
+  },
+  {
+   "fr": "Poutine est nu.",
+   "en": "Putin is naked.",
+   "id": 11147107
+  }
+ ],
+ "libre": [
+  {
+   "fr": "Elle était libre.",
+   "en": "She was free.",
+   "id": 12199880
+  },
+  {
+   "fr": "Il était libre.",
+   "en": "He was free.",
+   "id": 12199878
+  }
+ ],
+ "faute": [],
+ "mariage": [
+  {
+   "fr": "Le mariage est demain.",
+   "en": "The wedding is tomorrow.",
+   "id": 12416821
+  },
+  {
+   "fr": "Félicitations pour ton mariage.",
+   "en": "Congratulations on your marriage.",
+   "id": 11594147
+  }
+ ],
+ "bureau": [
+  {
+   "fr": "Rangeons le bureau.",
+   "en": "Let's tidy the desk.",
+   "id": 11124506
+  },
+  {
+   "fr": "Voilà votre bureau.",
+   "en": "Here's your desk.",
+   "id": 7415271
+  }
+ ],
+ "calmer": [],
+ "frapper": [],
+ "fleur": [
+  {
+   "fr": "La fleur pousse.",
+   "en": "The flower grows.",
+   "id": 11935467
+  },
+  {
+   "fr": "Ramasse la fleur.",
+   "en": "Pick the flower.",
+   "id": 6131358
+  }
+ ],
+ "confiance": [
+  {
+   "fr": "Écris avec confiance.",
+   "en": "Write confidently.",
+   "id": 12476785
+  },
+  {
+   "fr": "Ma confiance vacille.",
+   "en": "My confidence is wavering.",
+   "id": 12318229
+  }
+ ],
+ "chanter": [],
+ "présenter": [
+  {
+   "fr": "Veuillez vous présenter.",
+   "en": "Please introduce yourself.",
+   "id": 13198814
+  }
+ ],
+ "bonheur": [
+  {
+   "fr": "Respire le bonheur.",
+   "en": "Breathe happiness.",
+   "id": 4386476
+  },
+  {
+   "fr": "Tu es mon bonheur.",
+   "en": "You're my happiness.",
+   "id": 13483039
+  }
+ ],
+ "accepter": [],
+ "lancer": [],
+ "ligne": [
+  {
+   "fr": "Reste en ligne !",
+   "en": "Hang on to it.",
+   "id": 7166568
+  },
+  {
+   "fr": "Restez en ligne.",
+   "en": "Hold the line.",
+   "id": 3278290
+  }
+ ],
+ "rouler": [
+  {
+   "fr": "Continuez à rouler !",
+   "en": "Drive on.",
+   "id": 2077426
+  },
+  {
+   "fr": "Continue à rouler !",
+   "en": "Drive on.",
+   "id": 2077425
+  }
+ ],
+ "froid": [
+  {
+   "fr": "Yanni avait froid.",
+   "en": "Yanni was cold.",
+   "id": 11228364
+  },
+  {
+   "fr": "Yanni a froid.",
+   "en": "Yanni is cold.",
+   "id": 11228363
+  }
+ ],
+ "signe": [
+  {
+   "fr": "Elle signe.",
+   "en": "She is drawing.",
+   "id": 8304815
+  },
+  {
+   "fr": "Signe ça.",
+   "en": "Sign this.",
+   "id": 6463038
+  }
+ ],
+ "bonsoir": [
+  {
+   "fr": "Bonsoir, Tom.",
+   "en": "Good evening, Tom.",
+   "id": 8304838
+  },
+  {
+   "fr": "Bonsoir, Mademoiselle.",
+   "en": "Good evening, ma'am.",
+   "id": 5238898
+  }
+ ],
+ "prochain": [
+  {
+   "fr": "Prochain arrêt, Stockholm.",
+   "en": "Next stop, Stockholm.",
+   "id": 11246942
+  },
+  {
+   "fr": "À lundi prochain.",
+   "en": "See you again next Monday.",
+   "id": 10670575
+  }
+ ],
+ "installer": [
+  {
+   "fr": "Comment installer un clavier russe ?",
+   "en": "How do I install a Russian keyboard?",
+   "id": 12393261
+  }
+ ],
+ "facile": [
+  {
+   "fr": "Quel match facile !",
+   "en": "What an easy game!",
+   "id": 14060549
+  },
+  {
+   "fr": "Rendons cela facile.",
+   "en": "Let's make this easy.",
+   "id": 11321880
+  }
+ ],
+ "apparaître": [
+  {
+   "fr": "Les étoiles commençaient à apparaître.",
+   "en": "The stars were beginning to appear.",
+   "id": 901754
+  },
+  {
+   "fr": "Nous vîmes la colline apparaître.",
+   "en": "We came in sight of the hill.",
+   "id": 562918
+  }
+ ],
+ "téléphone": [
+  {
+   "fr": "Apporte ton téléphone.",
+   "en": "Give me your phone.",
+   "id": 13877423
+  },
+  {
+   "fr": "Éteignez le téléphone.",
+   "en": "Turn off the phone.",
+   "id": 12353654
+  }
+ ],
+ "front": [
+  {
+   "fr": "Tu saignes du front.",
+   "en": "Your forehead's bleeding.",
+   "id": 6818095
+  },
+  {
+   "fr": "Ton front abrite des ères.",
+   "en": "Centuries dwell in your forehead.",
+   "id": 12679361
+  }
+ ],
+ "hôtel": [
+  {
+   "fr": "Nous acheterons un hôtel.",
+   "en": "We'll purchase a hotel.",
+   "id": 13463206
+  },
+  {
+   "fr": "J'ai un hôtel.",
+   "en": "I have a hotel.",
+   "id": 12203016
+  }
+ ],
+ "casser": [
+  {
+   "fr": "Ça va casser.",
+   "en": "It's going to break.",
+   "id": 7107251
+  },
+  {
+   "fr": "Il va casser.",
+   "en": "It will break.",
+   "id": 7107242
+  }
+ ],
+ "remonter": [
+  {
+   "fr": "Nous devons remonter nos manches.",
+   "en": "We need to roll up our sleeves.",
+   "id": 13087919
+  }
+ ],
+ "debout": [
+  {
+   "fr": "Maintenant, debout.",
+   "en": "Now stand up.",
+   "id": 11930515
+  },
+  {
+   "fr": "Debout, paresseux !",
+   "en": "Wake up, sleepyhead!",
+   "id": 10632129
+  }
+ ],
+ "rêve": [
+  {
+   "fr": "Elle rêve.",
+   "en": "She is dreaming.",
+   "id": 11929068
+  },
+  {
+   "fr": "Il rêve.",
+   "en": "He's dreaming.",
+   "id": 11929066
+  }
+ ],
+ "retour": [
+  {
+   "fr": "Bon retour chez vous.",
+   "en": "Have a safe journey home.",
+   "id": 13388172
+  },
+  {
+   "fr": "Staline est de retour.",
+   "en": "Stalin is back.",
+   "id": 12824171
+  }
+ ],
+ "copain": [
+  {
+   "fr": "Mon copain pleurait.",
+   "en": "My boyfriend was crying.",
+   "id": 1815974
+  },
+  {
+   "fr": "Mon copain pleure.",
+   "en": "My boyfriend is crying.",
+   "id": 1815971
+  }
+ ],
+ "attention": [
+  {
+   "fr": "Attention : Fragile.",
+   "en": "Attention: fragile.",
+   "id": 9762823
+  },
+  {
+   "fr": "Attention, danger.",
+   "en": "Danger ahead.",
+   "id": 9020450
+  }
+ ],
+ "malade": [
+  {
+   "fr": "Il sera malade.",
+   "en": "He'll be ill.",
+   "id": 13457613
+  },
+  {
+   "fr": "Manon est malade.",
+   "en": "Mary is sick.",
+   "id": 12280694
+  }
+ ],
+ "manière": [
+  {
+   "fr": "En aucune manière !",
+   "en": "No way!",
+   "id": 2222344
+  },
+  {
+   "fr": "De cette manière !",
+   "en": "That way!",
+   "id": 1793910
+  }
+ ],
+ "près": [
+  {
+   "fr": "Venez plus près.",
+   "en": "Come closer.",
+   "id": 13158232
+  },
+  {
+   "fr": "Viens plus près !",
+   "en": "Come a bit closer.",
+   "id": 13158229
+  }
+ ],
+ "lentement": [
+  {
+   "fr": "Lis lentement.",
+   "en": "Read slowly.",
+   "id": 13012526
+  },
+  {
+   "fr": "Lisez lentement.",
+   "en": "Read slowly.",
+   "id": 13012524
+  }
+ ],
+ "parvenir": [
+  {
+   "fr": "J'espère y parvenir.",
+   "en": "I hope I succeed.",
+   "id": 13454544
+  },
+  {
+   "fr": "Je peux y parvenir.",
+   "en": "I can do it.",
+   "id": 1684548
+  }
+ ],
+ "fête": [
+  {
+   "fr": "Noël fête Noël.",
+   "en": "Noel celebrates Christmas.",
+   "id": 12229822
+  },
+  {
+   "fr": "Démarrons la fête.",
+   "en": "Let's get the party underway.",
+   "id": 11947374
+  }
+ ],
+ "ressembler": [],
+ "sentiment": [],
+ "clair": [
+  {
+   "fr": "Cela semble clair.",
+   "en": "That seems clear.",
+   "id": 6380856
+  },
+  {
+   "fr": "Tout est clair.",
+   "en": "It's all clear.",
+   "id": 4864867
+  }
+ ],
+ "ignorer": [],
+ "oser": [
+  {
+   "fr": "Il faut oser dire les choses.",
+   "en": "You have to dare to say things.",
+   "id": 7550874
+  },
+  {
+   "fr": "Qui sait tout souffrir peut tout oser.",
+   "en": "Those who know how to suffer through everything can dare to do everything.",
+   "id": 6841398
+  }
+ ],
+ "impression": [
+  {
+   "fr": "Il fait bonne impression.",
+   "en": "It looks good.",
+   "id": 13467828
+  },
+  {
+   "fr": "Est-ce votre impression ?",
+   "en": "Is that your impression?",
+   "id": 11179088
+  }
+ ],
+ "ancien": [
+  {
+   "fr": "Ce bâtiment est ancien.",
+   "en": "This building is ancient.",
+   "id": 3258279
+  },
+  {
+   "fr": "C'est un ancien.",
+   "en": "He's a senior.",
+   "id": 1635897
+  }
+ ],
+ "pencher": [
+  {
+   "fr": "Tom va se pencher là-dessus.",
+   "en": "Tom is going to look into that.",
+   "id": 12420716
+  },
+  {
+   "fr": "Ne pas se pencher au-dehors.",
+   "en": "Do not lean out of the window.",
+   "id": 1495081
+  }
+ ],
+ "gris": [
+  {
+   "fr": "Nous sommes gris.",
+   "en": "We are gray.",
+   "id": 7142142
+  },
+  {
+   "fr": "Ils sont gris.",
+   "en": "They are gray.",
+   "id": 1924356
+  }
+ ],
+ "super": [
+  {
+   "fr": "Yanni sera super.",
+   "en": "Yanni will be great.",
+   "id": 12476846
+  },
+  {
+   "fr": "Ça paraît super.",
+   "en": "That sounds super.",
+   "id": 11634254
+  }
+ ],
+ "couper": [],
+ "habitude": [
+  {
+   "fr": "Comme d’habitude.",
+   "en": "Same as usual.",
+   "id": 11486841
+  },
+  {
+   "fr": "C’est devenu son habitude.",
+   "en": "It became his habit.",
+   "id": 13070790
+  }
+ ],
+ "cri": [
+  {
+   "fr": "Quel cri !",
+   "en": "What a scream!",
+   "id": 7694560
+  }
+ ],
+ "taire": [
+  {
+   "fr": "Faites taire vos téléphones.",
+   "en": "Turn cell phone ringers off.",
+   "id": 13967922
+  },
+  {
+   "fr": "Je préfère me taire.",
+   "en": "I'd rather not say.",
+   "id": 7157337
+  }
+ ],
+ "passage": [
+  {
+   "fr": "Lis ce passage.",
+   "en": "Read this passage.",
+   "id": 10921298
+  },
+  {
+   "fr": "Lisez ce passage.",
+   "en": "Read this passage.",
+   "id": 10921297
+  }
+ ],
+ "seigneur": [
+  {
+   "fr": "Crains le Seigneur !",
+   "en": "Fear God!",
+   "id": 7477481
+  },
+  {
+   "fr": "Seigneur, écoute ma prière !",
+   "en": "God, hear my plea.",
+   "id": 1204179
+  }
+ ],
+ "flic": [
+  {
+   "fr": "Je suis flic.",
+   "en": "I'm a cop.",
+   "id": 3642157
+  },
+  {
+   "fr": "Voilà un flic.",
+   "en": "Here comes a copper!",
+   "id": 846911
+  }
+ ],
+ "marche": [
+  {
+   "fr": "Ça marche !",
+   "en": "It works!",
+   "id": 12877016
+  },
+  {
+   "fr": "Marche lentement !",
+   "en": "Walk slowly!",
+   "id": 10015062
+  }
+ ],
+ "capitaine": [
+  {
+   "fr": "Il devint capitaine.",
+   "en": "He was made captain.",
+   "id": 4449053
+  },
+  {
+   "fr": "Oui mon capitaine !",
+   "en": "Sir, yes, sir!",
+   "id": 2219517
+  }
+ ],
+ "âme": [
+  {
+   "fr": "Mon âme chante.",
+   "en": "My soul sings.",
+   "id": 9160749
+  },
+  {
+   "fr": "Dieu ait son âme.",
+   "en": "God rest his soul.",
+   "id": 10510846
+  }
+ ],
+ "maître": [
+  {
+   "fr": "Usage rend maître.",
+   "en": "Practice makes perfect.",
+   "id": 9665688
+  },
+  {
+   "fr": "Merci beaucoup, maître !",
+   "en": "Thanks a lot, teacher!",
+   "id": 4644028
+  }
+ ],
+ "dame": [
+  {
+   "fr": "Une dame m’attend !",
+   "en": "A lady is waiting for me.",
+   "id": 2887692
+  },
+  {
+   "fr": "Dame Fortune me favorisa.",
+   "en": "Fortune has turned in my favor.",
+   "id": 1995766
+  }
+ ],
+ "léger": [
+  {
+   "fr": "Il est léger.",
+   "en": "He is easygoing.",
+   "id": 9472603
+  },
+  {
+   "fr": "Je voyage léger.",
+   "en": "I travel light.",
+   "id": 3658876
+  }
+ ],
+ "difficile": [
+  {
+   "fr": "Il est difficile.",
+   "en": "He’s picky.",
+   "id": 12582830
+  },
+  {
+   "fr": "Il paraît difficile.",
+   "en": "It seems difficult.",
+   "id": 12565430
+  }
+ ],
+ "refuser": [
+  {
+   "fr": "Tu peux refuser.",
+   "en": "You may refuse.",
+   "id": 10166459
+  }
+ ],
+ "pensée": [],
+ "sol": [
+  {
+   "fr": "Avale du sol !",
+   "en": "Eat dirt!",
+   "id": 12971821
+  },
+  {
+   "fr": "Regardez le sol.",
+   "en": "Look down at the floor.",
+   "id": 6889099
+  }
+ ],
+ "joie": [
+  {
+   "fr": "Calme ta joie.",
+   "en": "You be quiet.",
+   "id": 10637913
+  },
+  {
+   "fr": "Oui, avec joie.",
+   "en": "I'll be glad to.",
+   "id": 15260
+  }
+ ],
+ "pareil": [
+  {
+   "fr": "Pareil pour moi.",
+   "en": "The same old problem.",
+   "id": 10693951
+  },
+  {
+   "fr": "Tom est pareil.",
+   "en": "Tom is similar.",
+   "id": 9420293
+  }
+ ],
+ "cul": [],
+ "lendemain": [
+  {
+   "fr": "Le lendemain est incertain.",
+   "en": "The future is uncertain.",
+   "id": 13275440
+  },
+  {
+   "fr": "Laisse-les pour le lendemain.",
+   "en": "Leave them for the next day.",
+   "id": 11525526
+  }
+ ],
+ "simple": [
+  {
+   "fr": "Ça paraît simple.",
+   "en": "It seems simple.",
+   "id": 12785261
+  },
+  {
+   "fr": "Ça semble simple.",
+   "en": "It seems simple.",
+   "id": 12785258
+  }
+ ],
+ "cour": [],
+ "robe": [
+  {
+   "fr": "Mets cette robe !",
+   "en": "Put on this dress!",
+   "id": 13729825
+  },
+  {
+   "fr": "Lisse ta robe.",
+   "en": "Smooth out your dress.",
+   "id": 10984397
+  }
+ ],
+ "entier": [
+  {
+   "fr": "Lisez le poème en entier.",
+   "en": "Read the poem in its entirety.",
+   "id": 12550252
+  },
+  {
+   "fr": "C'est du lait entier.",
+   "en": "This is whole milk.",
+   "id": 11960797
+  }
+ ],
+ "tromper": [],
+ "escalier": [],
+ "plan": [
+  {
+   "fr": "Fais un plan.",
+   "en": "Make a plan.",
+   "id": 13416286
+  },
+  {
+   "fr": "Faites un plan.",
+   "en": "Make a plan.",
+   "id": 13416285
+  }
+ ],
+ "jurer": [],
+ "vide": [
+  {
+   "fr": "Vide ton esprit.",
+   "en": "Clear your head.",
+   "id": 13275471
+  },
+  {
+   "fr": "Vide la piscine.",
+   "en": "Drain the pool.",
+   "id": 12283975
+  }
+ ],
+ "exister": [],
+ "prison": [
+  {
+   "fr": "Sami retournera en prison.",
+   "en": "Sami is going back to prison.",
+   "id": 13794636
+  },
+  {
+   "fr": "Sami retourne en prison.",
+   "en": "Sami is going back to prison.",
+   "id": 13794635
+  }
+ ],
+ "depuis": [
+  {
+   "fr": "J'attends depuis longtemps.",
+   "en": "I have been waiting for a long time.",
+   "id": 12582706
+  },
+  {
+   "fr": "Nous attendons depuis longtemps.",
+   "en": "We have been waiting for a long time.",
+   "id": 12582700
+  }
+ ],
+ "sale": [
+  {
+   "fr": "Un sale type.",
+   "en": "No good guy.",
+   "id": 13546053
+  },
+  {
+   "fr": "Sale chienne.",
+   "en": "Dirty dog.",
+   "id": 11964134
+  }
+ ],
+ "armée": [
+  {
+   "fr": "Construisez votre armée.",
+   "en": "Build your army.",
+   "id": 11941741
+  },
+  {
+   "fr": "Construis ton armée.",
+   "en": "Build your army.",
+   "id": 11840176
+  }
+ ],
+ "ton": [
+  {
+   "fr": "Appelle ton médecin.",
+   "en": "Call your doctor.",
+   "id": 14042122
+  },
+  {
+   "fr": "Range ton calpin.",
+   "en": "Put your notebook away.",
+   "id": 14021112
+  }
+ ],
+ "poche": [
+  {
+   "fr": "Videz votre poche.",
+   "en": "Empty your pocket.",
+   "id": 10959870
+  },
+  {
+   "fr": "Vide ta poche.",
+   "en": "Empty your pocket.",
+   "id": 10959869
+  }
+ ],
+ "lourd": [
+  {
+   "fr": "Il faisait lourd.",
+   "en": "It was hot and humid.",
+   "id": 13885254
+  },
+  {
+   "fr": "Il est lourd.",
+   "en": "He's heavy.",
+   "id": 13277797
+  }
+ ],
+ "vert": [
+  {
+   "fr": "Il est vert.",
+   "en": "It's green.",
+   "id": 9702503
+  },
+  {
+   "fr": "Mon perroquet est vert.",
+   "en": "My parrot is green.",
+   "id": 13384150
+  }
+ ],
+ "doux": [
+  {
+   "fr": "Sois toujours doux.",
+   "en": "Always be sweet.",
+   "id": 12476797
+  },
+  {
+   "fr": "Il faisait doux.",
+   "en": "The weather was balmy.",
+   "id": 10074756
+  }
+ ],
+ "église": [
+  {
+   "fr": "Je vois une église.",
+   "en": "I see a church.",
+   "id": 8919083
+  },
+  {
+   "fr": "C'est une église.",
+   "en": "That's a church.",
+   "id": 4451317
+  }
+ ],
+ "carte": [
+  {
+   "fr": "Lis la carte.",
+   "en": "Read the card.",
+   "id": 11837524
+  },
+  {
+   "fr": "Regardez votre carte.",
+   "en": "Look at your map.",
+   "id": 5395713
+  }
+ ],
+ "paix": [
+  {
+   "fr": "Dors en paix.",
+   "en": "Rest in peace.",
+   "id": 12746610
+  },
+  {
+   "fr": "Reste en paix.",
+   "en": "Stay in peace.",
+   "id": 12555175
+  }
+ ],
+ "exactement": [
+  {
+   "fr": "Oui, oui, exactement !",
+   "en": "Yes, yes, exactly!",
+   "id": 13452065
+  },
+  {
+   "fr": "Exactement, mon cher.",
+   "en": "Exactly, my dear.",
+   "id": 10340951
+  }
+ ],
+ "drôle": [
+  {
+   "fr": "Drôle de gnôle.",
+   "en": "Strange brew.",
+   "id": 12250320
+  },
+  {
+   "fr": "Drôle de mélange.",
+   "en": "Strange brew.",
+   "id": 12250317
+  }
+ ],
+ "vue": [
+  {
+   "fr": "Bateau en vue !",
+   "en": "Ship ahoy!",
+   "id": 7700866
+  },
+  {
+   "fr": "Ma vue empire.",
+   "en": "My vision's getting worse.",
+   "id": 5791948
+  }
+ ],
+ "village": [
+  {
+   "fr": "Notre village est grand.",
+   "en": "Our village is big.",
+   "id": 13520940
+  },
+  {
+   "fr": "Nous quittâmes le village.",
+   "en": "We left the village.",
+   "id": 13046975
+  }
+ ],
+ "retenir": [
+  {
+   "fr": "Tu dois le retenir.",
+   "en": "You must stop him.",
+   "id": 1600933
+  },
+  {
+   "fr": "Veuillez retenir votre respiration.",
+   "en": "Hold your breath, please.",
+   "id": 1186513
+  }
+ ],
+ "président": [
+  {
+   "fr": "Protégez le président !",
+   "en": "Protect the President!",
+   "id": 13806108
+  },
+  {
+   "fr": "Nous nommèrent Tom président.",
+   "en": "We appointed Tom chairman.",
+   "id": 13314080
+  }
+ ],
+ "sec": [
+  {
+   "fr": "Je freinais sec.",
+   "en": "I braked sharply.",
+   "id": 2232204
+  },
+  {
+   "fr": "Son cil est sec.",
+   "en": "His eyelash is dry.",
+   "id": 12678109
+  }
+ ],
+ "grave": [
+  {
+   "fr": "Ça parait grave.",
+   "en": "It sounds serious.",
+   "id": 12258518
+  },
+  {
+   "fr": "Ça paraît grave.",
+   "en": "It sounds serious.",
+   "id": 12258517
+  }
+ ],
+ "ventre": [
+  {
+   "fr": "Mon ventre gargouille.",
+   "en": "My stomach is growling.",
+   "id": 8898856
+  },
+  {
+   "fr": "Mon ventre est malade.",
+   "en": "I have a stomachache.",
+   "id": 13087072
+  }
+ ],
+ "espèce": [
+  {
+   "fr": "Espèce de mauviette !",
+   "en": "You wimp!",
+   "id": 11317142
+  },
+  {
+   "fr": "Espèce de pervers !",
+   "en": "You pervert!",
+   "id": 10005997
+  }
+ ],
+ "patron": [
+  {
+   "fr": "Patron, une autre tournée !",
+   "en": "Landlord, another round!",
+   "id": 14021252
+  },
+  {
+   "fr": "Mon patron est ici.",
+   "en": "My boss is here.",
+   "id": 11612433
+  }
+ ],
+ "début": [
+  {
+   "fr": "Retournons au début.",
+   "en": "Let's go back to the beginning.",
+   "id": 7047006
+  },
+  {
+   "fr": "Commencez par le début.",
+   "en": "Start at the beginning.",
+   "id": 13314874
+  }
+ ],
+ "terminer": [
+  {
+   "fr": "Nous devons terminer.",
+   "en": "We have to finish.",
+   "id": 12638782
+  }
+ ],
+ "remarquer": [],
+ "présent": [
+  {
+   "fr": "Il est présent.",
+   "en": "He is here.",
+   "id": 12344850
+  },
+  {
+   "fr": "Antonio était présent.",
+   "en": "Antonio was present.",
+   "id": 12184851
+  }
+ ],
+ "goût": [
+  {
+   "fr": "Chacun son goût.",
+   "en": "Tastes differ.",
+   "id": 12831491
+  }
+ ],
+ "phrase": [
+  {
+   "fr": "Quelle phrase merveilleuse !",
+   "en": "What a marvellous sentence!",
+   "id": 12595130
+  },
+  {
+   "fr": "Supprimez cette phrase.",
+   "en": "Delete this sentence.",
+   "id": 12006291
+  }
+ ],
+ "amuser": [
+  {
+   "fr": "Allons nous amuser.",
+   "en": "Let's go have some fun.",
+   "id": 12458211
+  }
+ ],
+ "médecin": [
+  {
+   "fr": "Appelle ton médecin.",
+   "en": "Call your doctor.",
+   "id": 14042122
+  },
+  {
+   "fr": "Consulte un médecin.",
+   "en": "Consult a doctor.",
+   "id": 13487960
+  }
+ ],
+ "rapport": [
+  {
+   "fr": "Rédige un rapport.",
+   "en": "Write a report.",
+   "id": 7556447
+  },
+  {
+   "fr": "Au rapport.",
+   "en": "I'm reporting for duty.",
+   "id": 4142164
+  }
+ ],
+ "voyage": [
+  {
+   "fr": "Il voyage beaucoup.",
+   "en": "He gets around a lot.",
+   "id": 13324812
+  },
+  {
+   "fr": "Je voyage.",
+   "en": "I travel.",
+   "id": 10512296
+  }
+ ],
+ "cependant": [
+  {
+   "fr": "Cependant, c'est regrettable.",
+   "en": "That's too bad, though.",
+   "id": 13501660
+  },
+  {
+   "fr": "C'est bon, cependant.",
+   "en": "That's good, though.",
+   "id": 11952516
+  }
+ ],
+ "fixer": [
+  {
+   "fr": "Arrête de me fixer.",
+   "en": "Stop staring at me.",
+   "id": 6851918
+  },
+  {
+   "fr": "Arrêtez de me fixer !",
+   "en": "Stop staring.",
+   "id": 1947540
+  }
+ ],
+ "intéresser": [],
+ "avis": [
+  {
+   "fr": "Donne ton avis.",
+   "en": "Give your opinion.",
+   "id": 8192144
+  },
+  {
+   "fr": "Mon avis diverge.",
+   "en": "I have a different opinion.",
+   "id": 1781859
+  }
+ ],
+ "époque": [
+  {
+   "fr": "Ce fut une belle époque.",
+   "en": "It was a nice time.",
+   "id": 13618025
+  },
+  {
+   "fr": "C'était une autre époque.",
+   "en": "Those were different times.",
+   "id": 12320524
+  }
+ ],
+ "feuille": [
+  {
+   "fr": "La feuille tombe.",
+   "en": "The leaf is falling.",
+   "id": 12913301
+  },
+  {
+   "fr": "Une feuille tombe.",
+   "en": "A leaf is falling.",
+   "id": 1153659
+  }
+ ],
+ "effort": [
+  {
+   "fr": "Fais un effort !",
+   "en": "Make an effort!",
+   "id": 8329347
+  },
+  {
+   "fr": "Fais un effort.",
+   "en": "Try hard.",
+   "id": 4486757
+  }
+ ],
+ "pardonner": [],
+ "embrasser": [],
+ "différent": [
+  {
+   "fr": "Vous paraissez différent.",
+   "en": "You look different.",
+   "id": 12480287
+  },
+  {
+   "fr": "Il était différent.",
+   "en": "He was different.",
+   "id": 12077535
+  }
+ ],
+ "mener": [],
+ "danser": [
+  {
+   "fr": "Viens danser !",
+   "en": "Come dance!",
+   "id": 4713833
+  }
+ ],
+ "présence": [
+  {
+   "fr": "Ma présence est obligatoire.",
+   "en": "My attendance is necessary.",
+   "id": 12242866
+  },
+  {
+   "fr": "Ma présence est nécessaire.",
+   "en": "My attendance is necessary.",
+   "id": 11433546
+  }
+ ],
+ "intérieur": [
+  {
+   "fr": "Allons à l’intérieur.",
+   "en": "Let's go inside.",
+   "id": 12416297
+  },
+  {
+   "fr": "Nous sommes à l’intérieur.",
+   "en": "We're inside.",
+   "id": 12417809
+  }
+ ],
+ "cuisine": [
+  {
+   "fr": "Ziri cuisine.",
+   "en": "Ziri is cooking.",
+   "id": 10243177
+  },
+  {
+   "fr": "Sami cuisine.",
+   "en": "Sami cooks.",
+   "id": 7801663
+  }
+ ],
+ "rejoindre": [
+  {
+   "fr": "Venez nous rejoindre !",
+   "en": "Come join us.",
+   "id": 3516610
+  },
+  {
+   "fr": "Viens nous rejoindre !",
+   "en": "Come join us.",
+   "id": 3516603
+  }
+ ],
+ "saisir": [],
+ "gauche": [
+  {
+   "fr": "Regarde à gauche.",
+   "en": "Look to your left.",
+   "id": 12718850
+  },
+  {
+   "fr": "Prends à gauche.",
+   "en": "Turn left.",
+   "id": 10707000
+  }
+ ],
+ "génial": [
+  {
+   "fr": "C’est génial.",
+   "en": "It's magnificent.",
+   "id": 11653304
+  },
+  {
+   "fr": "Ziri est génial.",
+   "en": "Ziri is awesome.",
+   "id": 11611024
+  }
+ ],
+ "simplement": [
+  {
+   "fr": "Nous errons simplement.",
+   "en": "We're just wandering.",
+   "id": 13328755
+  },
+  {
+   "fr": "Venez tout simplement !",
+   "en": "Just come.",
+   "id": 12867527
+  }
+ ],
+ "dollar": [
+  {
+   "fr": "Chaque dollar aide.",
+   "en": "Every dollar helps.",
+   "id": 8718963
+  },
+  {
+   "fr": "Je veux un dollar.",
+   "en": "I want a dollar.",
+   "id": 7689419
+  }
+ ],
+ "boîte": [
+  {
+   "fr": "Pose la boîte.",
+   "en": "Put the box down.",
+   "id": 7414678
+  },
+  {
+   "fr": "Éloignez cette boîte.",
+   "en": "Take away this box.",
+   "id": 6668689
+  }
+ ],
+ "sauter": [
+  {
+   "fr": "Je sais sauter.",
+   "en": "I can jump.",
+   "id": 10885996
+  },
+  {
+   "fr": "Faites sauter.",
+   "en": "Fry.",
+   "id": 7337390
+  }
+ ],
+ "siècle": [
+  {
+   "fr": "Elle mourut au XVIIIᵉ siècle.",
+   "en": "She died in the 18th century.",
+   "id": 13903742
+  },
+  {
+   "fr": "Il mourut au XVIIIᵉ siècle.",
+   "en": "He died in the 18th century.",
+   "id": 13903741
+  }
+ ],
+ "annoncer": [
+  {
+   "fr": "Pourquoi annoncer cette mesure ?",
+   "en": "Why announce such a measure?",
+   "id": 8641227
+  }
+ ],
+ "sûrement": [
+  {
+   "fr": "Ça fonctionnera sûrement.",
+   "en": "It'll work for sure.",
+   "id": 4895886
+  },
+  {
+   "fr": "Sûrement pas !",
+   "en": "Like hell it is!",
+   "id": 12403819
+  }
+ ],
+ "couvrir": [],
+ "mesure": [
+  {
+   "fr": "Il mesure cinq pieds.",
+   "en": "He is five feet tall.",
+   "id": 126668
+  },
+  {
+   "fr": "Je mesure 1,90 mètre.",
+   "en": "I'm 6'3\".",
+   "id": 13388712
+  }
+ ],
+ "larme": [],
+ "hôpital": [
+  {
+   "fr": "C'est un hôpital.",
+   "en": "This is a hospital.",
+   "id": 6055147
+  },
+  {
+   "fr": "C'est un bon hôpital.",
+   "en": "This is a good hospital.",
+   "id": 13348253
+  }
+ ],
+ "éloigner": [],
+ "échapper": [
+  {
+   "fr": "Nous devons nous échapper.",
+   "en": "We have to escape.",
+   "id": 5579297
+  }
  ]
 }
