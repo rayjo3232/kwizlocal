@@ -903,10 +903,11 @@ const DEEP = {
     usage: "The three-step ladder: si + present → future (real); si + imparfait → conditional (unreal now); si + plus-que-parfait → conditional past (unreal then).",
     more: [
       ["Si tu viens, nous mangerons.", "If you come, we'll eat."],
+      ["Si tu es prêt, partons !", "If you're ready, let's go!"],
       ["Si j'avais de l'argent, j'achèterais une voiture.", "If I had money, I'd buy a car."],
       ["Si j'avais su, je serais venu.", "If I had known, I would have come."]
     ],
-    tip: "Never put a conditional right after si. *Si je serais* is wrong — it's si j'étais."
+    tip: "Match the two halves: present → future/present/imperative, imparfait → conditional, plus-que-parfait → conditional past. The si half is never a conditional — *si je serais* is wrong."
   },
 
   "b1.verbs.gerondif": {

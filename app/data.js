@@ -693,11 +693,18 @@ const KPS = [
     [["Si tu viens, nous mangerons.", "If you come, we will eat."], ["Si j'avais le temps, je voyagerais.", "If I had time, I would travel."]],
     "English allows 'if I would'; French never uses a conditional after si.",
     [
-      ["fill", "Si tu ___ (venir), nous mangerons.", null, "viens", "si + present."],
-      ["fill", "Si j'avais le temps, je ___ (voyager).", null, "voyagerais", "si + imparfait → conditional."],
+      ["fill", "Si tu ___ (venir), nous mangerons.", null, "viens", "si + present → future."],
+      ["fill", "Si j'avais le temps, je ___ (voyager).", null, "voyagerais", "si + imparfait → conditional present."],
       ["choice", "Si elle ___ riche, elle partirait.", ["était", "serait", "est"], "était", "Never a conditional after si."],
       ["fill", "Nous sortirons s'il ___ (faire) beau.", null, "fait", "si + present → future."],
-      ["choice", "S'il ___ , nous serions restés.", ["avait plu", "aurait plu", "pleuvait"], "avait plu", "Past hypothesis: si + plus-que-parfait."]
+      ["choice", "S'il ___, nous serions restés.", ["avait plu", "aurait plu", "pleuvait"], "avait plu", "Past hypothesis: si + plus-que-parfait → conditional past."],
+      ["fill", "Si nous ___ (avoir) le temps, nous visiterions le musée.", null, "avions", "Unreal now: si + imparfait → conditional present."],
+      ["fill", "S'il ___ (pleuvoir), nous resterons à la maison.", null, "pleut", "Real condition: si + present → future."],
+      ["choice", "Si tu ___ plus tôt, tu aurais vu Marie.", ["étais arrivé", "arrivais", "arriveras"], "étais arrivé", "Unreal past: si + plus-que-parfait → conditional past."],
+      ["fill", "Si elle ___ (savoir), elle serait venue.", null, "avait su", "si + plus-que-parfait → conditional past."],
+      ["choice", "Which is correct?", ["Si j'étais riche, je voyagerais.", "Si je serais riche, je voyagerais.", "Si j'étais riche, je voyagerai."], "Si j'étais riche, je voyagerais.", "si + imparfait pairs with the conditional, never with a future."],
+      ["fill", "Si vous ___ (vouloir), nous pouvons commencer.", null, "voulez", "Real condition: si + present can lead to a present result."],
+      ["choice", "Si j'avais su, je ___.", ["serais venu", "viendrais", "venais"], "serais venu", "si + plus-que-parfait → conditional past."]
     ]),
 
   K("b1.verbs.gerondif", "B1", "verbs",

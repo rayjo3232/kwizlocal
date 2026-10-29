@@ -56,7 +56,7 @@ collapses to one column.
 | Piece | Status |
 |---|---|
 | 154 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
-| 777 items: choice / fill / correction + 10 reading passages (A1–B2) | done |
+| 784 items: choice / fill / correction + 10 reading passages (A1–B2) | done |
 | **Quick kwiz**: 3-question (~1 min) and 10-question modes | done |
 | **Per-answer score movement**: every answer shows the exact delta for that point | done |
 | **Auto-advance**: jumps to the next question after a correct answer (toggle in Settings) | done |
