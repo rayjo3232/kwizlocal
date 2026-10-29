@@ -145,7 +145,7 @@ function passageHtml(item) {
   return '<div class="passage"><div class="passage-meta">'
     + words + " words · about " + secs + "s"
     + (en ? '<button class="passage-toggle" data-passage-toggle="1">Show translation</button>' : "")
-    + '</div><div class="passage-fr">' + esc(item.passage) + "</div>"
+    + '</div><div class="passage-fr">' + glossify(item.passage) + "</div>"
     + (en ? '<div class="passage-en" hidden>' + esc(en) + "</div>" : "")
     + "</div>";
 }
@@ -2291,7 +2291,9 @@ function renderVocab() {
     const st = vocabStatus(v);
     const ex = v.ex && v.ex[0] ? v.ex[0] : null;
     const g = v.g === "f" ? "f." : v.g === "m" ? "m." : "";
-    return '<div class="vocab-card" data-vcard="' + esc(v.w) + '">'
+    const tappable = !!ex;
+    return '<div class="vocab-card' + (tappable ? " tappable" : "") + '" data-vcard="' + esc(v.w) + '"'
+      + (tappable ? ' tabindex="0" role="button" aria-expanded="false"' : "") + '>'
       + '<div class="vc-head"><span class="vc-word">' + esc(v.w) + "</span>"
       + '<span class="vc-pos">' + esc(v.pos) + (g ? " · " + g : "") + "</span>"
       + '<span class="vc-rank">' + esc(v.level || "") + " · #" + v.rank + "</span></div>"
@@ -2300,7 +2302,7 @@ function renderVocab() {
           + '<div class="en" hidden>' + esc(ex[1]) + "</div></div>"
         : '<div class="vc-ex"><div class="fr muted">No example sentence yet.</div></div>')
       + '<div class="vc-foot">'
-      + (ex ? '<button class="linkbtn" data-vreveal="' + esc(v.w) + '">Show translation</button>' : '<span></span>')
+      + (tappable ? '<span class="vc-hint">Tap to translate</span>' : '<span></span>')
       + '<button class="btn sm subtle" data-vknown="' + esc(v.w) + '">'
       + (st === "known" ? "Known ✓" : "Mark known") + "</button>"
       + "</div></div>";
@@ -2328,16 +2330,33 @@ function renderVocab() {
       renderVocab();
     });
   });
-  document.querySelectorAll("[data-vreveal]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      const card = b.closest(".vocab-card");
-      const en = card.querySelector(".en");
-      en.hidden = !en.hidden;
-      b.textContent = en.hidden ? "Show translation" : "Hide translation";
+  /* The whole card is the tap target for the translation — a small link was
+     hard to hit on a phone, and the card tint makes the state obvious. */
+  function toggleVocabCard(card) {
+    const en = card.querySelector(".en");
+    if (!en) return;
+    en.hidden = !en.hidden;
+    const on = !en.hidden;
+    card.classList.toggle("show-en", on);
+    card.setAttribute("aria-expanded", on ? "true" : "false");
+    const hint = card.querySelector(".vc-hint");
+    if (hint) hint.textContent = on ? "Showing translation" : "Tap to translate";
+  }
+  document.querySelectorAll(".vocab-card.tappable").forEach(function (card) {
+    card.addEventListener("click", function (e) {
+      if (e.target.closest("[data-vknown]")) return;
+      toggleVocabCard(card);
+    });
+    card.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      if (e.target.closest("[data-vknown]")) return;
+      e.preventDefault();
+      toggleVocabCard(card);
     });
   });
   document.querySelectorAll("[data-vknown]").forEach(function (b) {
-    b.addEventListener("click", function () {
+    b.addEventListener("click", function (e) {
+      e.stopPropagation();
       const w = b.getAttribute("data-vknown");
       const rec = vocabRecord(w);
       rec.known = !rec.known;
@@ -3632,6 +3651,7 @@ document.addEventListener("click", function (e) {
   if (!en) return;
   en.hidden = !en.hidden;
   btn.textContent = en.hidden ? "Show translation" : "Hide translation";
+  if (box) box.classList.toggle("show-en", !en.hidden);
 });
 
 /* Tap a French word in an example to see its English gloss. */
@@ -3753,11 +3773,15 @@ document.querySelectorAll("[data-tab-action]").forEach(function (b) {
   });
 });
 
-/* Keep the "More" sheet's word count honest — it grows with the deck. */
+/* Keep the "More" sheet's counts honest — both grow over time. */
 (function () {
-  const el = document.getElementById("moreVocabCount");
-  if (el && typeof VOCAB !== "undefined" && VOCAB.length) {
-    el.textContent = VOCAB.length + " words · flashcards · cloze";
+  const vEl = document.getElementById("moreVocabCount");
+  if (vEl && typeof VOCAB !== "undefined" && VOCAB.length) {
+    vEl.textContent = VOCAB.length + " words · flashcards · cloze";
+  }
+  const bEl = document.getElementById("moreBrainmapCount");
+  if (bEl && typeof KPS !== "undefined" && KPS.length) {
+    bEl.textContent = "Your " + KPS.length + " points, colour-coded";
   }
 })();
 

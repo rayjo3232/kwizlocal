@@ -62,5 +62,15 @@ const ZH = {
   "a1.adverbs.place_time": "地点与时间副词",
   "a1.pronouns.on": "代词 on",
   "reading.a1.intro": "阅读：自我介绍",
-  "reading.a1.bakery": "阅读：面包店"
+  "reading.a1.bakery": "阅读：面包店",
+
+  /* ---- 后补：高频缺口 ---- */
+  "a1.verbs.ir_regular": "规则 -ir 动词：finir",
+  "a1.verbs.re_regular": "规则 -re 动词：vendre",
+  "a1.verbs.irregular_oir": "voir / croire / boire",
+  "a1.nouns.numbers_big": "数字 20–100",
+  "a1.expressions.date": "日期与序数词",
+  "a2.syntax.comparison_quantity": "数量比较：plus de / autant de",
+  "a2.verbs.imperatif_pronoms": "命令式 + 宾语代词",
+  "a2.verbs.venir_tenir": "venir / tenir 及其派生"
 };

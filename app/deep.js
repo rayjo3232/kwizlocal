@@ -1369,5 +1369,87 @@ const DEEP = {
       ["Neutre : Pouvez-vous m'aider ?", "Neutral: Can you help me?"]
     ],
     tip: "Formal and informal grammar are not interchangeable: 'Nous vous prions' cannot sit next to 'filer un coup de main'. Keep one register per text."
+  },
+
+  /* ---------- added later: high-frequency gaps ---------- */
+
+  "a1.verbs.ir_regular": {
+    usage: "The second big regular group. Learn the -iss- plural once and you can conjugate hundreds of verbs: finir, choisir, réussir, grandir, obéir.",
+    more: [
+      ["Nous finissons à midi.", "We finish at noon."],
+      ["Elle choisit la robe rouge.", "She chooses the red dress."],
+      ["Vous réussissez toujours.", "You always succeed."]
+    ],
+    tip: "Singular forms look like -er verbs (je finis); the plural grows -iss- (nous finissons). That -iss- is the giveaway."
+  },
+
+  "a1.verbs.re_regular": {
+    usage: "The third regular group: vendre, attendre, répondre, descendre, perdre. Drop -re and add the endings.",
+    more: [
+      ["Nous attendons le bus.", "We wait for the bus."],
+      ["Elle répond vite.", "She answers quickly."],
+      ["Ils perdent du temps.", "They waste time."]
+    ],
+    tip: "Third person singular is bare: il vend, il attend, il répond. No -s, no -t."
+  },
+
+  "a1.verbs.irregular_oir": {
+    usage: "voir, croire and boire are everywhere, and their plural stems change shape.",
+    more: [
+      ["Nous voyons la mer.", "We see the sea."],
+      ["Je crois qu'il vient.", "I think he's coming."],
+      ["Ils boivent du thé.", "They drink tea."]
+    ],
+    tip: "voir → voy-, croire → croy-, boire → buv-/boiv-. The -oi- singular against the -oy-/-uv- plural is the pattern."
+  },
+
+  "a1.nouns.numbers_big": {
+    usage: "Prices, times, dates and addresses all need 20–100. The 70s and 90s are arithmetic: 60+10, 80+10.",
+    more: [
+      ["Ça fait quarante-cinq euros.", "That's forty-five euros."],
+      ["Il a soixante-dix ans.", "He is seventy."],
+      ["Quatre-vingt-dix minutes.", "Ninety minutes."]
+    ],
+    tip: "71 and 81 keep 'et' (soixante et onze, quatre-vingt-un). 80 takes -s only when nothing follows: quatre-vingts, but quatre-vingt-un."
+  },
+
+  "a1.expressions.date": {
+    usage: "Say the date with le + number + month. Only the first is ordinal; everything else is a plain number.",
+    more: [
+      ["Nous sommes le 5 avril.", "It's the 5th of April."],
+      ["Le 1er mai est férié.", "The 1st of May is a holiday."],
+      ["Mon anniversaire est le 12 octobre.", "My birthday is the 12th of October."]
+    ],
+    tip: "1er = premier. For 'the first of' use le premier, never *le un*. Months are lowercase."
+  },
+
+  "a2.syntax.comparison_quantity": {
+    usage: "Compare amounts, not qualities: plus de, autant de, moins de + noun + que.",
+    more: [
+      ["Il a plus d'énergie que moi.", "He has more energy than me."],
+      ["Nous avons autant de travail que vous.", "We have as much work as you."],
+      ["Elle boit moins de café que lui.", "She drinks less coffee than him."]
+    ],
+    tip: "The de belongs to the quantity, not the noun: plus de livres, autant d'argent. Drop it and the sentence breaks."
+  },
+
+  "a2.verbs.imperatif_pronoms": {
+    usage: "Telling someone to do something with an object: the pronoun moves after the verb in the affirmative, before it in the negative.",
+    more: [
+      ["Donne-le-moi.", "Give it to me."],
+      ["Parlez-lui demain.", "Speak to him tomorrow."],
+      ["Ne le lui dis pas.", "Don't tell him."]
+    ],
+    tip: "Affirmative: verb-pronoun with hyphens (donne-le-moi). Negative: ne + pronoun + verb + pas (ne le lui dis pas)."
+  },
+
+  "a2.verbs.venir_tenir": {
+    usage: "venir and tenir are models for a whole family: devenir, revenir, prévenir, obtenir, appartenir, maintenir.",
+    more: [
+      ["Elle devient célèbre.", "She is becoming famous."],
+      ["Nous tenons à vous remercier.", "We want to thank you."],
+      ["Ils obtiennent une réponse.", "They get an answer."]
+    ],
+    tip: "Singular -ien- (je viens, il tient), plural -en- (nous venons, vous tenez), but ils viennent / tiennent keep -ien-."
   }
 };

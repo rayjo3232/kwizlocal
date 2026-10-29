@@ -2018,6 +2018,112 @@ const KPS = [
       ["correct", "Correct: Tu peux me donner un coup de main ? (formal letter)", null, "Pourriez-vous m'accorder un peu de temps ?", "Adjust register to formal context."]
     ]),
 
+  /* ---------------- added later: high-frequency gaps ---------------- */
+
+  K("a1.verbs.ir_regular", "A1", "verbs",
+    "Regular -ir verbs: finir", "Les verbes en -ir", 1.2, 1.7, ["a0.er.present"],
+    "Regular -ir verbs add -is, -is, -it, -issons, -issez, -issent: finir → je finis, nous finissons.",
+    [["Je finis mon travail.", "I finish my work."], ["Nous choisissons un film.", "We choose a film."], ["Ils réussissent.", "They succeed."]],
+    "The plural forms grow -iss-: nous finissons, not *nous finons*.",
+    [
+      ["fill", "Je ___ (finir) à cinq heures.", null, "finis", "je + finir = finis."],
+      ["choice", "Nous ___ (choisir) un restaurant.", ["choisissons", "choisisons", "choisirons"], "choisissons", "nous + choisir = choisissons (-iss-)."],
+      ["fill", "Vous ___ (réussir) toujours.", null, "réussissez", "vous + réussir = réussissez."],
+      ["choice", "Ils ___ (finir) tard.", ["finissent", "finis", "finissons"], "finissent", "ils + finir = finissent."],
+      ["fill", "Elle ___ (grandir) vite.", null, "grandit", "elle + grandir = grandit."]
+    ]),
+
+  K("a1.verbs.re_regular", "A1", "verbs",
+    "Regular -re verbs: vendre", "Les verbes en -re", 1.2, 1.7, ["a0.er.present"],
+    "-re verbs drop the -re and add -s, -s, -, -ons, -ez, -ent: vendre → je vends, il vend, nous vendons.",
+    [["Je vends ma voiture.", "I sell my car."], ["Il attend le bus.", "He waits for the bus."], ["Nous répondons vite.", "We answer quickly."]],
+    "The third person singular has no ending: il vend, not *il vends*.",
+    [
+      ["fill", "Je ___ (vendre) mon vélo.", null, "vends", "je + vendre = vends."],
+      ["choice", "Il ___ (attendre) le train.", ["attend", "attends", "attendent"], "attend", "il + attendre = attend (no ending)."],
+      ["fill", "Nous ___ (répondre) à la question.", null, "répondons", "nous + répondre = répondons."],
+      ["choice", "Elles ___ (descendre).", ["descendent", "descend", "descendes"], "descendent", "elles + descendre = descendent."],
+      ["fill", "Vous ___ (perdre) du temps.", null, "perdez", "vous + perdre = perdez."]
+    ]),
+
+  K("a1.verbs.irregular_oir", "A1", "verbs",
+    "voir, croire, boire", "Les verbes voir, croire, boire", 1.3, 1.9, ["a0.er.present"],
+    "Three very common -oir verbs: voir (je vois, nous voyons), croire (je crois, nous croyons), boire (je bois, nous buvons).",
+    [["Je vois la mer.", "I see the sea."], ["Je crois que oui.", "I think so."], ["Nous buvons de l'eau.", "We drink water."]],
+    "boire changes stem in the plural: nous buvons, vous buvez, ils boivent.",
+    [
+      ["fill", "Je ___ (voir) un film.", null, "vois", "je + voir = vois."],
+      ["choice", "Nous ___ (croire) à cette idée.", ["croyons", "croivons", "crois"], "croyons", "nous + croire = croyons."],
+      ["fill", "Ils ___ (boire) du café.", null, "boivent", "ils + boire = boivent."],
+      ["choice", "Tu ___ (voir) la différence ?", ["vois", "voit", "voyons"], "vois", "tu + voir = vois."],
+      ["fill", "Vous ___ (boire) trop de soda.", null, "buvez", "vous + boire = buvez."]
+    ]),
+
+  K("a1.nouns.numbers_big", "A1", "articles",
+    "Numbers 20–100", "Les nombres de 20 à 100", 1.1, 1.5, ["a0.nouns.numbers"],
+    "20 vingt, 30 trente, 40 quarante, 50 cinquante, 60 soixante. 70 = soixante-dix, 80 = quatre-vingts, 90 = quatre-vingt-dix. 100 = cent.",
+    [["vingt et un", "twenty-one"], ["quatre-vingts", "eighty"], ["cent euros", "one hundred euros"]],
+    "70–99 are built on 60 and 80: 75 = soixante-quinze, 92 = quatre-vingt-douze.",
+    [
+      ["fill", "25 = vingt-___.", null, "cinq", "vingt-cinq = 25."],
+      ["choice", "80 = ?", ["quatre-vingts", "huitante", "octante"], "quatre-vingts", "80 = quatre-vingts (with -s)."],
+      ["fill", "90 = quatre-vingt-___.", null, "dix", "quatre-vingt-dix = 90."],
+      ["choice", "71 = ?", ["soixante et onze", "septante et un", "soixante-onze"], "soixante et onze", "71 = soixante et onze (with et)."],
+      ["fill", "100 = ___.", null, "cent", "cent = 100."]
+    ]),
+
+  K("a1.expressions.date", "A1", "expressions",
+    "The date and ordinal numbers", "La date et les nombres ordinaux", 1.1, 1.6, ["a0.nouns.days_months", "a0.nouns.numbers"],
+    "Dates use le + number + month: le 1er mai, le 2 juin. Only the 1st is ordinal (premier / 1er); the rest use cardinal numbers.",
+    [["le premier janvier", "the first of January"], ["le 14 juillet", "the fourteenth of July"], ["Nous sommes le 3 mars.", "It's the 3rd of March."]],
+    "Only 'first' is ordinal: le 1er mai, but le 2 mai (not *le 2ème mai*).",
+    [
+      ["fill", "Le ___ mai (1st).", null, "premier", "the 1st = le premier (1er)."],
+      ["choice", "le 2 juin = ?", ["the second of June", "the two June", "June two"], "the second of June", "Dates read 'the Nth of Month'."],
+      ["fill", "Nous sommes le 14 ___.", null, "juillet", "14 July = le 14 juillet."],
+      ["choice", "Which is correct for the 1st?", ["le 1er mai", "le 1ème mai", "le un mai"], "le 1er mai", "1er is the abbreviation of premier."],
+      ["fill", "Mon anniversaire est le 3 ___.", null, "mars", "3 March = le 3 mars."]
+    ]),
+
+  K("a2.syntax.comparison_quantity", "A2", "syntax",
+    "Comparing quantities", "Comparer des quantités", 1.2, 2.2, ["a1.adjectives.comparative", "a1.expressions.quantity"],
+    "Compare amounts with plus de / autant de / moins de + noun + que: plus de livres que, autant d'argent que, moins de temps que.",
+    [["J'ai plus de livres que toi.", "I have more books than you."], ["Elle a autant d'argent que moi.", "She has as much money as me."], ["Nous avons moins de temps que prévu.", "We have less time than planned."]],
+    "de becomes d' before a vowel: autant d'argent, not *autant de argent*.",
+    [
+      ["fill", "J'ai plus ___ livres que toi.", null, "de", "plus de + noun."],
+      ["choice", "She has as much money: Elle a ___ d'argent que moi.", ["autant", "aussi", "plus"], "autant", "as much = autant de."],
+      ["fill", "Nous avons moins ___ temps.", null, "de", "moins de + noun."],
+      ["choice", "Which is correct?", ["autant d'amis", "autant de amis", "aussi d'amis"], "autant d'amis", "de → d' before a vowel."],
+      ["fill", "Il y a plus ___ monde aujourd'hui.", null, "de", "plus de monde = more people."]
+    ]),
+
+  K("a2.verbs.imperatif_pronoms", "A2", "verbs",
+    "Imperative with object pronouns", "L'impératif et les pronoms", 1.3, 2.5, ["a1.verbs.imperative", "a2.pronouns.cod"],
+    "In the affirmative imperative, pronouns follow the verb with a hyphen: donne-le-moi, parlez-lui, asseyez-vous. In the negative, they go before: ne le lui donne pas.",
+    [["Donne-le-moi.", "Give it to me."], ["Parlez-lui.", "Speak to him."], ["Ne le lui dis pas.", "Don't tell him."]],
+    "Affirmative: pronoun after the verb (donne-le). Negative: pronoun before the verb (ne le donne pas).",
+    [
+      ["choice", "Give it to me: ___.", ["Donne-le-moi", "Me le donne", "Donne-moi le"], "Donne-le-moi", "Affirmative: verb + le + moi."],
+      ["fill", "Speak to him: Parlez-___.", null, "lui", "parler à lui → parlez-lui."],
+      ["choice", "Don't tell him: ___.", ["Ne le lui dis pas", "Ne dis-le-lui pas", "Dis-le-lui ne pas"], "Ne le lui dis pas", "Negative: ne + pronouns + verb + pas."],
+      ["fill", "Sit down (vous): Asseyez-___.", null, "vous", "Reflexive imperative keeps the pronoun: asseyez-vous."],
+      ["choice", "Give them to us: ___.", ["Donne-les-nous", "Donne-nous-les", "Nous les donne"], "Donne-les-nous", "Order: le/la/les before nous."]
+    ]),
+
+  K("a2.verbs.venir_tenir", "A2", "verbs",
+    "venir, tenir and their derivatives", "venir, tenir et leurs dérivés", 1.3, 2.4, ["a0.verbs.venir"],
+    "venir and tenir share a stem pattern: je viens / tiens, nous venons / tenons, ils viennent / tiennent. Derivatives follow: devenir, revenir, obtenir, appartenir.",
+    [["Il devient médecin.", "He is becoming a doctor."], ["Elle revient demain.", "She comes back tomorrow."], ["Nous obtenons un résultat.", "We get a result."]],
+    "The plural stem drops the -ien-: nous venons, vous tenez, ils viennent.",
+    [
+      ["fill", "Il ___ (devenir) professeur.", null, "devient", "il + devenir = devient."],
+      ["choice", "Nous ___ (tenir) à vous remercier.", ["tenons", "tiennons", "tenons pas"], "tenons", "nous + tenir = tenons."],
+      ["fill", "Ils ___ (revenir) lundi.", null, "reviennent", "ils + revenir = reviennent."],
+      ["choice", "You get (obtenir): Vous ___.", ["obtenez", "obtiendrez", "obtenez pas"], "obtenez", "vous + obtenir = obtenez."],
+      ["fill", "Elle ___ (appartenir) à ce club.", null, "appartient", "elle + appartenir = appartient."]
+    ]),
+
 ];
 
 const KP_BY_ID = {};

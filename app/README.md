@@ -55,7 +55,7 @@ collapses to one column.
 
 | Piece | Status |
 |---|---|
-| 146 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
+| 154 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
 | 730 items: choice / fill / correction + 10 reading passages (A1–B2) | done |
 | **Quick kwiz**: 3-question (~1 min) and 10-question modes | done |
 | **Per-answer score movement**: every answer shows the exact delta for that point | done |
@@ -78,11 +78,12 @@ collapses to one column.
 | **Reading practice**: one passage at a time, weakest first, 5 questions each | done |
 | **Sentence practice**: ~14k mined Tatoeba sentences (gap-fill + word order), semantic distractors, filter by grammar tag and CEFR level | done |
 | **Common mistakes**: every point shows a wrong-vs-right table, generated from its own choice items | done |
-| **Deep explanations**: 136 of 146 points carry usage notes, extra examples and a memory tip | done |
+| **Deep explanations**: 144 of 154 points carry usage notes, extra examples and a memory tip | done |
 | **Related points**: every lesson drawer cross-links to what it builds on and what it leads to | done |
 | **Adaptive retry**: a point you miss in a full kwiz comes back two questions later (3-question quick kwiz stays short) | done |
 | **Reading translation**: reveal / hide an English translation under each passage | done |
-| **Tap-a-word gloss**: tap a French word in an example to see its English gloss (FreeDict + hand-written function words) | done |
+| **Tap-a-word gloss**: tap a French word in an example or a reading passage to see its English gloss (FreeDict + hand-written function words) | done |
+| **Vocab cards**: tap anywhere on a card (except Mark known) to reveal the translation; the card tints while showing | done |
 | **Activity trend**: 7-day and 30-day bars on the dashboard, height = questions, colour = accuracy | done |
 | **Weekly summary**: questions, accuracy, minutes, sessions, weakest area | done |
 | **Learn → practise → learn**: one-click jump into an untouched point from the dashboard or result page | done |
