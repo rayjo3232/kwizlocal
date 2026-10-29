@@ -365,39 +365,88 @@ function levelRegion(svg, rect, levelId, kps, showCategories) {
   categoryBlocks(svg, kps, rect.x + pad, rect.y + 22, rect.w - pad * 2, rect.h - 28, showCategories, levelId);
 }
 
+/* ---------- brainmap: card views ----------
+   The SVG map scales a 1000-wide viewBox down to a phone screen, which makes
+   every label unreadable. Levels and categories are therefore plain HTML
+   cards that reflow; only the innermost point grid stays vector. */
+
+function avgScoreOf(list) {
+  let sum = 0, n = 0;
+  list.forEach(function (k) {
+    const s = state.kps[k.id];
+    if (s && s.n) { sum += Engine.display(s.p, s.n); n++; }
+  });
+  return n ? Math.round(sum / n) : null;
+}
+
+function scoreTint(list) {
+  const avg = avgScoreOf(list);
+  const tested = list.filter(function (k) {
+    const s = state.kps[k.id];
+    return s && s.n;
+  }).length;
+  return Engine.colorFor(avg == null ? 0 : avg, tested);
+}
+
+function levelCardsHtml(compact) {
+  return '<div class="bmap-levels' + (compact ? " compact" : "") + '">'
+    + LEVELS.map(function (lv) {
+      const list = KPS.filter(function (k) { return k.level === lv.id; });
+      if (!list.length) return "";
+      const score = avgScoreOf(list);
+      const weak = list.filter(function (k) {
+        const s = state.kps[k.id];
+        return s && s.n && Engine.display(s.p, s.n) < 50;
+      }).length;
+      const cats = groupByCategory(list);
+      const bar = cats.map(function (c) {
+        const w = Math.max(8, Math.round(c.kps.length / list.length * 100));
+        return '<i style="width:' + w + '%;background:' + scoreTint(c.kps) + '"></i>';
+      }).join("");
+      return '<button class="bmap-lv" data-level="' + lv.id + '">'
+        + '<span class="bmap-lv-top"><b>' + esc(lv.name) + "</b>"
+        + "<em>" + (score == null ? "—" : score) + "</em></span>"
+        + '<span class="bmap-lv-bar">' + bar + "</span>"
+        + '<span class="bmap-lv-meta">' + list.length + " points"
+        + (weak ? ' · <b class="weak">' + weak + " weak</b>" : "") + "</span>"
+        + "</button>";
+    }).join("")
+    + "</div>";
+}
+
+function categoryCardsHtml(levelId, compact) {
+  const list = KPS.filter(function (k) { return k.level === levelId; });
+  const cats = groupByCategory(list);
+  return '<div class="bmap-cats' + (compact ? " compact" : "") + '">'
+    + cats.map(function (c) {
+      const score = avgScoreOf(c.kps);
+      return '<button class="bmap-cat" data-cat="' + c.cat + '" data-cat-level="' + levelId + '">'
+        + '<span class="bmap-cat-dot" style="background:' + scoreTint(c.kps) + '"></span>'
+        + '<span class="bmap-cat-body"><b>' + esc(CATEGORIES[c.cat] || c.cat) + "</b>"
+        + '<span class="bmap-cat-meta">' + c.kps.length + " points</span></span>"
+        + '<em class="bmap-cat-score">' + (score == null ? "—" : score) + "</em>"
+        + "</button>";
+    }).join("")
+    + "</div>";
+}
+
 function renderMap(height, compact) {
-  const width = 1000;
-  const H = height || 560;
   const focus = compact ? null : mapFocus;
-  const svg = ['<svg class="map-svg" viewBox="0 0 ' + width + " " + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Brainmap">'];
+  if (focus && focus.category) return hexMapSvg(height, focus);
+  if (focus) return categoryCardsHtml(focus.level, compact);
+  return levelCardsHtml(compact);
+}
 
-  if (focus) {
-    const list = KPS.filter(function (k) {
-      return k.level === focus.level && (!focus.category || k.category === focus.category);
-    });
-    const title = focus.category
-      ? (CATEGORIES[focus.category] || focus.category)
-      : (LEVELS.filter(function (l) { return l.id === focus.level; })[0] || { name: focus.level }).name;
-    svg.push('<text x="10" y="22" font-size="20" font-weight="800" fill="#14181D" letter-spacing="-.02em">' + esc(title) + '</text>');
-    svg.push('<text x="10" y="40" font-size="10.5" fill="#8A939E">' + list.length + ' knowledge points · click a cell for details</text>');
-    if (focus.category) {
-      kpCells(svg, list, 8, 54, width - 16, H - 62);
-    } else {
-      categoryBlocks(svg, list, 8, 54, width - 16, H - 62, true, focus.level);
-    }
-  } else {
-    const levelNodes = LEVELS.map(function (l) {
-      const list = KPS.filter(function (k) { return k.level === l.id; });
-      return {
-        id: l.id, list: list,
-        value: Math.max(18, list.reduce(function (sum, k) { return sum + k.weight; }, 0))
-      };
-    });
-    treemap(levelNodes, 0, 0, width, H).forEach(function (r) {
-      levelRegion(svg, r, r.item.id, r.item.list, !compact);
-    });
-  }
-
+function hexMapSvg(H, focus) {
+  const width = 1000;
+  const list = KPS.filter(function (k) {
+    return k.level === focus.level && k.category === focus.category;
+  });
+  const title = CATEGORIES[focus.category] || focus.category;
+  const svg = ['<svg class="map-svg" viewBox="0 0 ' + width + " " + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Knowledge points">'];
+  svg.push('<text x="10" y="22" font-size="20" font-weight="800" fill="#262626" letter-spacing="-.02em">' + esc(title) + "</text>");
+  svg.push('<text x="10" y="40" font-size="11" fill="#666">' + list.length + " knowledge points · tap one for details</text>");
+  kpCells(svg, list, 8, 54, width - 16, H - 62);
   svg.push("</svg>");
   return svg.join("");
 }
@@ -635,12 +684,12 @@ function renderBrainmap() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Your Brainmap</h1>'
-    + '<p>Levels contain grammar areas; every rectangle is a knowledge point. Click a level or area label to zoom in.</p></div>'
+    + '<p>Pick a level, then a grammar area, to see every point inside.</p></div>'
     + '<div class="map-wrap"><div class="map-toolbar">'
     + '<span class="small"><b>' + shown + '</b> points shown · <b>' + KPS.length + '</b> total</span>'
     + '<span class="spacer"></span>'
     + '<span class="small">' + Engine.dueCount(state) + ' due · ' + Engine.weakCount(state) + ' weak</span>'
-    + '</div><p class="map-mobile-note">Small screen: labels are hidden — tap a block to see its name and score.</p>'
+    + "</div>"
     + crumbsHtml() + renderMap(mapFocus ? 440 : 680) + legendHtml() + "</div>"
     + '<div class="section-gap" style="text-align:center">'
     + '<button class="btn" data-start="1">Start a 10-question kwiz</button></div>'
