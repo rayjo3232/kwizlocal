@@ -930,7 +930,10 @@ function startSessionFromKps(kps, size) {
 
 function startFocusSession(kpId) {
   const kp = KP_BY_ID[kpId];
-  startSessionFromItems(kp.items.slice(2, 5).map(function (i) {
+  /* Points normally carry 5 items (3 after the guided pair), but a drill-heavy
+     point such as the tense contrast carries more. Take up to 8 so "Practice
+     this" actually uses the extra material. */
+  startSessionFromItems(kp.items.slice(2, 10).map(function (i) {
     return { kpId: kp.id, itemId: i.id };
   }));
 }

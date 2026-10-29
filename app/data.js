@@ -295,7 +295,14 @@ const KPS = [
       ["choice", "Quand j'étais enfant, je ___ souvent.", ["suis allé", "allais", "vais"], "allais", "A repeated habit in the past → imparfait."],
       ["fill", "Il ___ (lire) quand je suis entré.", null, "lisait", "Background action interrupted by a completed event → imparfait."],
       ["fill", "Soudain, elle ___ (tomber).", null, "est tombée", "Soudain marks a single event → passé composé with être."],
-      ["choice", "Avant, nous ___ à la plage chaque été.", ["sommes allés", "allions", "allons"], "allions", "Chaque été = repeated habit → imparfait."]
+      ["choice", "Avant, nous ___ à la plage chaque été.", ["sommes allés", "allions", "allons"], "allions", "Chaque été = repeated habit → imparfait."],
+      ["choice", "Pendant que je ___, le téléphone a sonné.", ["dormais", "ai dormi", "dors"], "dormais", "Pendant que sets the background scene → imparfait."],
+      ["choice", "L'année dernière, nous ___ Paris.", ["avons visité", "visitions", "visitons"], "avons visité", "L'année dernière + one trip → passé composé."],
+      ["fill", "Quand elle était petite, elle ___ (avoir) un chat.", null, "avait", "A description of the past → imparfait."],
+      ["fill", "Il ___ (pleuvoir) quand nous sommes sortis.", null, "pleuvait", "Weather as the background → imparfait."],
+      ["choice", "Tout à coup, il ___.", ["a compris", "comprenait", "comprend"], "a compris", "Tout à coup marks a sudden completed event → passé composé."],
+      ["fill", "Chaque matin, il ___ (boire) un café.", null, "buvait", "Chaque matin = repeated habit → imparfait."],
+      ["choice", "Hier soir, elle ___ son travail à dix heures.", ["a fini", "finissait", "finit"], "a fini", "Hier soir + a specific time = one completed event → passé composé."]
     ]),
 
   K("a2.pronouns.cod", "A2", "pronouns",

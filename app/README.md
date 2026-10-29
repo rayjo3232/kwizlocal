@@ -56,7 +56,7 @@ collapses to one column.
 | Piece | Status |
 |---|---|
 | 154 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
-| 730 items: choice / fill / correction + 10 reading passages (A1–B2) | done |
+| 777 items: choice / fill / correction + 10 reading passages (A1–B2) | done |
 | **Quick kwiz**: 3-question (~1 min) and 10-question modes | done |
 | **Per-answer score movement**: every answer shows the exact delta for that point | done |
 | **Auto-advance**: jumps to the next question after a correct answer (toggle in Settings) | done |
@@ -284,7 +284,10 @@ K("a1.example.id", "A1", "verbs",
 ```
 
 Item position decides the stage: **0–1 guided, 2–3 check, 4 kwiz**.
-Keep 5 items per point so pre-learn and kwiz both have material.
+Keep at least 5 items per point so pre-learn and kwiz both have material.
+A drill-heavy point (the imparfait / passé composé contrast, for instance) may
+carry up to 12 — pre-learn still uses items 2–4, and "Practice this" takes up
+to 8.
 
 ## Known limits (on purpose)
 

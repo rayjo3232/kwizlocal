@@ -27,7 +27,10 @@ KPS.forEach(function (kp) {
   if (!kp.rule || kp.rule.length < 10) fail(kp.id + ": rule too short");
   if (!kp.examples || !kp.examples.length) fail(kp.id + ": no examples");
   if (!kp.pitfall) fail(kp.id + ": no pitfall");
-  if (kp.items.length !== 5) fail(kp.id + ": " + kp.items.length + " items (expected 5)");
+  /* 5 is the baseline; a point that needs more drill material (tense contrast,
+     for example) may carry up to 12. Pre-learn still uses items 2–4. */
+  if (kp.items.length < 5) fail(kp.id + ": " + kp.items.length + " items (expected at least 5)");
+  if (kp.items.length > 12) fail(kp.id + ": " + kp.items.length + " items (max 12)");
 
   kp.items.forEach(function (it) {
     if (!it.answer) fail(it.id + ": missing answer");
