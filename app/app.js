@@ -426,7 +426,7 @@ function levelCardsHtml(compact) {
       const score = avgScoreOf(list);
       const weak = list.filter(function (k) {
         const s = state.kps[k.id];
-        return s && s.n && Engine.display(s.p, s.n) < 50;
+        return Engine.guidedEligible(state, k) && Engine.hasStarted(state, k) && s && s.n && Engine.display(s.p, s.n) < 50;
       }).length;
       const due = list.filter(function (k) {
         const s = state.kps[k.id];
@@ -633,19 +633,17 @@ function renderDashboard() {
   const due = Engine.dueCount(state);
   const weak = Engine.weakCount(state);
 
-  /* Keep the study plan stable between renders — it should only reshuffle
-     after a session, the way Kwiziq rebuilds it after each kwiz. */
-  let plan;
-  if (Array.isArray(state.plan) && state.plan.length) {
-    plan = state.plan.map(function (id) { return KP_BY_ID[id]; }).filter(Boolean);
-  }
-  if (!plan || !plan.length) {
-    plan = Engine.planList(state, 10);
-    state.plan = plan.map(function (k) { return k.id; });
+  /* Compute the deterministic guided plan from current learning evidence.
+     Reconcile legacy cached plans on first load after the upgrade, otherwise
+     an old random B2 recommendation could survive indefinitely in localStorage. */
+  const plan = Engine.planList(state, 10);
+  const planIds = plan.map(function (k) { return k.id; });
+  if (JSON.stringify(state.plan || []) !== JSON.stringify(planIds)) {
+    state.plan = planIds;
     saveState();
   }
-  const recommended = LEVELS.slice().reverse().filter(function (l) {
-    return Engine.levelScore(state, l.id) >= 35;
+  const recommended = LEVELS.filter(function (l) {
+    return l.id === Engine.guidedLevel(state);
   })[0] || LEVELS[0];
 
   let levelRows = LEVELS.map(function (l) {
@@ -678,21 +676,25 @@ function renderDashboard() {
      The old first screen offered five equal-weight buttons (placement, quick,
      full, weak, brainmap, learn-new) plus achievements and a level table, so
      nothing read as "do this next". ---- */
-  const unseen = KPS.filter(function (k) { const s = state.kps[k.id]; return !s || !s.n; }).length;
+  const nextLesson = Engine.nextNewPoint(state);
+  const unseen = nextLesson ? 1 : 0;
   const inProgress = !!(session && session.session);
   const steps = [];
   if (due) steps.push({ title: "Review what is due", sub: due + " point" + (due === 1 ? "" : "s"), action: "due" });
   if (weak) steps.push({ title: "Drill your weak points", sub: weak + " below 50", action: "weak" });
-  if (unseen) steps.push({ title: "Learn something new", sub: unseen + " never opened", action: "new" });
+  if (unseen) steps.push({ title: "Learn next: " + nextLesson.title, sub: nextLesson.level + " · prerequisites ready", action: "new" });
   const stepsHtml = steps.slice(0, 3).map(function (st) {
     return '<button class="next-step" data-step="' + st.action + '">'
       + '<span class="ns-body"><b>' + esc(st.title) + "</b><small>" + esc(st.sub) + "</small></span>"
       + '<span class="ns-go">→</span></button>';
   }).join("");
 
+  const canPractise = Engine.buildSession(state, 1).items.length > 0;
   const primaryBtn = inProgress
     ? '<button class="btn block" id="resumeBtn">Resume · ' + (session.index + 1) + " / " + session.session.items.length + " done</button>"
-    : '<button class="btn block" data-start="3">Quick · 3 questions<small>about a minute</small></button>';
+    : (!canPractise && nextLesson)
+      ? '<button class="btn block" id="newPointBtn2">Learn: ' + esc(nextLesson.title) + '<small>' + esc(nextLesson.level) + ' · next unlocked lesson</small></button>'
+      : '<button class="btn block" data-start="3">Quick · 3 questions<small>about a minute</small></button>';
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Your French Dashboard</h1>'
@@ -714,11 +716,11 @@ function renderDashboard() {
     + '<div class="hello">' + (today ? "Welcome back." : "Hello!") + "</div>"
     + "<p>" + (inProgress
       ? "You left a session part-finished — pick it up where you stopped."
-      : "Short on time? Three questions takes about a minute.") + "</p></div></div>"
+      : (!canPractise && nextLesson ? "Start with the next unlocked lesson. Quizzes will follow the material you learn." : "Short on time? Three questions takes about a minute.")) + "</p></div></div>"
     + primaryBtn
     + '<div class="hero-sub">'
     + (inProgress ? '<button class="btn subtle" data-start="3">Start a fresh quick kwiz</button>' : "")
-    + '<button class="btn subtle" data-start="10">Full kwiz · 10</button>'
+    + (canPractise ? '<button class="btn subtle" data-start="10">Full kwiz · 10</button>' : '')
     + "</div>"
     + (state.attempts.length === 0 && !state.seeded && !state.placement
       ? '<div class="firstrun"><div><b>First time here?</b> A 20-question placement test tells you where you are in about 5 minutes.</div>'
@@ -769,7 +771,7 @@ function renderDashboard() {
     + legendHtml() + "</section>"
 
     + '<section class="card section-gap"><h2 style="font-size:15px;margin-bottom:4px">Your Studyplan</h2>'
-    + '<p class="small">Ten points that will move your score the most right now.</p>'
+    + '<p class="small">Guided path · " + esc(Engine.guidedLevel(state)) + " · review due points, then learn unlocked lessons.</p>'
     + '<div class="plan-list">' + planRows + "</div></section>"
     + "</div>";
 
@@ -1055,6 +1057,14 @@ function addSentenceVariety(items) {
 function startSession(size) {
   const n = size || 10;
   const built = Engine.buildSession(state, n);
+  if (!built.items.length) {
+    const next = Engine.nextNewPoint(state);
+    if (next) {
+      toast("Learn the next lesson before starting guided practice");
+      navigate("#/prelearn/" + next.id);
+    } else toast("No guided practice available yet");
+    return;
+  }
   built.items = addSentenceVariety(built.items);
   built.items = mixTopics(built.items, n);
   session = {
@@ -1274,8 +1284,15 @@ function topicItem(itemId) {
    getting wrong, then whatever you have not seen for longest. */
 function topicVocabRefs(n) {
   const pool = VOCAB_LIST.filter(function (v) {
+    // Vocabulary starts at A1; avoid mixing it into A0 foundation sessions.
+    const cap = Engine.guidedLevel(state);
+    const levelRank = { A0: 0, A1: 1, A2: 2, B1: 3, B2: 4 };
+    if (levelRank[v.level || "B2"] > levelRank[cap]) return false;
     if (!(v.ex && v.ex[0] && v.ex[0][0])) return false;
-    if (state.vocab && state.vocab[v.w] && state.vocab[v.w].known) return false;
+    // A vocabulary word should enter mixed review only after it was learned
+    // in Vocab. CEFR word labels alone do not guarantee a simple sentence.
+    if (!state.vocab || !state.vocab[v.w] || !state.vocab[v.w].seen) return false;
+    if (state.vocab[v.w].known) return false;
     const b = blankWord(v.ex[0][0], v.w);
     return b && b.indexOf("____") > 2 && v.ex[0][0].split(/\s+/).length >= 5;
   }).map(function (v) {
@@ -1295,14 +1312,31 @@ function topicVocabRefs(n) {
 
 function topicVerbRefs(n) {
   const pool = [];
+  const cap = Engine.guidedLevel(state);
+  const levelRank = { A0: 0, A1: 1, A2: 2, B1: 3, B2: 4 };
+  const tenseGate = {
+    "présent": { level: "A0", kp: "a0.etre.present" },
+    "passé composé": { level: "A2", kp: "a2.passe_compose.avoir" },
+    "imparfait": { level: "A2", kp: "a2.imparfait_vs_pc" },
+    "futur simple": { level: "B1", kp: "b1.future.simple" },
+    "conditionnel": { level: "B1", kp: "b1.conditional.present" },
+    "subjonctif": { level: "B1", kp: "b1.subjunctive.present" },
+    "plus-que-parfait": { level: "B2", kp: "b2.verbs.plus_que_parfait" }
+  };
   VERB_LIST.forEach(function (v) {
     VERB_TENSE_LIST.forEach(function (t) {
+      const gate = tenseGate[t];
+      if (!gate || levelRank[cap] < levelRank[gate.level]) return;
+      const studied = state.kps[gate.kp];
+      if (!studied || !studied.n) return;
       if (!v.t[t]) return;
       for (let p = 0; p < 6; p++) {
         const key = v.inf + "|" + t + "|" + p;
         const r = state.verbs && state.verbs[key];
         const seen = r ? r.seen : 0;
-        const acc = seen ? r.correct / seen : 0;
+        // Never introduce an unfamiliar conjugation via mixed guided practice.
+        if (!seen) continue;
+        const acc = r.correct / seen;
         pool.push({
           key: key,
           score: seen ? (1 - acc) + Math.random() * 0.15 : 0.5 + Math.random() * 0.2
@@ -1319,6 +1353,8 @@ function topicVerbRefs(n) {
 /* Replace roughly one question in three, never the opening one, so a session
    still starts with the grammar it was built around. */
 function mixTopics(items, n) {
+  // No random topic mix in a brand-new learner's foundation practice.
+  if (Engine.guidedLevel(state) === "A0") return items;
   const slots = n <= 3 ? 1 : Math.max(1, Math.round(n * 0.3));
   const wantVocab = Math.ceil(slots / 2);
   const picks = topicVocabRefs(wantVocab).concat(topicVerbRefs(slots - wantVocab));
@@ -1366,7 +1402,7 @@ function startFocusSession(kpId) {
 function startDueSession() {
   const due = KPS.filter(function (k) {
     const st = state.kps[k.id];
-    return st && st.dueAt && st.dueAt <= Date.now();
+    return Engine.guidedEligible(state, k) && Engine.hasStarted(state, k) && st && st.dueAt && st.dueAt <= Date.now();
   });
   if (due.length < 4) { startSession(); return; }
   /* Most overdue first, then one question per point — taking "the first item"
@@ -1390,13 +1426,12 @@ function startWeakSession() {
 /* Jump straight into a point the learner has never touched — the "learn"
    half of the learn → practise → learn loop. */
 function startNewPoint() {
-  const unseen = KPS.filter(function (k) {
-    const s = state.kps[k.id];
-    return !s || !s.n;
-  });
-  if (!unseen.length) { toast("You have opened every point already"); return; }
-  const pick = unseen[Math.floor(Math.random() * unseen.length)];
-  navigate("#/prelearn/" + pick.id);
+  const next = Engine.nextNewPoint(state);
+  if (!next) {
+    toast("No unlocked new lessons — review your current points or change your starting level in Settings");
+    return;
+  }
+  navigate("#/prelearn/" + next.id);
 }
 
 /* Reading practice: take the weakest passage and run all its questions in a row.
@@ -2557,10 +2592,11 @@ function renderPrelearn(kpId) {
       if (passed) {
         const s = Engine.ensure(state, kp.id);
         if (s.state === "unseen" || s.state === "primed") {
-          s.state = "learnable";
-          s.p = Math.max(s.p, 0.45);
-          s.n = Math.max(s.n, 2);
-          s.dueAt = Date.now();
+          s.state = "primed";
+          s.primedAt = Date.now();
+          // Guided checks are not independent quiz attempts: do not invent
+          // mastery scores, question counts, or due dates.
+          state.plan = null;
           saveState();
         }
       }
@@ -4112,6 +4148,17 @@ function renderSettings() {
     + '<div class="setting-row"><div class="txt"><b>Load demo progress</b>'
     + '<span>Fills the map with realistic scores so you can see the Brainmap in action.</span></div>'
     + '<button class="btn sm" id="seedBtn">Load</button></div>'
+    + '<div class="setting-row"><div class="txt"><b>Guided starting level</b>'
+    + '<span>Set your learning entry point. A0 covers essentials; a placement test can also set a starting level. Higher starting levels assume earlier prerequisites without inventing mastery scores.</span></div>'
+    + '<select id="learningLevelSelect" class="goal-select">'
+    + '<option value="auto"' + (!state.learningLevel ? " selected" : "") + '>Auto (placement or A0)</option>'
+    + LEVELS.map(function (l) {
+      return '<option value="' + l.id + '"' + (state.learningLevel === l.id ? " selected" : "") + '>' + esc(l.name) + '</option>';
+    }).join("")
+    + '</select></div>'
+    + '<div class="setting-row"><div class="txt"><b>Current guided level</b>'
+    + '<span>Advances after at least 75% of points at the current level are confidently practised.</span></div>'
+    + '<b>' + esc(Engine.guidedLevel(state)) + '</b></div>'
     + '<div class="setting-row"><div class="txt"><b>Daily goal</b>'
     + '<span>Questions per day shown on the dashboard.</span></div>'
     + '<select id="goalSelect" class="goal-select">'
@@ -4188,6 +4235,13 @@ function renderSettings() {
     };
     reader.readAsText(file);
     e.target.value = "";
+  });
+  document.getElementById("learningLevelSelect").addEventListener("change", function (e) {
+    state.learningLevel = e.target.value === "auto" ? null : e.target.value;
+    state.plan = null;
+    saveState();
+    renderSettings();
+    toast("Guided learning starts at " + Engine.startingLevel(state));
   });
   document.getElementById("goalSelect").addEventListener("change", function (e) {
     state.goal = parseInt(e.target.value, 10) || 20;

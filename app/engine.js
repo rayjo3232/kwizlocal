@@ -30,6 +30,7 @@ const Engine = (function () {
       sessions: [],
       streak: { count: 0, last: null },
       goal: 20,
+      learningLevel: null, // null = use placement estimate or start at A0
       plan: null,
       autoAdvance: true,
       /* Notebook: mistakes collected automatically + points saved by hand. */
@@ -83,6 +84,7 @@ const Engine = (function () {
 
   function statusOf(state, kp) {
     const s = state.kps[kp.id];
+    if (s && s.state === "primed" && !s.n) return "weak";
     if (!s || !s.n) return "new";
     if (s.dueAt && s.dueAt <= Date.now()) return "due";
     if (display(s.p, s.n) < 50) return "weak";
@@ -138,32 +140,118 @@ const Engine = (function () {
     return { total: list.length, done: done, pct: list.length ? Math.round(done / list.length * 100) : 0 };
   }
 
+  /* Guided curriculum is separate from Free Explore / level-specific quizzes.
+     Placement is an estimate, not proof of mastery for individual points. */
+  const LEVEL_ORDER = ["A0", "A1", "A2", "B1", "B2"];
+  function levelIndex(level) { return Math.max(0, LEVEL_ORDER.indexOf(level)); }
+
+  function startingLevel(state) {
+    const level = state.learningLevel || (state.placement && state.placement.level);
+    return LEVEL_ORDER.indexOf(level) >= 0 ? level : "A0";
+  }
+
+  function guidedLevel(state) {
+    let i = levelIndex(startingLevel(state));
+    // Unlock the next level after substantial *demonstrated* coverage.
+    while (i < LEVEL_ORDER.length - 1) {
+      const points = KPS.filter(function (k) { return k.level === LEVEL_ORDER[i]; });
+      const ready = points.filter(function (k) {
+        const s = state.kps[k.id];
+        return s && s.n >= 2 && display(s.p, s.n) >= 50;
+      }).length;
+      if (!points.length || ready / points.length < 0.75) break;
+      i++;
+    }
+    return LEVEL_ORDER[i];
+  }
+
   function prereqReady(state, kp) {
-    if (!kp.prereqs.length) return true;
-    return kp.prereqs.every(function (id) {
+    return (kp.prereqs || []).every(function (id) {
+      const pre = KP_BY_ID[id];
+      // Starting from a placement / manually selected level treats lower-level
+      // prerequisites as assumed, NOT as recorded mastery.
+      if (pre && levelIndex(pre.level) < levelIndex(startingLevel(state))) return true;
       const s = state.kps[id];
-      return s && s.n > 0 && display(s.p, s.n) >= 30;
+      return !!(s && s.n >= 2 && display(s.p, s.n) >= 30);
     });
   }
 
-  function priority(state, kp) {
+  function hasStarted(state, kp) {
     const s = state.kps[kp.id];
+    if (!s) return false;
+    if (s.state === "primed" || s.state === "learnable" || s.state === "mastered") return true;
+    if (!s.n) return false;
+    // Placement and mock exams sample unfamiliar concepts to diagnose level;
+    // they must NOT silently unlock those concepts for daily guided quizzes.
+    // Previous installs lack an `introduced` flag, so inspect the durable
+    // attempt sources to preserve their genuine guided-practice history.
+    return (state.attempts || []).some(function (a) {
+      return a.kpId === kp.id && a.correct !== null && a.correct !== undefined &&
+        a.source !== "placement" && a.source !== "exam" && !a.noMastery;
+    });
+  }
+
+  function guidedEligible(state, kp) {
+    // Explicit free exploration / placement may touch B2, but must not
+    // contaminate a learner's A0/A1 daily guided plan.
+    if (levelIndex(kp.level) > levelIndex(guidedLevel(state))) return false;
+    // A studied lower-level point can still be reviewed for remediation.
+    return hasStarted(state, kp) || prereqReady(state, kp);
+  }
+
+  function newCandidates(state) {
+    const cap = levelIndex(guidedLevel(state));
+    return KPS.filter(function (kp) {
+      return levelIndex(kp.level) >= levelIndex(startingLevel(state)) &&
+        levelIndex(kp.level) <= cap && !hasStarted(state, kp) && prereqReady(state, kp);
+    }).sort(function (a, b) {
+      const l = levelIndex(a.level) - levelIndex(b.level);
+      if (l) return l;
+      // The content order is authored as a curriculum. Do not let a very
+      // low reading difficulty send a new learner straight into a passage.
+      if ((a.category === "reading") !== (b.category === "reading")) {
+        return a.category === "reading" ? 1 : -1;
+      }
+      return KPS.indexOf(a) - KPS.indexOf(b);
+    });
+  }
+
+  function nextNewPoint(state) { return newCandidates(state)[0] || null; }
+
+  function priority(state, kp) {
+    if (!guidedEligible(state, kp)) return -1;
+    const s = state.kps[kp.id];
+    if (!hasStarted(state, kp)) return 0.40;
+    if (s && s.dueAt && s.dueAt <= Date.now()) {
+      return 1.0 + Math.min(0.20, (Date.now() - s.dueAt) / 86400000 * 0.02);
+    }
     const score = s ? display(s.p, s.n) : 0;
-    let v = 0;
-    if (!s || !s.n) {
-      const order = { A0: 0, A1: 1, A2: 2, B1: 3, B2: 4 };
-      v = 0.62 - (order[kp.level] || 0) * 0.07;
-    }
-    else if (s.dueAt && s.dueAt <= Date.now()) v = 0.95;
-    else if (score < 50) v = 0.75;
-    else if (score < 70) v = 0.40;
-    else v = 0.18;
-    if (!prereqReady(state, kp)) v -= 0.22;
-    if (s && s.dueAt) {
-      const overdue = (Date.now() - s.dueAt) / 86400000;
-      if (overdue > 0) v += Math.min(0.2, overdue * 0.02);
-    }
-    return v + Math.random() * 0.04;
+    if (!s || !s.n) return 0.85; // just completed pre-learn
+    if (score < 50) return 0.80;
+    if (score < 70) return 0.55;
+    return 0.20;
+  }
+
+  /* Keep the plan deterministic. The first unstudied point is always an
+     actionable lesson, not a randomly scored advanced topic. */
+  function planList(state, n) {
+    const limit = n || 10;
+    const active = KPS.filter(function (k) { return hasStarted(state, k) && guidedEligible(state, k); })
+      .sort(function (a, b) {
+        const d = priority(state, b) - priority(state, a);
+        return d || levelIndex(a.level) - levelIndex(b.level) || a.difficulty - b.difficulty;
+      });
+    const fresh = newCandidates(state);
+    const out = [];
+    // If review is due, prioritise it; otherwise lead with the next lesson.
+    const due = active.filter(function (k) {
+      const s = state.kps[k.id]; return s && s.dueAt && s.dueAt <= Date.now();
+    });
+    due.slice(0, 3).forEach(function (k) { out.push(k); });
+    if (fresh.length) out.push(fresh[0]);
+    active.forEach(function (k) { if (out.indexOf(k) < 0 && out.length < limit) out.push(k); });
+    fresh.slice(0, 3).forEach(function (k) { if (out.indexOf(k) < 0 && out.length < limit) out.push(k); });
+    return out.slice(0, limit);
   }
 
   function recentItemIds(state, n) {
@@ -172,63 +260,44 @@ const Engine = (function () {
     return ids;
   }
 
+  /* Only introduced knowledge points enter Guided Practice. All selection
+     uses the same eligibility as Study Plan and Learn New. */
   function buildSession(state, size) {
     const n = size || 10;
     const recent = recentItemIds(state, 24);
-
-    const ranked = KPS.slice().sort(function (a, b) { return priority(state, b) - priority(state, a); });
-    const chosen = ranked.slice(0, Math.min(6, ranked.length));
-
-    // Make sure at least one brand-new point appears if one is available.
-    const unseen = ranked.filter(function (k) { const s = state.kps[k.id]; return !s || !s.n; });
-    if (unseen.length && !chosen.some(function (k) { const s = state.kps[k.id]; return !s || !s.n; })) {
-      chosen[chosen.length - 1] = unseen[0];
-    }
-
-    const pools = chosen.map(function (kp) {
-      const items = kp.items.filter(function (it) {
-        return it.stage !== "guided" && !recent[it.id];
+    const ranked = KPS.filter(function (kp) { return hasStarted(state, kp) && guidedEligible(state, kp); })
+      .sort(function (a, b) {
+        const p = priority(state, b) - priority(state, a);
+        return p || levelIndex(a.level) - levelIndex(b.level) || a.difficulty - b.difficulty;
       });
-      const fallback = kp.items.filter(function (it) { return it.stage !== "guided"; });
-      return (items.length ? items : fallback).slice().sort(function (a, b) { return a.difficulty - b.difficulty; });
+    const chosen = ranked.slice(0, Math.min(8, ranked.length));
+    const pools = chosen.map(function (kp) {
+      const all = kp.items.filter(function (it) { return it.stage !== "guided"; });
+      const fresh = all.filter(function (it) { return !recent[it.id]; });
+      const s = state.kps[kp.id];
+      const answered = s ? s.n : 0;
+      const ordered = (fresh.length ? fresh : all).slice().sort(function (a, b) {
+        return a.difficulty - b.difficulty;
+      });
+      // Difficulty rises as the learner accumulates actual evidence.
+      if (answered <= 2) ordered.sort(function (a, b) {
+        return (a.stage === "check" ? 0 : 1) - (b.stage === "check" ? 0 : 1) || a.difficulty - b.difficulty;
+      });
+      return ordered;
     });
-
     const picked = [];
-    let guard = 0;
-    while (picked.length < n && guard < 200) {
-      guard++;
-      let added = false;
+    let added = true;
+    while (picked.length < n && added) {
+      added = false;
       for (let i = 0; i < pools.length && picked.length < n; i++) {
         if (!pools[i].length) continue;
-        const it = pools[i].shift();
-        if (!it) continue;
-        picked.push({ kpId: chosen[i].id, itemId: it.id });
+        const item = pools[i].shift();
+        picked.push({ kpId: chosen[i].id, itemId: item.id, difficulty: item.difficulty });
         added = true;
       }
-      if (!added) break;
     }
-
-    // Ascending difficulty, with a small jitter, then de-duplicate neighbours.
-    picked.forEach(function (p) {
-      const kp = KP_BY_ID[p.kpId];
-      const it = kp.items.filter(function (x) { return x.id === p.itemId; })[0];
-      p.difficulty = it.difficulty + Math.random() * 0.15;
-    });
     picked.sort(function (a, b) { return a.difficulty - b.difficulty; });
-
-    for (let i = 1; i < picked.length; i++) {
-      if (picked[i].kpId === picked[i - 1].kpId && i + 1 < picked.length) {
-        const tmp = picked[i];
-        picked[i] = picked[i + 1];
-        picked[i + 1] = tmp;
-      }
-    }
-
-    return {
-      id: "s" + Date.now().toString(36),
-      createdAt: Date.now(),
-      items: picked.slice(0, n)
-    };
+    return { id: "s" + Date.now().toString(36), createdAt: Date.now(), items: picked };
   }
 
   function touchStreak(state) {
@@ -414,7 +483,7 @@ const Engine = (function () {
     let c = 0;
     KPS.forEach(function (k) {
       const s = state.kps[k.id];
-      if (s && s.dueAt && s.dueAt <= Date.now()) c++;
+      if (s && hasStarted(state, k) && guidedEligible(state, k) && s.dueAt && s.dueAt <= Date.now()) c++;
     });
     return c;
   }
@@ -444,13 +513,9 @@ const Engine = (function () {
     let c = 0;
     KPS.forEach(function (k) {
       const s = state.kps[k.id];
-      if (s && s.n && display(s.p, s.n) < 50) c++;
+      if (s && hasStarted(state, k) && guidedEligible(state, k) && s.n && display(s.p, s.n) < 50) c++;
     });
     return c;
-  }
-
-  function planList(state, n) {
-    return KPS.slice().sort(function (a, b) { return priority(state, b) - priority(state, a); }).slice(0, n || 10);
   }
 
   function seedDemo(state) {
@@ -525,6 +590,12 @@ const Engine = (function () {
     levelScore: levelScore,
     levelStats: levelStats,
     buildSession: buildSession,
+    startingLevel: startingLevel,
+    guidedLevel: guidedLevel,
+    prereqReady: prereqReady,
+    guidedEligible: guidedEligible,
+    nextNewPoint: nextNewPoint,
+    hasStarted: hasStarted,
     finishSession: finishSession,
     touchStreak: touchStreak,
     noteWrong: noteWrong,

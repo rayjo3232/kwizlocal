@@ -451,7 +451,7 @@ const KPS = [
     ]),
 
   K("a0.adjectives.position", "A0", "adjectives",
-    "Adjective position", "La place de l'adjectif", 1.2, 2.0, ["a1.adjectives.agreement"],
+    "Adjective position", "La place de l'adjectif", 1.2, 2.0, [],
     "Most adjectives go after the noun. A short list (beau, joli, grand, petit, jeune, vieux, bon, mauvais) goes before.",
     [["une voiture rouge", "a red car"], ["une petite maison", "a small house"], ["un bon restaurant", "a good restaurant"]],
     "Position can change meaning: un ancien professeur = a former teacher, un professeur ancien = an old teacher.",
@@ -583,7 +583,7 @@ const KPS = [
     ]),
 
   K("a2.syntax.relative_ou", "A2", "syntax",
-    "Relative pronoun où", "Le pronom relatif où", 1.2, 2.8, ["b1.relative.qui_que"],
+    "Relative pronoun où", "Le pronom relatif où", 1.2, 2.8, [],
     "où replaces a place or a time: la ville où je vis, le jour où il est parti.",
     [["La maison où j'habite est petite.", "The house where I live is small."], ["C'est le moment où il arrive.", "This is the moment when he arrives."]],
     "English 'where/when' can be omitted; French où cannot.",
@@ -1616,7 +1616,7 @@ const KPS = [
     ]),
 
   K("a2.verbs.politesse", "A2", "verbs",
-    "Polite requests with the conditional", "Le conditionnel de politesse", 1.3, 2.4, ["b1.conditional.present"],
+    "Polite requests with the conditional", "Le conditionnel de politesse", 1.3, 2.4, [],
     "Je voudrais, J'aimerais, On pourrait, Pourriez-vous... Use the conditional to soften a request.",
     [["Je voudrais un café.", "I would like a coffee."], ["Pourriez-vous m'aider ?", "Could you help me?"], ["J'aimerais réserver une table.", "I would like to book a table."]],
     "English 'I want' is direct; French 'Je veux' is also direct. Use Je voudrais in shops and restaurants.",
