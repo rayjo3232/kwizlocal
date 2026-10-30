@@ -163,4 +163,63 @@ for (const mode of ['manual', 'placement']) {
   assert.equal(Engine.buildSession(s, 10).items.length, 0, 'must not fall back to a random session');
 }
 
+/* ---- the daily loop must actually advance ---------------------------------
+
+   Practice only serves introduced points, so a learner who presses the
+   primary button every day used to practise the first point forever: thirty
+   simulated days produced 86 questions on a0.articles.definite and never
+   introduced a second point. This walks the loop the way a learner would. */
+{
+  let seed = 12345;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+  const s = Engine.newState();
+  const DAY = 86400000;
+  const start = Date.now();
+  const introduced = new Set();
+  let questions = 0;
+
+  for (let day = 0; day < 30; day++) {
+    const outlook = Engine.practiceOutlook(s);
+    if (outlook.recommend === "learn" && outlook.nextLesson) {
+      Engine.ensure(s, outlook.nextLesson.id).state = "primed";
+      introduced.add(outlook.nextLesson.id);
+      continue;
+    }
+    const sess = Engine.buildSession(s, 3);
+    if (!sess.items.length) continue;
+    sess.items.forEach(function (it) {
+      const kp = KP_BY_ID[it.kpId];
+      const st = s.kps[it.kpId];
+      const seen = st ? st.n : 0;
+      const skill = Math.min(0.92, 0.45 + seen * 0.06 - (kp.difficulty - 1) * 0.05);
+      Engine.applyAttempt(s, {
+        kpId: it.kpId, itemId: it.itemId, correct: rnd() < skill,
+        at: start + day * DAY, source: "kwiz"
+      });
+      questions++;
+    });
+  }
+
+  assert.ok(introduced.size >= 5, "30 days should introduce several points, got " + introduced.size);
+  assert.ok(questions > 30, "the loop should also practise, got " + questions + " questions");
+  assert.ok(questions < 200, "and should not pile on one point, got " + questions);
+
+  /* And the recommendation has to be actionable: never "learn" when a point
+     that was just introduced still has no answers. */
+  const t = Engine.newState();
+  const first = Engine.nextNewPoint(t);
+  Engine.ensure(t, first.id).state = "primed";
+  assert.equal(Engine.practiceOutlook(t).recommend, "practise",
+    "a freshly introduced point should be practised before the next lesson");
+  /* Two answers is not enough evidence to call a point solid — keep going
+     until it is neither weak nor due. */
+  [2, 3, 4, 5, 6].forEach(function (i) {
+    Engine.applyAttempt(t, { kpId: first.id, itemId: first.items[i].id, correct: true });
+  });
+  const after = Engine.practiceOutlook(t);
+  assert.equal(after.weak, 0, "the point should not be weak after six correct answers");
+  assert.equal(after.recommend, "learn",
+    "once nothing is due or weak, the next lesson is the useful move");
+}
+
 console.log('Guided scheduler regression checks passed.');

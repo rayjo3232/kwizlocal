@@ -735,7 +735,10 @@ function renderDashboard() {
      is answerable without opening it. */
   if (due) steps.push({ title: "Review what is due", sub: due + " point" + (due === 1 ? "" : "s"), mins: 4, action: "due" });
   if (weak) steps.push({ title: "Drill your weak points", sub: weak + " below 50", mins: 4, action: "weak" });
-  if (unseen) {
+  /* The primary button already offers the next lesson when that is the
+     recommendation — listing it again underneath is the same sentence twice. */
+  const outlook = Engine.practiceOutlook(state);
+  if (unseen && outlook.recommend !== "learn") {
     steps.push({
       title: "Learn next: " + nextLesson.title,
       sub: nextLesson.level + " · " + Engine.lessonReason(state, nextLesson),
@@ -750,12 +753,15 @@ function renderDashboard() {
       + '<span class="ns-go">→</span></button>';
   }).join("");
 
-  const outlook = Engine.practiceOutlook(state);
   const canPractise = outlook.canPractise;
+  /* Nothing due and nothing weak? Then another pass over solid material is
+     the wrong move — the next lesson is. Without this the primary button kept
+     serving the same point for as long as the learner kept pressing it. */
   const primaryBtn = inProgress
     ? '<button class="btn block" id="resumeBtn">Resume · ' + (session.index + 1) + " / " + session.session.items.length + " done</button>"
-    : (!canPractise && nextLesson)
-      ? '<button class="btn block" id="newPointBtn2">Learn: ' + esc(nextLesson.title) + '<small>' + esc(nextLesson.level) + ' · next unlocked lesson</small></button>'
+    : (outlook.recommend === "learn" && nextLesson)
+      ? '<button class="btn block" id="newPointBtn2">Learn: ' + esc(nextLesson.title)
+        + "<small>" + esc(nextLesson.level) + (canPractise ? " · nothing due right now" : " · next unlocked lesson") + "</small></button>"
       : '<button class="btn block" data-start="3">Quick · 3 questions<small>about a minute</small></button>';
 
   app.innerHTML = '<div class="container">'
@@ -778,10 +784,18 @@ function renderDashboard() {
     + '<div class="hello">' + (today ? "Welcome back." : "Hello!") + "</div>"
     + "<p>" + (inProgress
       ? "You left a session part-finished — pick it up where you stopped."
-      : (!canPractise && nextLesson ? "Start with the next unlocked lesson. Quizzes will follow the material you learn." : "Short on time? Three questions takes about a minute.")) + "</p></div></div>"
+      : (outlook.recommend === "learn" && nextLesson
+        ? "Nothing is due. The next lesson takes about three minutes."
+        : canPractise
+          ? "Short on time? Three questions takes about a minute."
+          : "Start with the next unlocked lesson. Quizzes will follow the material you learn.")) + "</p></div></div>"
     + primaryBtn
     + '<div class="hero-sub">'
-    + (inProgress ? '<button class="btn subtle" data-start="3">Start a fresh quick kwiz</button>' : "")
+    + (inProgress
+      ? '<button class="btn subtle" data-start="3">Start a fresh quick kwiz</button>'
+      : (outlook.recommend === "learn" && canPractise
+        ? '<button class="btn subtle" data-start="3">Quick · 3 questions</button>'
+        : ""))
     + (canPractise ? '<button class="btn subtle" data-start="10">Full kwiz · 10</button>' : '')
     + "</div>"
     + (state.attempts.length === 0 && !state.seeded && !state.placement
@@ -796,7 +810,7 @@ function renderDashboard() {
         + (steps.length < 2 ? '<p class="ns-empty">Nothing else is due for review.</p>' : "") + "</div>"
       : '<div class="next-steps"><div class="ns-title">' + (outlook.canPractise ? "All caught up" : "Nothing to quiz yet") + "</div>"
         + '<p class="ns-empty">' + esc(outlook.canPractise
-          ? "Nothing is due and nothing is weak. The next lesson is the useful move."
+          ? (outlook.recommend === "learn" ? "The next lesson is already the button above." : "Nothing is due and nothing is weak.")
           : outlook.nextLesson
             ? "Guided quizzes only cover lessons you have started. Learn " + outlook.nextLesson.title + " first."
             : "Every point at your level is introduced. Review from the Notebook, or change your starting level in Settings.") + "</p></div>")

@@ -110,22 +110,48 @@ const Engine = (function () {
 
   /* Why the practice button is available or not, in one place, so the
      dashboard and the quiz both explain the same thing. */
+  /* What the learner should actually do next.
+
+     Practice only covers introduced points, so once the first point is
+     answered there is always something to serve — and a learner who presses
+     the primary button every day practises that one point forever. Simulating
+     thirty days of three questions a day produced 86 questions on a single
+     point and never introduced a second one.
+
+     So: if anything is due or weak, review. If not, the useful move is the
+     next lesson, not another pass over material that is already solid. */
   function practiceOutlook(state) {
     const nextLesson = nextNewPoint(state);
     const canPractise = buildSession(state, 1).items.length > 0;
     const introduced = KPS.filter(function (k) { return hasStarted(state, k) && guidedEligible(state, k); }).length;
+    const due = dueCount(state);
+    const weak = weakCount(state);
+
     let reason = "ok";
     if (!canPractise) {
       if (!introduced) reason = nextLesson ? "nothing-introduced" : "no-next-lesson";
       else reason = "no-items";
     }
+
+    /* A point that was just introduced has no answers yet, so it is neither
+       due nor weak — and recommending "learn" again would stack up seven
+       un-practised lessons before a single question. Fresh material comes
+       first, then new material. */
+    const fresh = schedule(state).buckets.current.length;
+
+    let recommend = "practise";
+    if (due || weak) recommend = "review";
+    else if (fresh) recommend = "practise";
+    else if (nextLesson) recommend = "learn";
+
     return {
       canPractise: canPractise,
       reason: reason,
+      recommend: recommend,
       nextLesson: nextLesson,
       introduced: introduced,
-      due: dueCount(state),
-      weak: weakCount(state)
+      due: due,
+      weak: weak
     };
   }
 
