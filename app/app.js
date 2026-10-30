@@ -760,7 +760,7 @@ function renderDashboard() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Your French Dashboard</h1>'
-    + '<p>' + KPS.length + ' knowledge points · A0 to B2 · everything stored on this computer</p></div>'
+    + '<p>' + KPS.length + ' points · A0 to B2 · stored on this device</p></div>'
 
     + '<div class="todaybar' + (today >= dailyGoal ? " done" : "") + '">'
     + '<div class="goal"><div class="goal-head">'
@@ -912,7 +912,7 @@ function renderBrainmap() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Your Brainmap</h1>'
-    + '<p>Pick a level, then a grammar area, to see every point inside.</p></div>'
+    + '<p>Level, then grammar area, then the points inside.</p></div>'
     + '<div class="map-wrap"><div class="map-toolbar">'
     + '<span class="small"><b>' + shown + '</b> points shown · <b>' + KPS.length + '</b> total</span>'
     + '<span class="spacer"></span>'
@@ -3009,7 +3009,7 @@ function renderNotebook() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Notebook</h1>'
-    + '<p>Wrong answers land here automatically. Get two right on the same point and the entry resolves itself.</p></div>'
+    + '<p>Wrong answers land here. Two right answers retire one.</p></div>'
     + '<div class="nb-actions">'
     + (nb.length ? '<button class="btn" id="nbPractiseAll">Practise all ' + nb.length + "</button>" : "")
     + (nb.length ? '<button class="btn subtle" id="nbClear">Clear mistakes</button>' : "")
@@ -3142,8 +3142,7 @@ function renderVocab() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Vocabulary</h1>'
-    + '<p>' + VOCAB_LIST.length + ' high-frequency French words, ranked by real usage. '
-    + "Frequency from Lexique 3.83, examples from Tatoeba.</p></div>"
+    + '<p>' + VOCAB_LIST.length + ' words, most useful first.</p></div>'
     + '<div class="nb-actions">'
     + '<button class="btn" id="vocabFlashBtn">Flashcards · ' + counts.new + " new</button>"
     + '<button class="btn ghost" id="vocabClozeBtn">Cloze</button>'
@@ -3432,8 +3431,7 @@ function renderVerbs() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Verb conjugations</h1>'
-    + '<p>' + VERB_LIST.length + " core verbs × " + VERB_TENSE_LIST.length
-    + " tenses. Generated from verbecc.</p></div>"
+    + '<p>' + VERB_LIST.length + " verbs × " + VERB_TENSE_LIST.length + " tenses.</p></div>"
     + '<div class="verb-bar">'
     + '<button class="btn sm subtle" data-verb-nav="' + esc(prev) + '">←</button>'
     + '<select id="verbSelect" class="goal-select">' + options + "</select>"
@@ -3808,8 +3806,7 @@ function renderSentences() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Sentence practice</h1>'
-    + '<p>' + total + " real French sentences from Tatoeba · " + gaps
-    + " gap-fill, " + (total - gaps) + " word-order. Filter by grammar and level, then drill.</p></div>"
+    + '<p>' + total + " sentences · " + gaps + " gap-fill, " + (total - gaps) + " word order.</p></div>"
     + '<div class="nb-actions">'
     + '<button class="btn" id="sentStart"' + (poolSize ? "" : " disabled") + '>Practise 10</button>'
     + '<button class="btn subtle" id="sentStart20"' + (poolSize ? "" : " disabled") + ">20</button>"
@@ -4281,7 +4278,7 @@ function renderLibrary() {
   }).join("");
 
   app.innerHTML = '<div class="container">'
-    + '<div class="page-head"><h1>Library</h1><p>All ' + KPS.length + ' points. Filter by level or grammar area, search a rule, then open one to learn or practise.</p></div>'
+    + '<div class="page-head"><h1>Library</h1><p>' + KPS.length + ' points. Filter, search, open.</p></div>'
     + '<div class="lib-filters">' + chips + "</div>"
     + '<div class="lib-tools"><select id="catFilter">' + catOptions + "</select>"
     + '<select id="libSort">'
@@ -4360,7 +4357,7 @@ function renderLibrary() {
 
 function renderSettings() {
   app.innerHTML = '<div class="container" style="max-width:760px">'
-    + '<div class="page-head"><h1>Settings</h1><p>Everything lives in this browser only.</p></div>'
+    + '<div class="page-head"><h1>Settings</h1><p>Stored in this browser only.</p></div>'
     + '<div class="card">'
     + '<div class="setting-row"><div class="txt"><b>TCF-style exam</b>'
     + '<span>20 timed questions, score out of 699 with a CEFR estimate.</span></div>'
