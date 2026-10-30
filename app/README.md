@@ -57,6 +57,9 @@ collapses to one column.
 |---|---|
 | 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
 | **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
+| **Four mastery signals**: `Engine.pointProfile()` separates coverage, mastery (`null` when untested), lesson stage and review date; accent-only answers are counted on their own | done |
+| **Measured difficulty**: `Engine.itemDifficulty()` blends the authored ramp, question type and the observed error rate for that exact question | done |
+| **Streaks steer difficulty**: two misses in a row brings the easier question back, three rights lets the harder one through — always inside the eligible pool | done |
 | **Explicit curriculum**: `app/curriculum.js` fixes the teaching order per level, adds advisory soft prerequisites, and labels every point's stage; `tools/check_curriculum.js` fails on cycles, cross-level edges, deadlocks and order violations | done |
 | **One scheduler**: `Engine.schedule()` splits eligible work into due / weak / current / stretch, and the Study Plan, the quiz and the dashboard all read from it — 40/30/20/10 mix, deterministic | done |
 | **Reasons shown**: the dashboard and the drawer say why a point is next, why it is locked, or that it is beyond your guided level | done |

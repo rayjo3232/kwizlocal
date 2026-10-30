@@ -413,6 +413,12 @@ p{margin:0 0 12px}
 .gloss-pop span{color:var(--ink2)}
 .gloss-pop span.muted{color:var(--faint);font-style:italic}
 /* Why this point is (or is not) the next thing to do. */
+/* Coverage / mastery / review, under the title. */
+.drawer-stats{
+  margin:0 0 2px;font-size:11.5px;color:var(--faint);
+  font-variant-numeric:tabular-nums;
+}
+
 .drawer-why{
   margin:8px 0 2px;padding:7px 10px;border-radius:6px;
   background:#F3F9FE;border-left:3px solid #9CC9E8;

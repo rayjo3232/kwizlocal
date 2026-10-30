@@ -961,6 +961,20 @@ function bindMap() {
   });
 }
 
+/* Coverage, mastery, lesson stage and review date, kept apart. One number
+   could not answer all four, and the drawer used to show only the badge. */
+function profileLine(kp) {
+  const prof = Engine.pointProfile(state, kp);
+  const bits = [];
+  if (prof.seen) bits.push(prof.seen + " answer" + (prof.seen === 1 ? "" : "s") + " · " + prof.correct + " right");
+  if (prof.due) bits.push("due for review");
+  else if (prof.dueInDays != null && prof.seen) bits.push("next review in " + prof.dueInDays + " day" + (prof.dueInDays === 1 ? "" : "s"));
+  const accents = Engine.accentCount(state, kp.id);
+  if (accents) bits.push(accents + " accepted without accents");
+  if (!bits.length) return "";
+  return '<div class="drawer-stats">' + esc(bits.join(" · ")) + "</div>";
+}
+
 function openDrawer(kpId) {
   const kp = KP_BY_ID[kpId];
   const s = state.kps[kpId];
@@ -980,6 +994,7 @@ function openDrawer(kpId) {
     + '<span class="score-chip" style="font-size:14px;color:' + scoreColor(sc, s ? s.n : 0) + '">' + (s && s.n ? sc : "—") + "</span>"
     + badge(st) + '<span class="tiny">' + esc(kp.level) + " · " + esc(CATEGORIES[kp.category] || kp.category) + "</span></div>"
     + (whyText ? '<div class="drawer-why' + (beyond ? " beyond" : "") + '">' + esc(whyText) + "</div>" : "")
+    + profileLine(kp)
     + '<div class="rule">' + frify(kp.rule) + "</div>"
     + usageHtml(kp)
     + "<h4>Examples</h4>"
@@ -4289,7 +4304,9 @@ function renderSettings() {
     + '<button class="btn sm subtle danger" id="resetBtn">Reset</button></div>'
     + "</div>"
     + '<p class="small" style="margin-top:16px">Current data: ' + state.attempts.length + " attempts, "
-    + state.sessions.length + " sessions, " + KPS.length + " knowledge points.</p>"
+    + state.sessions.length + " sessions, " + KPS.length + " knowledge points"
+    + (Engine.accentCount(state) ? " · " + Engine.accentCount(state) + " accepted without accents" : "")
+    + ".</p>"
     + "</div>";
 
   document.getElementById("examBtn").addEventListener("click", function () {

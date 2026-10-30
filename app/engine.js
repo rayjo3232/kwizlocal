@@ -166,12 +166,53 @@ const Engine = (function () {
     return "#2E7D32";
   }
 
-  function statusOf(state, kp) {
+  /* Four separate signals, because one number cannot answer four questions:
+     how much has been seen, how well it is known, where the lesson stands, and
+     whether it is due. The old `statusOf` collapsed them into one badge and
+     the UI had to guess the rest. */
+  function pointProfile(state, kp) {
     const s = state.kps[kp.id];
-    if (s && s.state === "primed" && !s.n) return "weak";
-    if (!s || !s.n) return "new";
-    if (s.dueAt && s.dueAt <= Date.now()) return "due";
-    if (display(s.p, s.n) < 50) return "weak";
+    const n = s ? s.n : 0;
+    const mastery = s && n ? display(s.p, n) : null;
+    const dueAt = s && s.dueAt ? s.dueAt : null;
+    const now = Date.now();
+
+    let stage;
+    if (!s) stage = "unseen";
+    else if (s.state === "primed" && !n) stage = "primed";
+    else if (!n) stage = "introduced";
+    else if (mastery >= 75 && n >= 4) stage = "solid";
+    else stage = "practising";
+
+    return {
+      seen: n,
+      correct: s ? s.correct : 0,
+      wrong: s ? s.wrong : 0,
+      mastery: mastery,
+      stage: stage,
+      due: !!(dueAt && dueAt <= now),
+      dueInDays: dueAt ? Math.round((dueAt - now) / 8640000) / 10 : null
+    };
+  }
+
+  /* Answers that were right apart from their accents. Tracked separately from
+     mastery: the grammar was known, the spelling was not. */
+  function accentCount(state, kpId) {
+    let n = 0;
+    (state.attempts || []).forEach(function (a) {
+      if (a.accent && (!kpId || a.kpId === kpId)) n++;
+    });
+    return n;
+  }
+
+  /* The badge shown in lists. Derived from the profile so the two cannot
+     disagree. */
+  function statusOf(state, kp) {
+    const prof = pointProfile(state, kp);
+    if (prof.stage === "unseen") return "new";
+    if (prof.stage === "primed") return "weak";
+    if (prof.due) return "due";
+    if (prof.mastery != null && prof.mastery < 50) return "weak";
     return "ok";
   }
 
@@ -453,33 +494,103 @@ const Engine = (function () {
 
   /* Only introduced knowledge points enter Guided Practice. All selection
      uses the same eligibility as Study Plan and Learn New. */
+  /* ---- how hard is a question, really -------------------------------------
+
+     The stored `difficulty` was `point difficulty + position * 0.25`: a guess
+     from where the question sits in the array. This blends that prior with how
+     the question has actually gone for this learner. */
+
+  const TYPE_PRIOR = { choice: 0, fill: 0.35, correct: 0.7, translate: 0.5, order: 0.5, multi_fill: 0.5 };
+
+  function itemStats(state) {
+    const out = {};
+    (state.attempts || []).forEach(function (a) {
+      if (!a.itemId || a.correct === null || a.correct === undefined || a.noMastery) return;
+      const r = out[a.itemId] = out[a.itemId] || { seen: 0, wrong: 0 };
+      r.seen++;
+      if (!a.correct) r.wrong++;
+    });
+    return out;
+  }
+
+  /* Last three real answers per point, so a streak can steer difficulty. */
+  function streakMap(state) {
+    const out = {};
+    (state.attempts || []).forEach(function (a) {
+      if (!a.kpId || a.correct === null || a.correct === undefined || a.noMastery) return;
+      const list = out[a.kpId] = out[a.kpId] || [];
+      list.push(!!a.correct);
+      if (list.length > 3) list.shift();
+    });
+    return out;
+  }
+
+  function itemDifficulty(item, kp, stats) {
+    /* Three inputs: the authored ramp (the only thing that separates two items
+       of the same type inside a point), a small nudge for question type, and
+       what has actually happened. Dropping the authored value made every item
+       in a point identical, which is worse than trusting position. */
+    const authored = typeof item.difficulty === "number"
+      ? item.difficulty
+      : (kp && kp.difficulty ? kp.difficulty : 2);
+    const base = authored + (TYPE_PRIOR[item.type] || 0) * 0.5;
+    const st = stats && stats[item.id];
+    if (!st || !st.seen) return base;
+    /* 25% wrong is the neutral point: above it the question is harder than its
+       type suggests, below it easier. The weight grows with evidence. */
+    const observed = base + (st.wrong / st.seen - 0.25) * 2.5;
+    const w = Math.min(0.65, st.seen / 8);
+    return Math.max(0.5, Math.min(6, base * (1 - w) + observed * w));
+  }
+
   function buildSession(state, size) {
     const n = size || 10;
     const recent = recentItemIds(state, 24);
     const ranked = rankedByShare(state);
     const chosen = ranked.slice(0, Math.min(8, ranked.length));
+    const stats = itemStats(state);
+    const streaks = streakMap(state);
+
     const pools = chosen.map(function (kp) {
       const all = kp.items.filter(function (it) { return it.stage !== "guided"; });
       const fresh = all.filter(function (it) { return !recent[it.id]; });
       const s = state.kps[kp.id];
       const answered = s ? s.n : 0;
-      const ordered = (fresh.length ? fresh : all).slice().sort(function (a, b) {
-        return a.difficulty - b.difficulty;
+      const streak = streaks[kp.id] || [];
+
+      /* Score each question on measured difficulty, not array position. */
+      const scored = (fresh.length ? fresh : all).map(function (it) {
+        return { item: it, diff: itemDifficulty(it, kp, stats) };
       });
-      // Difficulty rises as the learner accumulates actual evidence.
-      if (answered <= 2) ordered.sort(function (a, b) {
-        return (a.stage === "check" ? 0 : 1) - (b.stage === "check" ? 0 : 1) || a.difficulty - b.difficulty;
+
+      scored.sort(function (a, b) {
+        /* A newcomer meets the check questions before the kwiz ones. */
+        if (answered <= 2) {
+          const sa = a.item.stage === "check" ? 0 : 1;
+          const sb = b.item.stage === "check" ? 0 : 1;
+          if (sa !== sb) return sa - sb;
+        }
+        return a.diff - b.diff;
       });
-      return ordered;
+
+      /* Two misses in a row: go back to the easier end and rebuild.
+         Three right in a row: let the harder end come forward. */
+      const lastTwoWrong = streak.length >= 2 && !streak[streak.length - 1] && !streak[streak.length - 2];
+      const lastThreeRight = streak.length === 3 && streak.every(function (c) { return c; });
+      if (lastTwoWrong) scored.sort(function (a, b) { return a.diff - b.diff; });
+      else if (lastThreeRight) scored.sort(function (a, b) { return b.diff - a.diff; });
+
+      return scored;
     });
+
     const picked = [];
     let added = true;
     while (picked.length < n && added) {
       added = false;
       for (let i = 0; i < pools.length && picked.length < n; i++) {
         if (!pools[i].length) continue;
-        const item = pools[i].shift();
-        picked.push({ kpId: chosen[i].id, itemId: item.id, difficulty: item.difficulty });
+        const next = pools[i].shift();
+        picked.push({ kpId: chosen[i].id, itemId: next.item.id, difficulty: Math.round(next.diff * 100) / 100 });
         added = true;
       }
     }
@@ -818,6 +929,10 @@ const Engine = (function () {
     rankedByShare: rankedByShare,
     lessonReason: lessonReason,
     orderOf: orderOf,
+    pointProfile: pointProfile,
+    accentCount: accentCount,
+    itemDifficulty: itemDifficulty,
+    itemStats: itemStats,
     seedDemo: seedDemo,
     normalize: normalize,
     isCorrect: isCorrect,
