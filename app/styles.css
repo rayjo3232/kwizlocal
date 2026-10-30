@@ -1031,7 +1031,7 @@ p{margin:0 0 12px}
 /* ---------- settings ---------- */
 .setting-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line2)}
 .setting-row:last-child{border-bottom:none}
-.setting-row .txt{flex:1}
+.setting-row .txt{flex:1;min-width:0}
 .setting-row .txt b{display:block;font-size:13.5px}
 .setting-row .txt span{font-size:12px;color:var(--muted)}
 .goal-select{
@@ -1270,3 +1270,29 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
 }
 .sw-update-go{background:#fff;color:#26323C}
 .sw-update-later{background:transparent;color:#C9D6E0;font-weight:600}
+
+/* Narrow screens: a 190px select next to a paragraph squeezes the text into a
+   column of eight words. Stack them instead. */
+@media (max-width:560px){
+  .setting-row{flex-direction:column;align-items:stretch;gap:9px}
+  .setting-row .txt{flex:none}
+  .setting-row .goal-select,.setting-row .btn{align-self:flex-start;max-width:100%}
+}
+
+/* D3: the ← → glyphs at 12.5px read as dashes. */
+.verb-bar .btn[data-verb-nav]{font-size:17px;line-height:1;padding:6px 12px}
+
+/* D5: keyboard shortcuts are a desktop affordance. */
+@media (max-width:700px){
+  .kbd-hint{display:none}
+}
+
+/* D8: thirteen keys wrapped to two rows and pushed Check down. One scrollable
+   row keeps the height at a single key. */
+.accent-bar{
+  flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;padding-bottom:2px;
+}
+.accent-bar::-webkit-scrollbar{display:none}
+.accent-key{flex:0 0 auto}

@@ -767,7 +767,8 @@ const Engine = (function () {
     const total = answers.length;
     const answered = total - skipped;
     const ratio = answered ? correct / answered : 0;
-    const stars = answered && correct === answered ? 5 : ratio >= 0.8 ? 4 : ratio >= 0.6 ? 3 : ratio >= 0.4 ? 2 : 1;
+    /* A floor of one star made a 0/2 session look rated rather than failed. */
+    const stars = answered && correct === answered ? 5 : ratio >= 0.8 ? 4 : ratio >= 0.6 ? 3 : ratio >= 0.4 ? 2 : ratio > 0 ? 1 : 0;
 
     const record = {
       id: session.id,

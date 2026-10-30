@@ -471,7 +471,10 @@ function levelCardsHtml(compact) {
     + LEVELS.map(function (lv) {
       const list = KPS.filter(function (k) { return k.level === lv.id; });
       if (!list.length) return "";
-      const score = avgScoreOf(list);
+      /* The dashboard clamps level scores at 0; this card did not, so B2 could
+         read "-11" and look like a bug. */
+      const raw = avgScoreOf(list);
+      const score = raw == null ? null : Math.max(0, Math.round(raw));
       const weak = list.filter(function (k) {
         const s = state.kps[k.id];
         return Engine.guidedEligible(state, k) && Engine.hasStarted(state, k) && s && s.n && Engine.display(s.p, s.n) < 50;
@@ -659,7 +662,7 @@ function weeklyHtml() {
     + '<div class="wk-stats">'
     + '<div class="wk-stat"><b>' + w.questions + "</b><span>questions</span></div>"
     + '<div class="wk-stat"><b>' + acc + "%</b><span>grammar accuracy</span></div>"
-    + '<div class="wk-stat"><b>' + w.minutes + "</b><span>minutes</span></div>"
+    + '<div class="wk-stat"><b>' + (w.minutes ? w.minutes : "—") + "</b><span>minutes</span></div>"
     + '<div class="wk-stat"><b>' + w.sessions + "</b><span>sessions</span></div>"
     + "</div>"
     + (mix.length
@@ -1943,7 +1946,9 @@ function renderResult(id) {
     + '<div class="result-head"><h1 style="font-size:24px">'
     + (answered && record.correct === answered ? "Perfect!" : answered && record.correct / answered >= 0.6 ? "Nice effort!" : "Keep going!")
     + "</h1>"
-    + '<div class="stars">' + stars(record.stars) + "</div>"
+    /* Three questions is not a rating. Short sessions show the exact count
+       instead of a five-star scale. */
+    + (record.total >= 5 ? '<div class="stars">' + stars(record.stars) + "</div>" : "")
     + '<div class="result-score">' + record.correct + " of " + answered + " correct"
     + (record.skipped ? " · " + record.skipped + " skipped" : "")
     + (record.durationMs ? " · " + fmtDuration(record.durationMs) : "") + "</div></div>"
@@ -3129,7 +3134,7 @@ function renderVocab() {
           + '<div class="en" hidden>' + esc(ex[1]) + "</div></div>"
         : '<div class="vc-ex"><div class="fr muted">No example sentence yet.</div></div>')
       + '<div class="vc-foot">'
-      + (tappable ? '<span class="vc-hint">Tap to translate</span>' : '<span></span>')
+      + (tappable && !state.vocabTapped ? '<span class="vc-hint">Tap to translate</span>' : '<span></span>')
       + '<button class="btn sm subtle" data-vknown="' + esc(v.w) + '">'
       + (st === "known" ? "Known ✓" : "Mark known") + "</button>"
       + "</div></div>";
@@ -3168,6 +3173,12 @@ function renderVocab() {
     card.setAttribute("aria-expanded", on ? "true" : "false");
     const hint = card.querySelector(".vc-hint");
     if (hint) hint.textContent = on ? "Showing translation" : "Tap to translate";
+    /* The instruction only needs saying once per device. */
+    if (!state.vocabTapped) {
+      state.vocabTapped = true;
+      saveState();
+      document.querySelectorAll(".vc-hint").forEach(function (h) { h.remove(); });
+    }
   }
   document.querySelectorAll(".vocab-card.tappable").forEach(function (card) {
     card.addEventListener("click", function (e) {
