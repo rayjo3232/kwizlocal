@@ -4,7 +4,7 @@
    browser treat the new files as new — without a bump, cache-first would
    serve the previous build forever. */
 
-const CACHE = "kwizlocal-v31-chinese";
+const CACHE = "kwizlocal-v32-phone";
 
 /* Workers Static Assets answers /index.html with a 307 to /, and a redirect
    inside cache.addAll can abort the whole install. "./" alone is enough —
@@ -50,13 +50,18 @@ function currentCache() {
 }
 
 self.addEventListener("install", function (e) {
+  /* Cache the new build, then wait. Taking over immediately would swap assets
+     under a page that is halfway through a quiz; the page shows a banner
+     instead and only activates this worker when the learner says so. */
   e.waitUntil(
     currentCache().then(function (c) {
       return c.addAll(ASSETS);
-    }).then(function () {
-      return self.skipWaiting();
     })
   );
+});
+
+self.addEventListener("message", function (e) {
+  if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", function (e) {
@@ -67,13 +72,6 @@ self.addEventListener("activate", function (e) {
       }));
     }).then(function () {
       return self.clients.claim();
-    }).then(function () {
-      /* Tell open pages a new build is live so they can reload themselves. */
-      return self.clients.matchAll({ type: "window" });
-    }).then(function (clients) {
-      clients.forEach(function (client) {
-        client.postMessage({ type: "SW_UPDATED", version: CACHE });
-      });
     })
   );
 });

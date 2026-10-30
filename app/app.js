@@ -159,10 +159,30 @@ function stars(n) {
 
 function badge(status) {
   const map = {
-    new: ["NEW", "new"], due: ["DUE", "due"], weak: ["WEAK", "weak"], ok: ["OK", "ok"]
+    new: ["NEW", "new"], due: ["DUE", "due"], weak: ["WEAK", "weak"], ok: ["OK", "ok"],
+    available: ["OPEN", "ok"], learning: ["LEARNING", "new"],
+    solid: ["SOLID", "ok"], locked: ["LOCKED", "locked"]
   };
   const m = map[status] || map.new;
   return '<span class="badge ' + m[1] + '">' + m[0] + "</span>";
+}
+
+/* Seven states, because "new" was hiding three different situations: a point
+   you could start right now, one whose prerequisites are missing, and one
+   above your guided level. Library and the drawer both use this. */
+function pointStatus(kp) {
+  const prof = Engine.pointProfile(state, kp);
+  const rank = function (lv) { return LEVELS.findIndex(function (l) { return l.id === lv; }); };
+
+  if (prof.stage === "unseen") {
+    if (rank(kp.level) > rank(Engine.guidedLevel(state))) return "locked";
+    return Engine.prereqReady(state, kp) ? "available" : "locked";
+  }
+  if (prof.due) return "due";
+  if (prof.stage === "primed" || !prof.seen) return "learning";
+  if (prof.mastery != null && prof.mastery < 50) return "weak";
+  if (prof.stage === "solid") return "solid";
+  return "learning";
 }
 
 function passageHtml(item) {
@@ -708,18 +728,22 @@ function renderDashboard() {
   const unseen = nextLesson ? 1 : 0;
   const inProgress = !!(session && session.session);
   const steps = [];
-  if (due) steps.push({ title: "Review what is due", sub: due + " point" + (due === 1 ? "" : "s"), action: "due" });
-  if (weak) steps.push({ title: "Drill your weak points", sub: weak + " below 50", action: "weak" });
+  /* Each step carries roughly how long it takes, so "do I have time for this"
+     is answerable without opening it. */
+  if (due) steps.push({ title: "Review what is due", sub: due + " point" + (due === 1 ? "" : "s"), mins: 4, action: "due" });
+  if (weak) steps.push({ title: "Drill your weak points", sub: weak + " below 50", mins: 4, action: "weak" });
   if (unseen) {
     steps.push({
       title: "Learn next: " + nextLesson.title,
       sub: nextLesson.level + " · " + Engine.lessonReason(state, nextLesson),
+      mins: 3,
       action: "new"
     });
   }
   const stepsHtml = steps.slice(0, 3).map(function (st) {
     return '<button class="next-step" data-step="' + st.action + '">'
-      + '<span class="ns-body"><b>' + esc(st.title) + "</b><small>" + esc(st.sub) + "</small></span>"
+      + '<span class="ns-body"><b>' + esc(st.title) + "</b><small>" + esc(st.sub)
+      + (st.mins ? " · ~" + st.mins + " min" : "") + "</small></span>"
       + '<span class="ns-go">→</span></button>';
   }).join("");
 
@@ -1001,7 +1025,7 @@ function openDrawer(kpId) {
     + (zhOf(kp) ? '<span class="t-zh" style="display:block">' + esc(zhOf(kp)) + "</span>" : "");
   let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
     + '<span class="score-chip" style="font-size:14px;color:' + scoreColor(sc, s ? s.n : 0) + '">' + (s && s.n ? sc : "—") + "</span>"
-    + badge(st) + '<span class="tiny">' + esc(kp.level) + " · " + esc(CATEGORIES[kp.category] || kp.category) + "</span></div>"
+    + badge(pointStatus(kp)) + '<span class="tiny">' + esc(kp.level) + " · " + esc(CATEGORIES[kp.category] || kp.category) + "</span></div>"
     + (whyText ? '<div class="drawer-why' + (beyond ? " beyond" : "") + '">' + esc(whyText) + "</div>" : "")
     + profileLine(kp)
     + '<div class="rule">' + frify(kp.rule) + "</div>"
@@ -1556,7 +1580,8 @@ function renderKwiz() {
   } else {
     inputHtml = '<input class="answer-input" id="answerInput" autocomplete="off" autocapitalize="off" spellcheck="false" '
       + 'placeholder="Type your answer" value="' + (answered ? esc(session.last && session.last.given || "") : "") + '"'
-      + (answered ? " disabled" : "") + ">";
+      + (answered ? " disabled" : "") + ">"
+      + (answered ? "" : accentBarHtml("answerInput"));
   }
 
   let feedback = "";
@@ -1636,6 +1661,7 @@ function renderKwiz() {
       input.addEventListener("keydown", function (e) {
         if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); checkAnswer(); }
       });
+      wireAccentBars();
     }
     document.getElementById("checkBtn").addEventListener("click", checkAnswer);
     document.getElementById("skipBtn").addEventListener("click", skipAnswer);
@@ -2440,6 +2466,54 @@ function whyWrongHtml(kpId, given) {
   return '<div class="why-wrong"><b>Why not « ' + esc(given) + " »?</b> " + esc(why) + "</div>";
 }
 
+/* ---- typing French on a phone -------------------------------------------
+
+   The lenient matcher means a missing accent no longer fails you, but the
+   fastest way to actually learn the accent is still to type it. These keys sit
+   under the input; tapping é right after an e replaces the e instead of
+   doubling it. */
+
+const ACCENT_BASE = { "é": "e", "è": "e", "ê": "e", "ë": "e", "à": "a", "â": "a", "ù": "u", "û": "u", "ç": "c", "ï": "i", "î": "i", "ô": "o", "œ": "oe" };
+
+function accentBarHtml(inputId) {
+  return '<div class="accent-bar" data-for="' + inputId + '">'
+    + Object.keys(ACCENT_BASE).map(function (c) {
+      return '<button type="button" class="accent-key" data-accent="' + c + '">' + c + "</button>";
+    }).join("")
+    + "</div>";
+}
+
+function insertAccent(input, ch) {
+  const base = ACCENT_BASE[ch];
+  const start = input.selectionStart != null ? input.selectionStart : input.value.length;
+  const end = input.selectionEnd != null ? input.selectionEnd : start;
+  let value = input.value;
+  let at = start;
+  if (start === end && start > 0 && value.charAt(start - 1).toLowerCase() === base) {
+    value = value.slice(0, start - 1) + ch + value.slice(start);
+    at = start - 1;
+  } else {
+    value = value.slice(0, start) + ch + value.slice(end);
+  }
+  input.value = value;
+  const pos = at + ch.length;
+  if (input.setSelectionRange) input.setSelectionRange(pos, pos);
+  input.focus();
+}
+
+function wireAccentBars() {
+  document.querySelectorAll(".accent-bar").forEach(function (bar) {
+    const input = document.getElementById(bar.getAttribute("data-for"));
+    if (!input || input.disabled) return;
+    bar.addEventListener("click", function (e) {
+      const btn = e.target.closest("[data-accent]");
+      if (!btn) return;
+      e.preventDefault();
+      insertAccent(input, btn.getAttribute("data-accent"));
+    });
+  });
+}
+
 /* Optional Chinese subtitle for a point title. */
 function zhOf(kp) {
   return (typeof ZH !== "undefined" && ZH[kp.id]) ? ZH[kp.id] : "";
@@ -2682,7 +2756,8 @@ function renderPrelearn(kpId) {
             }
             return '<button class="' + cls + '" data-g-option="' + esc(o) + '"' + (fb ? " disabled" : "") + ">" + esc(o) + "</button>";
           }).join("") + "</div>"
-        : '<input class="answer-input" id="gInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">")
+        : '<input class="answer-input" id="gInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">"
+          + (fb ? "" : accentBarHtml("gInput")))
       + (item.hint ? '<p class="small" style="margin-top:10px">Hint: ' + esc(item.hint) + "</p>" : "")
       + (fb ? '<div class="feedback ' + (fb === "ok" ? "ok" : "bad") + '"><div class="mark">' + (fb === "ok" ? "✓" : "×")
           + '</div><div class="body"><b>'
@@ -2741,7 +2816,8 @@ function renderPrelearn(kpId) {
               }
               return '<button class="' + cls + '" data-c-option="' + esc(o) + '"' + (fb ? " disabled" : "") + ">" + esc(o) + "</button>";
             }).join("") + "</div>"
-          : '<input class="answer-input" id="cInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">")
+          : '<input class="answer-input" id="cInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">"
+            + (fb ? "" : accentBarHtml("cInput")))
         + (fb ? '<div class="feedback ' + (fb === "ok" ? "ok" : "bad") + '"><div class="mark">' + (fb === "ok" ? "✓" : "×")
             + '</div><div class="body"><b>' + (fb === "ok" ? "Correct." : "Not quite.") + "</b>"
             + (fb === "ok" ? accentNoteHtml(prelearn.match) : "")
@@ -2786,6 +2862,7 @@ function bindPrelearn(kp) {
       const input = document.getElementById("gInput");
       if (input && !prelearn.feedback) {
         input.focus();
+        wireAccentBars();
         input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); document.getElementById("gCheck").click(); } });
       }
     }
@@ -2844,6 +2921,7 @@ function bindPrelearn(kp) {
         const input = document.getElementById("cInput");
         if (input && !prelearn.feedback) {
           input.focus();
+          wireAccentBars();
           input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); document.getElementById("cCheck").click(); } });
         }
       }
@@ -3427,6 +3505,7 @@ function renderVerbDrill() {
     + '<div class="verb-drill-person">' + esc(pronoun) + " ______</div>"
     + '<input class="answer-input" id="verbInput" autocomplete="off" autocapitalize="off" spellcheck="false" '
     + 'placeholder="Type the conjugated form"' + (checked ? ' value="' + esc(d.given) + '" disabled' : "") + ">"
+    + (checked ? "" : accentBarHtml("verbInput"))
     + (checked
       ? '<div class="feedback ' + (checked === "ok" ? "ok" : "bad") + '"><div class="mark">'
         + (checked === "ok" ? "✓" : "×") + '</div><div class="body">'
@@ -3445,6 +3524,7 @@ function renderVerbDrill() {
   const input = document.getElementById("verbInput");
   if (!checked) {
     input.focus();
+    wireAccentBars();
     input.addEventListener("keydown", function (e) {
       if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); checkVerb(); }
     });
@@ -4172,19 +4252,21 @@ function renderLibrary() {
   const cards = KPS.map(function (kp, idx) {
     const st = state.kps[kp.id];
     const sc = st ? Engine.display(st.p, st.n) : 0;
-    const status = Engine.statusOf(state, kp);
+    const status = pointStatus(kp);
     const hay = (kp.title + " " + kp.titleFr + " " + kp.rule + " " + (CATEGORIES[kp.category] || "")).toLowerCase();
     return '<div class="lib-card" data-level="' + kp.level + '" data-cat="' + kp.category + '"'
       + ' data-text="' + esc(hay) + '" data-idx="' + idx + '"'
       + ' data-score="' + (st && st.n ? sc : -999) + '"'
-      + ' data-last="' + (st && st.lastSeen ? st.lastSeen : 0) + '">'
+      + ' data-last="' + (st && st.lastSeen ? st.lastSeen : 0) + '"'
+      + (status === "locked" ? ' data-locked="1"' : "") + '>'
       + '<div class="lvl">' + esc(kp.level) + " · " + esc(CATEGORIES[kp.category] || kp.category) + "</div>"
       + '<div class="t">' + esc(kp.title) + "</div>"
       + (zhOf(kp) ? '<div class="t-zh">' + esc(zhOf(kp)) + "</div>" : "")
       + '<div class="fr">' + esc(kp.titleFr) + "</div>"
       + '<div class="foot"><span class="score" style="color:' + scoreColor(sc, st ? st.n : 0) + '">'
       + (st && st.n ? sc : "—") + "</span>" + badge(status)
-      + '<button class="btn sm ghost" data-kp-open="' + kp.id + '">' + (status === "new" ? "Learn" : "Practice") + "</button></div></div>";
+      + '<button class="btn sm ghost" data-kp-open="' + kp.id + '">'
+      + (status === "available" ? "Learn" : status === "locked" ? "Preview" : "Practice") + "</button></div></div>";
   }).join("");
 
   app.innerHTML = '<div class="container">'
@@ -4314,7 +4396,10 @@ function renderSettings() {
     + '<span>Clears all scores, sessions and streaks. Cannot be undone.</span></div>'
     + '<button class="btn sm subtle danger" id="resetBtn">Reset</button></div>'
     + "</div>"
-    + '<p class="small" style="margin-top:16px">Current data: ' + state.attempts.length + " attempts, "
+    + '<p class="small" style="margin-top:16px">Stored in this browser under <code>' + LS_STATE + '</code>'
+    + " · " + Math.round((localStorage.getItem(LS_STATE) || "").length / 1024) + " KB"
+    + " · no server copy, no sync between devices.</p>"
+    + '<p class="small" style="margin-top:6px">Current data: ' + state.attempts.length + " attempts, "
     + state.sessions.length + " sessions, " + KPS.length + " knowledge points"
     + (Engine.accentCount(state) ? " · " + Engine.accentCount(state) + " accepted without accents" : "")
     + ".</p>"

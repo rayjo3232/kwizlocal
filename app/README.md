@@ -57,6 +57,9 @@ collapses to one column.
 |---|---|
 | 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
 | **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
+| **Accent keys**: é è ê ë à â ù û ç ï î ô œ under every typed French input; tapping one after its base letter replaces it | done |
+| **Update prompt**: a new build waits instead of taking over — the page offers Reload / Later, so a quiz is never swapped mid-answer | done |
+| **Seven library states**: locked / available / learning / weak / due / solid, with locked cards dimmed and marked Preview | done |
 | **Chinese layer**: a one-line Chinese subtitle on all 162 points, plus 43 contrast notes that only exist where Chinese and French genuinely diverge — rules, examples and exercises stay English | done |
 | **Single content source**: `app/data.js`; `content/curriculum.json` is a generated projection, `content/legacy/` holds the retired M0 drafts | done |
 | **Four mastery signals**: `Engine.pointProfile()` separates coverage, mastery (`null` when untested), lesson stage and review date; accent-only answers are counted on their own | done |

@@ -101,23 +101,45 @@
 <script src="engine.js"></script>
 <script src="app.js"></script>
 <script>
-/* Service worker only works over http(s); skip it when opened as a file. */
-if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
-  var swOpenedAt = Date.now();
+/* Service worker only works over http(s); skip it when opened as a file.
 
-  /* A new build just activated. Reload once so the page picks up the new
-     assets — but only if the user has not started working yet, because
-     reloading mid-exercise is worse than being one version behind. */
-  navigator.serviceWorker.addEventListener("message", function (e) {
-    if (!e.data || e.data.type !== "SW_UPDATED") return;
-    if (Date.now() - swOpenedAt > 4000) return;
-    if (sessionStorage.getItem("sw-reloaded") === e.data.version) return;
-    sessionStorage.setItem("sw-reloaded", e.data.version);
-    location.reload();
-  });
+   A new build is cached but does NOT take over on its own — activating it
+   would swap assets under a page that is halfway through a quiz. Instead the
+   page offers a banner and the learner decides when to switch. */
+if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+  var updateBar = null;
+
+  function offerUpdate(worker) {
+    if (!worker || !navigator.serviceWorker.controller) return;  // first install
+    if (updateBar) return;
+    updateBar = document.createElement("div");
+    updateBar.className = "sw-update";
+    updateBar.setAttribute("role", "status");
+    updateBar.innerHTML = '<span>新版本已就绪 · A new version is ready.</span>'
+      + '<button type="button" class="sw-update-go">Reload</button>'
+      + '<button type="button" class="sw-update-later" aria-label="Dismiss">Later</button>';
+    document.body.appendChild(updateBar);
+    updateBar.querySelector(".sw-update-go").addEventListener("click", function () {
+      worker.postMessage({ type: "SKIP_WAITING" });
+      location.reload();
+    });
+    updateBar.querySelector(".sw-update-later").addEventListener("click", function () {
+      updateBar.remove();
+      updateBar = null;
+    });
+  }
 
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("sw.js").catch(function () {});
+    navigator.serviceWorker.register("sw.js").then(function (reg) {
+      offerUpdate(reg.waiting);
+      reg.addEventListener("updatefound", function () {
+        var next = reg.installing;
+        if (!next) return;
+        next.addEventListener("statechange", function () {
+          if (next.state === "installed") offerUpdate(next);
+        });
+      });
+    }).catch(function () {});
   });
 }
 </script>
