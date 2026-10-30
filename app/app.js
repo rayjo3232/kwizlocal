@@ -1952,13 +1952,17 @@ function renderResult(id) {
     + '<div class="result-score">' + record.correct + " of " + answered + " correct"
     + (record.skipped ? " · " + record.skipped + " skipped" : "")
     + (record.durationMs ? " · " + fmtDuration(record.durationMs) : "") + "</div></div>"
+    /* One solid button. The other three were equally weighted boxes, which is
+       four decisions at the moment the learner wants one. */
     + '<div class="res-actions">'
     + (wrong.length
-      ? '<button class="btn" id="mistakesBtn">Practise ' + wrong.length + ' mistake' + (wrong.length > 1 ? "s" : "") + "</button>"
-      : '<button class="btn" id="newPointBtn">Learn a new point</button>')
-    + '<button class="btn subtle" data-start="' + record.total + '">Again · ' + record.total + " questions</button>"
-    + (wrong.length ? '<button class="btn subtle" id="newPointBtn">Learn a new point</button>' : "")
-    + '<a class="btn subtle" href="#/">Back to dashboard</a></div>'
+      ? '<button class="btn block" id="mistakesBtn">Practise ' + wrong.length + ' mistake' + (wrong.length > 1 ? "s" : "") + "</button>"
+      : '<button class="btn block" id="newPointBtn">Learn a new point</button>')
+    + '<div class="res-links">'
+    + '<button class="linkbtn" data-start="' + record.total + '">Again · ' + record.total + " questions</button>"
+    + (wrong.length ? '<button class="linkbtn" id="newPointBtn">Learn a new point</button>' : "")
+    + '<a class="linkbtn" href="#/">Back to dashboard</a>'
+    + "</div></div>"
     + (wrong.length
       ? '<p class="small" style="text-align:center;margin:10px 0 0">'
         + wrong.length + " mistake" + (wrong.length > 1 ? "s" : "") + ' added to your <a href="#/notebook">Notebook</a>.</p>'
@@ -3144,10 +3148,12 @@ function renderVocab() {
     + '<div class="page-head"><h1>Vocabulary</h1>'
     + '<p>' + VOCAB_LIST.length + ' words, most useful first.</p></div>'
     + '<div class="nb-actions">'
-    + '<button class="btn" id="vocabFlashBtn">Flashcards · ' + counts.new + " new</button>"
-    + '<button class="btn ghost" id="vocabClozeBtn">Cloze</button>'
-    + '<button class="btn ghost" id="vocabGenderBtn">Gender drill</button>'
-    + '<button class="btn subtle" id="vocabKnownBtn">Practise known</button>'
+    + '<button class="btn block" id="vocabFlashBtn">Flashcards · ' + counts.new + " new</button>"
+    + '<div class="vocab-modes">'
+    + '<button class="btn sm ghost" id="vocabClozeBtn">Cloze</button>'
+    + '<button class="btn sm ghost" id="vocabGenderBtn">Gender drill</button>'
+    + '<button class="btn sm ghost" id="vocabKnownBtn">Practise known</button>'
+    + "</div>"
     + '<span class="spacer"></span>'
     + '<span class="small">' + counts.known + " known · " + counts.learning + " learning</span></div>"
     + '<div class="lib-filters">' + chips + "</div>"
@@ -4361,13 +4367,13 @@ function renderSettings() {
     + '<div class="card">'
     + '<div class="setting-row"><div class="txt"><b>TCF-style exam</b>'
     + '<span>20 timed questions, score out of 699 with a CEFR estimate.</span></div>'
-    + '<button class="btn sm" id="examBtn">Start</button></div>'
+    + '<button class="btn sm ghost" id="examBtn">Start</button></div>'
     + '<div class="setting-row"><div class="txt"><b>Placement test</b>'
     + '<span>20 questions to estimate your level and seed the Brainmap.</span></div>'
-    + '<button class="btn sm" id="placementBtn">Start</button></div>'
+    + '<button class="btn sm ghost" id="placementBtn">Start</button></div>'
     + '<div class="setting-row"><div class="txt"><b>Load demo progress</b>'
     + '<span>Fills the map with realistic scores so you can see the Brainmap in action.</span></div>'
-    + '<button class="btn sm" id="seedBtn">Load</button></div>'
+    + '<button class="btn sm ghost" id="seedBtn">Load</button></div>'
     + '<div class="setting-row"><div class="txt"><b>Guided starting level</b>'
     + '<span>Set your learning entry point. A0 covers essentials; a placement test can also set a starting level. Higher starting levels assume earlier prerequisites without inventing mastery scores.</span></div>'
     + '<select id="learningLevelSelect" class="goal-select">'

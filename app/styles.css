@@ -1308,3 +1308,30 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
 }
 .accent-bar::-webkit-scrollbar{display:none}
 .accent-key{flex:0 0 auto}
+
+/* ---- one primary action per screen (B) ---------------------------------- */
+
+/* Result page: the four equal boxes are now one button and three text links. */
+.res-actions .btn.block{width:100%}
+.res-links{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;
+  margin-top:12px;
+}
+.res-links .linkbtn{
+  font-size:var(--fs-2);color:var(--muted);background:none;border:0;
+  padding:4px 2px;cursor:pointer;font-family:inherit;text-decoration:none;
+}
+.res-links .linkbtn:hover{color:var(--ink);text-decoration:underline}
+
+/* Vocabulary: one solid action, then the three modes as quiet buttons. */
+.vocab-modes{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;
+}
+.vocab-modes .btn{flex:1 1 auto;justify-content:center}
+
+/* The question card sat in the top third with 400px of nothing under it.
+   Centre it in the space between the header and the tab bar. */
+@media (max-width:700px){
+  .container{min-height:calc(100vh - 56px - 64px);display:flex;flex-direction:column}
+  .container > .kwiz-wrap{margin:auto 0}
+}
