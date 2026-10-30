@@ -1506,7 +1506,7 @@ function renderKwiz() {
         + esc(item.explain) + "</div></div>";
     } else if (l.correct) {
       feedback = '<div class="feedback ok" role="status" aria-live="polite"><div class="mark">✓</div><div class="body">'
-        + "<b>Correct.</b>" + moveHtml + ctxNote + esc(item.explain) + "</div></div>";
+        + "<b>Correct.</b>" + accentNoteHtml(l.accent) + moveHtml + ctxNote + esc(item.explain) + "</div></div>";
     } else {
       feedback = '<div class="feedback bad" role="status" aria-live="polite"><div class="mark">×</div><div class="body">'
         + "<b>Not quite.</b>" + moveHtml + ctxNote
@@ -1599,6 +1599,39 @@ function maybeQueueRetry(ref) {
   s.items.splice(at, 0, { kpId: ref.kpId, itemId: pick.id, difficulty: pick.difficulty, retry: true });
 }
 
+/* ---- answer matching -------------------------------------------------------
+   Typing accents on a phone is painful, so by default "etre" passes against
+   "être" and the feedback names the accent that was missed. Choice questions
+   compare exactly; only typed French goes through the matcher. */
+
+function answerMode() {
+  return state.accentLenient === false ? "strict" : "lenient";
+}
+
+function matchOf(item, given) {
+  if (item.type === "choice") {
+    const ok = Engine.normalize(given) === Engine.normalize(item.answer);
+    return { status: ok ? "exact" : "incorrect", accepted: ok, expected: item.answer, input: given, notes: [], semantic: false };
+  }
+  return Engine.matchAnswer(item, given, answerMode());
+}
+
+/* "Accepted — accent only. Standard spelling: être · you wrote etre — check ê." */
+function accentNoteHtml(m) {
+  if (!m || m.status !== "accent_only") return "";
+  const marks = (m.notes || []).map(function (n) { return n.expected; })
+    .filter(function (v, i, a) { return a.indexOf(v) === i; }).join(" ");
+  let html = '<div class="accent-note"><b>Accepted — the accent is missing or different.</b> '
+    + "Standard spelling: <b>" + esc(m.expected) + "</b>"
+    + " · you wrote <i>" + esc(m.input) + "</i>";
+  if (marks) html += " — check " + esc(marks);
+  html += ".";
+  if (m.semantic) {
+    html += ' <span class="accent-warn">Here the accent changes the meaning, not just the spelling — worth getting right.</span>';
+  }
+  return html + "</div>";
+}
+
 function checkAnswer() {
   const ref = session.session.items[session.index];
   const pair = getItem(ref);
@@ -1612,7 +1645,8 @@ function checkAnswer() {
     given = input ? input.value : "";
     if (!Engine.normalize(given)) { toast("Type an answer, or skip"); return; }
   }
-  const correct = Engine.isCorrect(item, given);
+  const m = matchOf(item, given);
+  const correct = m.accepted;
 
   /* Apply the mastery update immediately so the feedback can show the exact
      score movement for this answer, and so a half-finished session still
@@ -1620,7 +1654,8 @@ function checkAnswer() {
   const res = Engine.applyAttempt(state, {
     kpId: ref.kpId || null, itemId: item.id, correct: correct,
     source: item.topic || (item.fromSentence ? "sentence" : "kwiz"),
-    noMastery: !!item.fromSentence || !!item.topic
+    noMastery: !!item.fromSentence || !!item.topic,
+    accent: m.status === "accent_only"
   });
   saveState();
   const beforeScore = res.before;
@@ -1629,11 +1664,13 @@ function checkAnswer() {
   session.answers.push({
     itemId: item.id, kpId: ref.kpId || null, correct: correct, given: given, applied: true,
     noMastery: !!item.fromSentence || !!item.topic,
-    topic: item.topic || null
+    topic: item.topic || null,
+    accent: m.status === "accent_only"
   });
   session.last = {
     correct: correct, given: given, skip: false,
     noMastery: !!item.fromSentence || !!item.topic,
+    accent: m,
     before: beforeScore, after: afterScore, delta: afterScore - beforeScore
   };
   session.phase = "feedback";
@@ -1730,6 +1767,9 @@ function renderResult(id) {
         ? '<div class="res-a ok"><span>Correct</span><b>' + esc(item.answer) + "</b></div>"
         : "")
       + "</div>"
+      + (a.accent
+        ? '<div class="res-ctx">Accepted without the accent · standard: ' + esc(item.answer) + "</div>"
+        : "")
       + (a.noMastery
         ? '<div class="res-ctx">' + (a.topic
           ? (a.topic === "verbs" ? "Conjugation" : "Vocabulary") + " · counts in this session, not in your grammar score"
@@ -1935,7 +1975,7 @@ function placementNext(skip) {
     }
   }
 
-  const correct = skip ? null : Engine.isCorrect(item, given);
+  const correct = skip ? null : matchOf(item, given).accepted;
   placement.answers.push({ kpId: ref.kpId, itemId: item.id, correct: correct, given: given });
   placement.index += 1;
   placement.selected = null;
@@ -2172,7 +2212,7 @@ function examNext(skip) {
 
   exam.answers.push({
     kpId: ref.kpId, itemId: item.id,
-    correct: skip ? null : Engine.isCorrect(item, given),
+    correct: skip ? null : matchOf(item, given).accepted,
     given: given
   });
   exam.index += 1;
@@ -2492,7 +2532,7 @@ function renderPrelearn(kpId) {
   const kp = KP_BY_ID[kpId];
   if (!kp) { app.innerHTML = '<div class="container"><div class="empty">Unknown point.</div></div>'; return; }
   if (!prelearn || prelearn.kpId !== kpId) {
-    prelearn = { kpId: kpId, step: 1, g: 0, c: 0, checkCorrect: 0, feedback: null, given: "", revealed: false };
+    prelearn = { kpId: kpId, step: 1, g: 0, c: 0, checkCorrect: 0, feedback: null, given: "", revealed: false, match: null };
   }
 
   const stepHtml = function (n, label) {
@@ -2571,6 +2611,7 @@ function renderPrelearn(kpId) {
           + '</div><div class="body"><b>'
           + (fb === "ok" ? "Correct." : reveal ? "Here is the answer." : "Not quite — try again.")
           + "</b>"
+          + (fb === "ok" ? accentNoteHtml(prelearn.match) : "")
           + ((fb === "ok" || reveal)
             ? '<div class="answer-line">' + esc(item.answer) + "</div>" + esc(item.explain)
             : "")
@@ -2626,6 +2667,7 @@ function renderPrelearn(kpId) {
           : '<input class="answer-input" id="cInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">")
         + (fb ? '<div class="feedback ' + (fb === "ok" ? "ok" : "bad") + '"><div class="mark">' + (fb === "ok" ? "✓" : "×")
             + '</div><div class="body"><b>' + (fb === "ok" ? "Correct." : "Not quite.") + "</b>"
+            + (fb === "ok" ? accentNoteHtml(prelearn.match) : "")
             + '<div class="answer-line">' + esc(item.answer) + "</div>"
             + (fb === "bad" && item.type === "choice" ? whyWrongHtml(kp.id, prelearn.given) : "")
             + esc(item.explain) + "</div></div>" : "")
@@ -2658,7 +2700,8 @@ function bindPrelearn(kp) {
       document.querySelectorAll("[data-g-option]").forEach(function (b) {
         b.addEventListener("click", function () {
           prelearn.given = b.getAttribute("data-g-option");
-          prelearn.feedback = Engine.isCorrect(item, prelearn.given) ? "ok" : "bad";
+          prelearn.match = matchOf(item, prelearn.given);
+          prelearn.feedback = prelearn.match.accepted ? "ok" : "bad";
           renderPrelearn(kp.id);
         });
       });
@@ -2674,7 +2717,8 @@ function bindPrelearn(kp) {
       const input = document.getElementById("gInput");
       prelearn.given = input ? input.value : prelearn.given;
       if (!Engine.normalize(prelearn.given)) { toast("Type an answer"); return; }
-      prelearn.feedback = Engine.isCorrect(item, prelearn.given) ? "ok" : "bad";
+      prelearn.match = matchOf(item, prelearn.given);
+      prelearn.feedback = prelearn.match.accepted ? "ok" : "bad";
       renderPrelearn(kp.id);
     });
     const gNext = document.getElementById("gNext");
@@ -2683,6 +2727,7 @@ function bindPrelearn(kp) {
       prelearn.feedback = null;
       prelearn.given = "";
       prelearn.revealed = false;
+      prelearn.match = null;
       if (prelearn.g >= 2) { prelearn.step = 3; prelearn.c = 0; prelearn.checkCorrect = 0; }
       renderPrelearn(kp.id);
     });
@@ -2711,7 +2756,8 @@ function bindPrelearn(kp) {
         document.querySelectorAll("[data-c-option]").forEach(function (b) {
           b.addEventListener("click", function () {
             prelearn.given = b.getAttribute("data-c-option");
-            const ok = Engine.isCorrect(item, prelearn.given);
+            prelearn.match = matchOf(item, prelearn.given);
+            const ok = prelearn.match.accepted;
             if (ok) prelearn.checkCorrect++;
             prelearn.feedback = ok ? "ok" : "bad";
             renderPrelearn(kp.id);
@@ -2729,7 +2775,8 @@ function bindPrelearn(kp) {
         const input = document.getElementById("cInput");
         prelearn.given = input ? input.value : prelearn.given;
         if (!Engine.normalize(prelearn.given)) { toast("Type an answer"); return; }
-        const ok = Engine.isCorrect(item, prelearn.given);
+        prelearn.match = matchOf(item, prelearn.given);
+        const ok = prelearn.match.accepted;
         if (ok) prelearn.checkCorrect++;
         prelearn.feedback = ok ? "ok" : "bad";
         renderPrelearn(kp.id);
@@ -2739,6 +2786,7 @@ function bindPrelearn(kp) {
         prelearn.c += 1;
         prelearn.feedback = null;
         prelearn.given = "";
+        prelearn.match = null;
         renderPrelearn(kp.id);
       });
     } else {
@@ -3306,6 +3354,7 @@ function renderVerbDrill() {
       ? '<div class="feedback ' + (checked === "ok" ? "ok" : "bad") + '"><div class="mark">'
         + (checked === "ok" ? "✓" : "×") + '</div><div class="body">'
         + "<b>" + (checked === "ok" ? "Correct." : "Not quite.") + "</b>"
+        + (checked === "ok" ? accentNoteHtml(d.match) : "")
         + '<div class="answer-line">' + esc(verbElide(pronoun, q.answer)) + "</div>"
         + "</div></div>"
         + '<div class="kwiz-actions"><button class="btn" id="vdNext">'
@@ -3344,8 +3393,12 @@ function checkVerb() {
   const q = d.queue[d.index];
   const input = document.getElementById("verbInput");
   const given = input ? input.value : "";
-  const ok = Engine.normalize(given) === Engine.normalize(q.answer);
+  /* Conjugation is typed French too, so it goes through the same matcher:
+     "etre" passes for "être", "somes" still fails for "sommes". */
+  const m = Engine.matchAnswer({ answer: q.answer }, given, answerMode());
+  const ok = m.accepted;
   d.given = given;
+  d.match = m;
   d.checked = ok ? "ok" : "bad";
   if (ok) d.correct += 1; else d.wrong += 1;
   const rec = verbRecord(q.inf + "|" + q.tense + "|" + q.person);
@@ -4169,6 +4222,10 @@ function renderSettings() {
     + '<div class="setting-row"><div class="txt"><b>Auto-advance</b>'
     + '<span>Jump to the next question right after a correct answer.</span></div>'
     + '<button class="btn sm subtle" id="autoBtn">' + (state.autoAdvance !== false ? "On" : "Off") + "</button></div>"
+    + '<div class="setting-row"><div class="txt"><b>Lenient French accents</b>'
+    + '<span>Typing <i>etre</i> passes when the answer is <i>être</i>, and the feedback shows the standard spelling. '
+    + 'Off means every accent must be typed. Spelling still has to be right either way.</span></div>'
+    + '<button class="btn sm subtle" id="accentBtn">' + (state.accentLenient !== false ? "On" : "Off") + "</button></div>"
     + '<div class="setting-row"><div class="txt"><b>Export progress</b>'
     + '<span>Download a JSON backup of every attempt and score.</span></div>'
     + '<button class="btn sm subtle" id="exportBtn">Export</button></div>'
@@ -4247,6 +4304,12 @@ function renderSettings() {
     state.goal = parseInt(e.target.value, 10) || 20;
     saveState();
     toast("Daily goal set to " + state.goal);
+  });
+  document.getElementById("accentBtn").addEventListener("click", function () {
+    state.accentLenient = state.accentLenient === false;
+    saveState();
+    document.getElementById("accentBtn").textContent = state.accentLenient !== false ? "On" : "Off";
+    toast(state.accentLenient !== false ? "Lenient accents on" : "Strict accents on");
   });
   document.getElementById("autoBtn").addEventListener("click", function () {
     state.autoAdvance = state.autoAdvance === false;

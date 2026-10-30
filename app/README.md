@@ -57,6 +57,7 @@ collapses to one column.
 |---|---|
 | 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
 | **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
+| **Lenient French accents**: `etre` passes against `être` and the feedback shows the standard spelling; `parle` still fails against `parler`. Toggle in Settings, default on | done |
 | **Question depth**: `app/extra.js` adds three practice questions to every non-reading point, appended as kwiz-stage items so the guided pair and the check trio never move | done |
 | **Quick kwiz**: 3-question (~1 min) and 10-question modes | done |
 | **Per-answer score movement**: every answer shows the exact delta for that point | done |

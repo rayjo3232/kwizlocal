@@ -23,6 +23,7 @@ FILES = [
     "index.html",
     "styles.css",
     "app.js",
+    "answer-matcher.js",
     "engine.js",
     "data.js",
     "extra.js",

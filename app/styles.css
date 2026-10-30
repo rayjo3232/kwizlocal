@@ -600,6 +600,17 @@ p{margin:0 0 12px}
 /* Context questions (real sentences from the bank) are scored in the session
    but deliberately not in the mastery model — say so rather than silently
    showing a 0 delta. */
+/* Accepted, but the accent was missing or wrong. Amber, not red: the answer
+   counted, the spelling still needs saying. */
+.accent-note{
+  margin:6px 0;padding:7px 10px;border-radius:6px;
+  background:#FFF7E0;border-left:3px solid var(--yellow);
+  font-size:12.5px;line-height:1.55;color:#5C410A;
+}
+.accent-note b{color:#4A3406}
+.accent-note i{font-family:var(--font-content);font-style:italic}
+.accent-warn{display:block;margin-top:3px;font-weight:600;color:#8A3B00}
+
 .ctx-note{
   margin:6px 0;padding:6px 10px;border-radius:6px;
   background:#F3F9FE;border-left:3px solid #9CC9E8;

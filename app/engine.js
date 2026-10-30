@@ -31,6 +31,10 @@ const Engine = (function () {
       streak: { count: 0, last: null },
       goal: 20,
       learningLevel: null, // null = use placement estimate or start at A0
+      /* Lenient French accents: "etre" passes against "être". Default on
+         because typing accents on a phone keyboard is genuinely painful;
+         false means every diacritic must be typed. */
+      accentLenient: true,
       plan: null,
       autoAdvance: true,
       /* Notebook: mistakes collected automatically + points saved by hand. */
@@ -398,6 +402,22 @@ const Engine = (function () {
 
      Everything that scores an answer (kwiz, placement, exam, pre-learn) goes
      through here, so those three cases can never drift apart again. */
+  /* One row shape for every logged answer. `accent` is only written when the
+     answer was right apart from its diacritics, so old rows stay untouched and
+     a plain "how many accent slips" query is just a filter. */
+  function attemptRow(a, correct, source, noMastery) {
+    const row = {
+      itemId: a.itemId,
+      kpId: a.kpId,
+      correct: correct,
+      at: a.at || Date.now(),
+      source: source
+    };
+    if (noMastery) row.noMastery = true;
+    if (a.accent) row.accent = true;
+    return row;
+  }
+
   function applyAttempt(state, a) {
     if (!Array.isArray(state.attempts)) state.attempts = [];
     const before = scoreOf(state, a.kpId);
@@ -413,10 +433,7 @@ const Engine = (function () {
        grammar point the sentence happens to contain. Log it, score it in the
        session, but leave mastery and the Notebook alone. */
     if (a.noMastery) {
-      state.attempts.push({
-        itemId: a.itemId, kpId: a.kpId, correct: correct,
-        at: a.at || Date.now(), source: a.source || "sentence", noMastery: true
-      });
+      state.attempts.push(attemptRow(a, correct, a.source || "sentence", true));
       return { skipped: false, before: before, after: before, delta: 0, noMastery: true };
     }
 
@@ -433,13 +450,7 @@ const Engine = (function () {
       kpState.correctSince = [];
       noteWrong(state, a.itemId, a.kpId);
     }
-    state.attempts.push({
-      itemId: a.itemId,
-      kpId: a.kpId,
-      correct: correct,
-      at: a.at || Date.now(),
-      source: a.source || "kwiz"
-    });
+    state.attempts.push(attemptRow(a, correct, a.source || "kwiz", false));
     state.plan = null;
 
     const after = scoreOf(state, a.kpId);
@@ -571,11 +582,20 @@ const Engine = (function () {
       .replace(/[.!?]+$/g, "");
   }
 
-  function isCorrect(item, given) {
+  /* Kept for callers that only want a boolean. The full result — including
+     whether the answer was right apart from its accents — comes from
+     matchAnswer, and that is what the UI uses to explain itself. */
+  function isCorrect(item, given, mode) {
+    return matchAnswer(item, given, mode).accepted;
+  }
+
+  function matchAnswer(item, given, mode) {
+    if (typeof AnswerMatch !== "undefined") return AnswerMatch.matchItem(item, given, mode);
+    /* Fallback for tools that load engine.js without the matcher. */
     const g = normalize(given);
-    if (!g) return false;
-    if (normalize(item.answer) === g) return true;
-    return (item.accept || []).some(function (a) { return normalize(a) === g; });
+    if (!g) return { status: "incorrect", accepted: false, expected: String(item.answer || ""), input: g, notes: [], semantic: false };
+    const hit = [item.answer].concat(item.accept || []).some(function (a) { return normalize(a) === g; });
+    return { status: hit ? "exact" : "incorrect", accepted: hit, expected: String(item.answer || ""), input: g, notes: [], semantic: false };
   }
 
   return {
@@ -614,6 +634,7 @@ const Engine = (function () {
     seedDemo: seedDemo,
     normalize: normalize,
     isCorrect: isCorrect,
+    matchAnswer: matchAnswer,
     todayStr: todayStr
   };
 })();
