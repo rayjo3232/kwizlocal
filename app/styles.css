@@ -414,6 +414,18 @@ p{margin:0 0 12px}
 .gloss-pop span.muted{color:var(--faint);font-style:italic}
 /* Why this point is (or is not) the next thing to do. */
 /* Coverage / mastery / review, under the title. */
+/* A note for Chinese speakers: only where the two languages genuinely differ.
+   Deliberately not styled like an error — it is context, not a correction. */
+.contrast-note{
+  margin:8px 0;padding:8px 11px;border-radius:6px;
+  background:#F6F3FB;border-left:3px solid #9C8AC4;
+  font-size:12.5px;line-height:1.65;color:#3E3355;
+}
+.contrast-note b{
+  display:block;font-size:11px;letter-spacing:.02em;
+  color:#6B5A96;margin-bottom:2px;font-weight:700;
+}
+
 .drawer-stats{
   margin:0 0 2px;font-size:11.5px;color:var(--faint);
   font-variant-numeric:tabular-nums;

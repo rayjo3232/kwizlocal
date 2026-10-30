@@ -4,7 +4,7 @@
    browser treat the new files as new — without a bump, cache-first would
    serve the previous build forever. */
 
-const CACHE = "kwizlocal-v30-mastery";
+const CACHE = "kwizlocal-v31-chinese";
 
 /* Workers Static Assets answers /index.html with a 307 to /, and a redirect
    inside cache.addAll can abort the whole install. "./" alone is enough —
@@ -16,6 +16,7 @@ const ASSETS = [
   "./extra.js",
   "./deep.js",
   "./zh.js",
+  "./contrast.js",
   "./vocab.js",
   "./gloss.js",
   "./distract.js",

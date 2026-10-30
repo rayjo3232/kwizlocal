@@ -51,3 +51,6 @@ kwizlocal-*.json
 .wrangler/
 *.pem
 *.key
+
+# Generated projection of app/data.js — run `node tools/export_content.js`
+content/curriculum.json

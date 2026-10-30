@@ -1,5 +1,24 @@
 # 内容库工作说明
 
+> **这份说明描述的是 M0 阶段的旧内容管线，应用不再使用它。**
+>
+> 应用实际加载的内容只有一处：**`app/data.js`**（题目扩展在 `app/extra.js`，
+> 教学顺序在 `app/curriculum.js`）。课程的中文标题在 `app/zh.js`，中文母语提示
+> 在 `app/contrast.js`。
+>
+> 想看结构化视图就跑 `node tools/export_content.js`，它会生成
+> `content/curriculum.json`（162 个点 / 1,274 道题），那是 data.js 的投影，
+> **不要手改**；`node tools/export_content.js --check` 会告诉你有没有过期。
+>
+> 旧的 `kp/*.json` 草案已移到 `content/legacy/`，只作历史留存。它用的是另一套
+> schema（`title_zh` / `rule_zh` / `fr.` 前缀），改了它页面不会有任何变化——
+> 这正是当初要消除的问题。
+>
+> 校验入口不变：`python tools/validate_content.py` 现在跑的是
+> `check_data.js` + 导出同步检查。
+
+---
+
 一个知识点 = 一个 JSON 文件 = 一段 3 分钟微课 + 8 道题 + 音频 + 来源标注。
 所有内容必须能在没有网络的情况下被应用读取。
 

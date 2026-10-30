@@ -30,6 +30,7 @@ FILES = [
     "extra.js",
     "deep.js",
     "zh.js",
+    "contrast.js",
     "vocab.js",
     "gloss.js",
     "distract.js",

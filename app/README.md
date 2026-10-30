@@ -57,6 +57,8 @@ collapses to one column.
 |---|---|
 | 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
 | **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
+| **Chinese layer**: a one-line Chinese subtitle on all 162 points, plus 43 contrast notes that only exist where Chinese and French genuinely diverge — rules, examples and exercises stay English | done |
+| **Single content source**: `app/data.js`; `content/curriculum.json` is a generated projection, `content/legacy/` holds the retired M0 drafts | done |
 | **Four mastery signals**: `Engine.pointProfile()` separates coverage, mastery (`null` when untested), lesson stage and review date; accent-only answers are counted on their own | done |
 | **Measured difficulty**: `Engine.itemDifficulty()` blends the authored ramp, question type and the observed error rate for that exact question | done |
 | **Streaks steer difficulty**: two misses in a row brings the easier question back, three rights lets the harder one through — always inside the eligible pool | done |

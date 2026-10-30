@@ -961,6 +961,15 @@ function bindMap() {
   });
 }
 
+/* A note for Chinese speakers, when Chinese and French genuinely diverge on
+   this point. Additive: the English rule above it is unchanged. */
+function contrastHtml(kpId) {
+  if (typeof CONTRAST === "undefined") return "";
+  const note = CONTRAST[kpId];
+  if (!note) return "";
+  return '<div class="contrast-note"><b>中文母语提示</b>' + esc(note) + "</div>";
+}
+
 /* Coverage, mastery, lesson stage and review date, kept apart. One number
    could not answer all four, and the drawer used to show only the badge. */
 function profileLine(kp) {
@@ -996,6 +1005,7 @@ function openDrawer(kpId) {
     + (whyText ? '<div class="drawer-why' + (beyond ? " beyond" : "") + '">' + esc(whyText) + "</div>" : "")
     + profileLine(kp)
     + '<div class="rule">' + frify(kp.rule) + "</div>"
+    + contrastHtml(kp.id)
     + usageHtml(kp)
     + "<h4>Examples</h4>"
     + exampleList(kp).map(function (e) {
@@ -2629,6 +2639,7 @@ function renderPrelearn(kpId) {
     const tip = tipHtml(kp);
 
     body = '<div class="rule-box"><b>One rule:</b> ' + frify(kp.rule) + "</div>"
+      + contrastHtml(kp.id)
       + exHtml(firstEx)
       + (rows.length
         ? '<div class="mistakes-block"><div class="mb-title">The usual mix-up</div>' + rowHtml(rows[0]) + "</div>"
