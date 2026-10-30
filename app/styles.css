@@ -1335,3 +1335,35 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
   .container{min-height:calc(100vh - 56px - 64px);display:flex;flex-direction:column}
   .container > .kwiz-wrap{margin:auto 0}
 }
+
+/* Tense cards fold. Seven open tables made the page 1,700px tall. */
+.tense-card summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;
+}
+.tense-card summary::-webkit-details-marker{display:none}
+.tense-card summary::after{
+  content:"";margin-left:auto;width:7px;height:7px;
+  border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);
+  transform:rotate(45deg);transition:transform .18s;
+}
+.tense-card[open] summary::after{transform:rotate(-135deg)}
+.tense-card[open] summary{margin-bottom:6px}
+.tense-card summary:hover{color:var(--brand-ink)}
+
+/* Sentence practice: the drill is the page, the filters are a disclosure. */
+.sent-modes{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sent-modes .btn{flex:1 1 auto;justify-content:center}
+.sent-note{margin:10px 0 0;color:var(--muted)}
+.sent-filter{margin-top:14px;border-top:1px solid var(--line2);padding-top:12px}
+.sent-filter summary{
+  list-style:none;cursor:pointer;font-size:var(--fs-2);color:var(--muted);
+  display:flex;align-items:center;gap:8px;
+}
+.sent-filter summary::-webkit-details-marker{display:none}
+.sent-filter summary::after{
+  content:"";margin-left:auto;width:7px;height:7px;
+  border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);
+  transform:rotate(45deg);transition:transform .18s;
+}
+.sent-filter[open] summary::after{transform:rotate(-135deg)}
+.sent-filter .lib-filters{margin-top:12px}

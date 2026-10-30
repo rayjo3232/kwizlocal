@@ -3420,15 +3420,20 @@ function renderVerbs() {
       + esc(x.inf) + " — " + esc(x.en) + "</option>";
   }).join("");
 
+  /* Seven tenses of six forms is ~1,700px of table. Open the one you came for,
+     collapse the rest; the summary still shows the tense name. */
+  let openTense = 0;
   const cards = VERB_TENSE_LIST.map(function (tense) {
     const forms = v.t[tense];
     if (!forms) return "";
-    return '<div class="tense-card"><div class="tense-name">' + esc(tense) + "</div>"
+    const open = openTense++ === 0;
+    return '<details class="tense-card"' + (open ? " open" : "") + ">"
+      + '<summary class="tense-name">' + esc(tense) + "</summary>"
       + forms.map(function (f, i) {
         return '<div class="tense-row"><span class="pron">' + esc(VERB_PERSON_LIST[i]) + "</span>"
           + '<span class="form">' + esc(verbElide(VERB_PERSON_LIST[i], f)) + "</span></div>";
       }).join("")
-      + "</div>";
+      + "</details>";
   }).join("");
 
   const idx = VERB_LIST.findIndex(function (x) { return x.inf === verbFocus; });
@@ -3813,14 +3818,24 @@ function renderSentences() {
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Sentence practice</h1>'
     + '<p>' + total + " sentences · " + gaps + " gap-fill, " + (total - gaps) + " word order.</p></div>"
-    + '<div class="nb-actions">'
-    + '<button class="btn" id="sentStart"' + (poolSize ? "" : " disabled") + '>Practise 10</button>'
-    + '<button class="btn subtle" id="sentStart20"' + (poolSize ? "" : " disabled") + ">20</button>"
-    + '<button class="btn ghost" id="trStart">Translate</button>'
-    + '<span class="spacer"></span>'
-    + '<span class="small">' + poolSize + " in this filter</span></div>"
+    /* This page used to open on twenty filter chips and nothing else: the
+       filters were the page. Now the drill is the page and the filters are a
+       disclosure that says what is currently selected. */
+    + '<button class="btn block" id="sentStart"' + (poolSize ? "" : " disabled") + ">Practise 10 sentences</button>"
+    + '<div class="sent-modes">'
+    + '<button class="btn sm ghost" id="sentStart20"' + (poolSize ? "" : " disabled") + ">20 instead</button>"
+    + '<button class="btn sm ghost" id="trStart">Write your own</button>'
+    + "</div>"
+    + '<p class="small sent-note">' + poolSize + " sentences match"
+    + (sentTag === "all" && sentLevel === "all" ? " — everything in the bank." : " the current filter.") + "</p>"
+    + '<p class="small sent-note" style="margin-top:6px">Each round is ten real sentences: pick the missing word, '
+    + "or put the words back in order. About three minutes.</p>"
+    + '<details class="sent-filter"><summary>'
+    + "Filter · " + esc(sentTag === "all" ? "all grammar" : sentTag) + " · " + esc(sentLevel === "all" ? "all levels" : sentLevel)
+    + "</summary>"
     + '<div class="lib-filters">' + chips + "</div>"
     + '<div class="lib-filters" style="margin-top:-6px">' + levelChips + "</div>"
+    + "</details>"
     + "</div>";
 
   document.querySelectorAll("[data-stag]").forEach(function (b) {
