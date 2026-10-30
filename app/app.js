@@ -1617,6 +1617,10 @@ function renderKwiz() {
         + '<div class="answer-line">' + esc(item.answer) + "</div>"
         + (item.type === "choice" && !item.fromSentence && !item.topic ? whyWrongHtml(kp.id, l.given) : "")
         + esc(item.explain)
+        /* The per-question explanation is a five-word restatement — enough when
+           you were right, useless when you were wrong. A miss gets the rule
+           itself, in the place where it is needed. */
+        + (item.topic ? "" : '<div class="rule-nudge"><b>The rule</b>' + frify(kp.rule) + "</div>")
         + (item.topic
           ? ""
           : '<div style="margin-top:6px"><a href="#/prelearn/' + kp.id + '" class="small" style="color:var(--blue);font-weight:600">Learn this point →</a></div>')

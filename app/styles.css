@@ -1367,3 +1367,14 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
 }
 .sent-filter[open] summary::after{transform:rotate(-135deg)}
 .sent-filter .lib-filters{margin-top:12px}
+
+/* A wrong answer gets the rule, not just a restatement of the answer. */
+.rule-nudge{
+  margin:8px 0 2px;padding:8px 11px;border-radius:6px;
+  background:#F7F9FB;border-left:3px solid #C6D4E0;
+  font-size:var(--fs-2);line-height:1.6;color:var(--ink2);
+}
+.rule-nudge b{
+  display:block;font-size:var(--fs-1);letter-spacing:.02em;
+  color:var(--faint);margin-bottom:2px;font-weight:700;text-transform:uppercase;
+}

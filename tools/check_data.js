@@ -34,6 +34,21 @@ KPS.forEach(function (kp) {
   if (kp.items.length < 5) fail(kp.id + ": " + kp.items.length + " items (expected at least 5)");
   if (kp.items.length > 16) fail(kp.id + ": " + kp.items.length + " items (max 16)");
 
+  /* A guided question may name the grammar ("___ livre (masculine)") because
+     it is the first exposure. A check or kwiz question must not: the bracket
+     hands over the answer and turns the item into a reading exercise. */
+  /* Only a bracket that *is* the grammar label leaks the answer. "(feminine
+     douce)" hands you a form to transform, "(formal letter)" names the task,
+     and "(that one, f.)" disambiguates the referent — none of those give the
+     answer away. */
+  const GIVEAWAY = /\((masculine|feminine|plural|singular|formal|informal)(\s*,[^)]*)?\)/i;
+  kp.items.forEach(function (it) {
+    if (it.stage === "guided") return;
+    if (GIVEAWAY.test(String(it.prompt))) {
+      fail(it.id + ": prompt gives the grammar away (" + it.prompt + ")");
+    }
+  });
+
   /* The same prompt twice inside one point is a data bug, not variety: the
      learner sees the identical question again and learns nothing. */
   const prompts = {};

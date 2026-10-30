@@ -18,19 +18,19 @@ const EXTRA_ITEMS = {
   /* ---------------- A0 ---------------- */
 
   "a0.articles.definite": [
-    ["choice", "___ hôtel (masculine, silent h)", ["le", "la", "l'"], "l'", "hôtel starts with a silent h, so le becomes l'."],
-    ["fill", "___ enfants jouent dehors. (plural)", null, "Les", "Plural nouns take les, whatever the gender."],
-    ["choice", "Je cherche ___ clé. (feminine)", ["le", "la", "les"], "la", "clé is feminine singular, so it takes la."]
+    ["choice", "___ hôtel", ["le", "la", "l'"], "l'", "hôtel starts with a silent h, so le becomes l'."],
+    ["fill", "___ enfants jouent dehors.", null, "Les", "Plural nouns take les, whatever the gender."],
+    ["choice", "Je cherche ___ clé.", ["le", "la", "les"], "la", "clé is feminine singular, so it takes la."]
   ],
 
   "a0.articles.indefinite": [
-    ["fill", "C'est ___ idée. (feminine, starts with a vowel)", null, "une", "idée is feminine, and une never elides: une idée."],
+    ["fill", "C'est ___ idée.", null, "une", "idée is feminine, and une never elides: une idée."],
     ["choice", "Elle achète ___ livres.", ["un", "une", "des"], "des", "livres is plural, so the indefinite article is des."],
     ["fill", "Il y a ___ homme devant la porte.", null, "un", "homme is masculine singular, so it takes un."]
   ],
 
   "a0.pronouns.subject": [
-    ["choice", "___ êtes professeur. (formal)", ["Nous", "Vous", "Ils"], "Vous", "êtes only goes with vous."],
+    ["choice", "___ êtes professeur.", ["Nous", "Vous", "Ils"], "Vous", "êtes only goes with vous."],
     ["fill", "Les enfants sont petits. ___ sont petits.", null, "Ils", "les enfants is plural masculine or mixed, so ils."],
     ["fill", "___ sommes en retard.", null, "Nous", "sommes only goes with nous."]
   ],
@@ -56,7 +56,7 @@ const EXTRA_ITEMS = {
   "a0.nouns.gender": [
     ["choice", "___ problème", ["le", "la", "les"], "le", "Words in -ème are usually masculine: le problème."],
     ["choice", "___ culture", ["le", "la", "les"], "la", "Words in -ure are usually feminine: la culture."],
-    ["fill", "___ département (masculine)", null, "le", "Words in -ment are usually masculine: le département."]
+    ["fill", "___ département", null, "le", "Words in -ment are usually masculine: le département."]
   ],
 
   "a0.nouns.plural": [
@@ -139,7 +139,7 @@ const EXTRA_ITEMS = {
 
   "a0.expressions.greetings": [
     ["choice", "You leave at night.", ["Bonne nuit", "Bonsoir", "Bonjour"], "Bonne nuit", "Bonne nuit is for going to bed; bonsoir is for arriving in the evening."],
-    ["fill", "___ , ça va ? (informal hello)", null, "Salut", "Salut is the informal hello between friends."],
+    ["choice", "You greet a friend in the morning, casually. Which one?", ["Salut", "Bonsoir", "Bonne nuit"], "Salut", "Salut is the informal hello between friends; bonsoir is evening and bonne nuit is for going to bed."],
     ["choice", "Someone thanks you. You answer:", ["De rien", "S'il vous plaît", "Excusez-moi"], "De rien", "De rien is the standard reply to merci."]
   ],
 
@@ -176,7 +176,7 @@ const EXTRA_ITEMS = {
   ],
 
   "a1.aller.prepositions": [
-    ["fill", "Elle va ___ Japon. (masculine country)", null, "au", "Masculine countries take au: au Japon."],
+    ["fill", "Elle va ___ Japon.", null, "au", "Masculine countries take au: au Japon."],
     ["choice", "Nous allons ___ Italie.", ["en", "au", "aux"], "en", "Feminine countries take en: en Italie."],
     ["fill", "Ils vont ___ Louvre. (à + le)", null, "au", "à + le contracts to au: au Louvre."]
   ],
@@ -430,9 +430,9 @@ const EXTRA_ITEMS = {
   ],
 
   "a2.prepositions.geography": [
-    ["fill", "Nous allons ___ Allemagne. (feminine)", null, "en", "Feminine countries take en."],
+    ["fill", "Nous allons ___ Allemagne.", null, "en", "Feminine countries take en."],
     ["choice", "Il revient ___ Brésil.", ["du", "de", "des"], "du", "Coming from a masculine country: de + le = du."],
-    ["fill", "Elle vit ___ Mexique. (masculine)", null, "au", "Masculine countries take au."]
+    ["fill", "Elle vit ___ Mexique.", null, "au", "Masculine countries take au."]
   ],
 
   "a2.verbs.pronominaux_passe": [
@@ -503,8 +503,8 @@ const EXTRA_ITEMS = {
 
   "a2.syntax.interrogation_quel": [
     ["fill", "___ sont tes amis ? (which ones, m. pl.)", null, "Quels", "quel agrees with the noun: masculine plural quels."],
-    ["choice", "___ de ces deux robes ? (which one, f.)", ["Laquelle", "Quelle", "Lesquelles"], "Laquelle", "As a pronoun it takes the article: laquelle."],
-    ["fill", "___ couleur préfères-tu ? (which, f.)", null, "Quelle", "Before a feminine noun: quelle couleur."]
+    ["choice", "___ de ces deux robes ?", ["Laquelle", "Quelle", "Lesquelles"], "Laquelle", "As a pronoun it takes the article: laquelle."],
+    ["fill", "___ couleur préfères-tu ?", null, "Quelle", "Before a feminine noun: quelle couleur."]
   ],
 
   "a2.adverbs.frequency": [
@@ -520,7 +520,7 @@ const EXTRA_ITEMS = {
   ],
 
   "a2.adjectives.tout": [
-    ["fill", "___ la nuit (all, f.)", null, "toute", "nuit is feminine singular: toute la nuit."],
+    ["fill", "___ la nuit", null, "toute", "nuit is feminine singular: toute la nuit."],
     ["choice", "___ le monde est là.", ["Tout", "Tous", "Toute"], "Tout", "monde is masculine singular: tout le monde."],
     ["fill", "Elle travaille ___ les jours.", null, "tous", "jours is masculine plural: tous les jours."]
   ],
@@ -708,7 +708,7 @@ const EXTRA_ITEMS = {
   ],
 
   "b1.pronouns.relatifs_composes": [
-    ["fill", "La personne ___ je pense. (à + f.)", null, "à laquelle", "à + laquelle for a feminine singular antecedent."],
+    ["fill", "La personne ___ je pense.", null, "à laquelle", "à + laquelle for a feminine singular antecedent."],
     ["choice", "Le stylo avec ___ j'écris.", ["lequel", "auquel", "duquel"], "lequel", "avec takes lequel, with no contraction."],
     ["fill", "Les livres ___ je me réfère. (à + pl.)", null, "auxquels", "à + lesquels contracts to auxquels."]
   ],
@@ -884,7 +884,7 @@ const EXTRA_ITEMS = {
   ],
 
   "b2.pronouns.relatifs_composes_2": [
-    ["fill", "La personne ___ je parle est ma voisine. (à + f.)", null, "à laquelle", "à + laquelle for a feminine singular antecedent."],
+    ["fill", "La personne ___ je parle est ma voisine.", null, "à laquelle", "à + laquelle for a feminine singular antecedent."],
     ["choice", "Les collègues avec ___ je travaille.", ["lesquels", "auxquels", "desquels"], "lesquels", "avec takes lesquels, with no contraction."],
     ["fill", "Le projet ___ je participe. (à + m.)", null, "auquel", "participer à → auquel."]
   ],

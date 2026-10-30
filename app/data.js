@@ -96,8 +96,8 @@ const KPS = [
     [
       ["choice", "___ livre (masculine)", ["le", "la", "les"], "le", "livre is masculine singular, so it takes le."],
       ["choice", "___ table (feminine)", ["le", "la", "les"], "la", "table is feminine singular, so it takes la."],
-      ["fill", "___ école (feminine, starts with a vowel)", null, "l'", "le and la lose their vowel before a vowel or silent h: l'école.", "Use the elided form."],
-      ["choice", "___ livres (plural)", ["le", "la", "les"], "les", "All plural nouns take les, regardless of gender."],
+      ["fill", "___ école", null, "l'", "le and la lose their vowel before a vowel or silent h: l'école.", "Use the elided form."],
+      ["choice", "___ livres", ["le", "la", "les"], "les", "All plural nouns take les, regardless of gender."],
       ["fill", "J'aime ___ musique.", null, "la", "musique is feminine singular, so la musique."]
     ]),
 
@@ -203,7 +203,7 @@ const KPS = [
       ["choice", "___ mère (feminine)", ["mon", "ma", "mes"], "ma", "mère is feminine singular → ma."],
       ["fill", "___ parents sont ici. (my)", null, "Mes", "parents is plural → mes.", "Capitalise the first word."],
       ["fill", "C'est ___ amie. (my, feminine)", null, "mon", "Before a vowel, ma becomes mon for pronunciation: mon amie.", "Watch the vowel."],
-      ["choice", "___ frères (masculine plural)", ["mon", "ma", "mes"], "mes", "Plural noun → mes."]
+      ["choice", "___ frères", ["mon", "ma", "mes"], "mes", "Plural noun → mes."]
     ]),
 
   K("a1.adjectives.agreement", "A1", "adjectives",
@@ -419,9 +419,9 @@ const KPS = [
     [
       ["choice", "___ nation", ["le", "la", "les"], "la", "-tion is almost always feminine."],
       ["choice", "___ moment", ["le", "la", "les"], "le", "-ment is usually masculine."],
-      ["fill", "___ liberté (feminine)", null, "la", "-té is usually feminine."],
+      ["fill", "___ liberté", null, "la", "-té is usually feminine."],
       ["choice", "___ tourisme", ["le", "la", "les"], "le", "-isme is masculine."],
-      ["fill", "___ voiture (feminine)", null, "la", "-ure is usually feminine."]
+      ["fill", "___ voiture", null, "la", "-ure is usually feminine."]
     ]),
 
   K("a0.nouns.plural", "A0", "articles",
@@ -1218,7 +1218,7 @@ const KPS = [
       ["choice", "___ des étudiants travaillent.", ["La plupart", "La plupart de", "Chacun"], "La plupart", "la plupart des = most of the."],
       ["fill", "J'ai ___ amis ici. (a few)", null, "quelques", "a few = quelques."],
       ["choice", "Plusieurs personnes ___ arrivées.", ["sont", "est", "a"], "sont", "plusieurs → plural verb."],
-      ["fill", "___ des deux réponses est correcte. (each one, f.)", null, "Chacune", "feminine each = chacune."]
+      ["fill", "___ des deux réponses est correcte.", null, "Chacune", "feminine each = chacune."]
     ]),
 
   K("a2.prepositions.expressions", "A2", "prepositions",
@@ -1255,7 +1255,7 @@ const KPS = [
     [
       ["choice", "___ livre veux-tu ?", ["Quel", "Quelle", "Lequel"], "Quel", "livre is masculine singular."],
       ["choice", "___ heure est-il ?", ["Quelle", "Quel", "Lequel"], "Quelle", "heure is feminine."],
-      ["fill", "___ est ta voiture ? (which one, f.)", null, "Laquelle", "pronoun, feminine singular."],
+      ["fill", "___ est ta voiture ?", null, "Laquelle", "pronoun, feminine singular."],
       ["choice", "___ films as-tu vus ?", ["Quels", "Quelles", "Lesquels"], "Quels", "films is masculine plural."],
       ["fill", "___ de ces livres préfères-tu ? (which one, m.)", null, "Lequel", "pronoun, masculine singular."]
     ]),
@@ -1662,7 +1662,7 @@ const KPS = [
     [
       ["fill", "___ es-tu en retard ? (why)", null, "Pourquoi", "why = pourquoi."],
       ["choice", "___ coûte ce livre ? (how much)", ["Combien", "Combien de", "Quel"], "Combien", "how much = combien (no de before a verb)."],
-      ["fill", "___ heure est-il ? (what, f.)", null, "Quelle", "heure is feminine: quelle."],
+      ["fill", "___ heure est-il ?", null, "Quelle", "heure is feminine: quelle."],
       ["choice", "___ livres as-tu ? (which, m. pl.)", ["Quels", "Quel", "Quelles"], "Quels", "Masculine plural: quels."],
       ["correct", "Correct: Combien de coûte ce livre ?", null, "Combien coûte ce livre ?", "No de before a verb."]
     ]),
