@@ -6,7 +6,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 
 const root = path.resolve(__dirname, "../app");
-const code = ["data.js", "extra.js", "engine.js"]
+const code = ["data.js", "extra.js", "curriculum.js", "engine.js"]
   .map(function (f) { return fs.readFileSync(path.join(root, f), "utf8"); })
   .join("\n;\n");
 

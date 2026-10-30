@@ -710,7 +710,13 @@ function renderDashboard() {
   const steps = [];
   if (due) steps.push({ title: "Review what is due", sub: due + " point" + (due === 1 ? "" : "s"), action: "due" });
   if (weak) steps.push({ title: "Drill your weak points", sub: weak + " below 50", action: "weak" });
-  if (unseen) steps.push({ title: "Learn next: " + nextLesson.title, sub: nextLesson.level + " · prerequisites ready", action: "new" });
+  if (unseen) {
+    steps.push({
+      title: "Learn next: " + nextLesson.title,
+      sub: nextLesson.level + " · " + Engine.lessonReason(state, nextLesson),
+      action: "new"
+    });
+  }
   const stepsHtml = steps.slice(0, 3).map(function (st) {
     return '<button class="next-step" data-step="' + st.action + '">'
       + '<span class="ns-body"><b>' + esc(st.title) + "</b><small>" + esc(st.sub) + "</small></span>"
@@ -961,11 +967,19 @@ function openDrawer(kpId) {
   const sc = s ? Engine.display(s.p, s.n) : 0;
   const st = Engine.statusOf(state, kp);
 
+  const guided = Engine.guidedLevel(state);
+  const beyond = LEVELS.findIndex(function (l) { return l.id === kp.level; })
+    > LEVELS.findIndex(function (l) { return l.id === guided; });
+  const whyText = beyond
+    ? "Beyond your guided level (" + guided + "). Practising it here is free exploration — it will not unlock this point for daily practice."
+    : Engine.lessonReason(state, kp);
+
   drawerTitle.innerHTML = esc(kp.title)
     + (zhOf(kp) ? '<span class="t-zh" style="display:block">' + esc(zhOf(kp)) + "</span>" : "");
   let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
     + '<span class="score-chip" style="font-size:14px;color:' + scoreColor(sc, s ? s.n : 0) + '">' + (s && s.n ? sc : "—") + "</span>"
     + badge(st) + '<span class="tiny">' + esc(kp.level) + " · " + esc(CATEGORIES[kp.category] || kp.category) + "</span></div>"
+    + (whyText ? '<div class="drawer-why' + (beyond ? " beyond" : "") + '">' + esc(whyText) + "</div>" : "")
     + '<div class="rule">' + frify(kp.rule) + "</div>"
     + usageHtml(kp)
     + "<h4>Examples</h4>"

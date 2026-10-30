@@ -291,16 +291,69 @@ const Engine = (function () {
     }).sort(function (a, b) {
       const l = levelIndex(a.level) - levelIndex(b.level);
       if (l) return l;
-      // The content order is authored as a curriculum. Do not let a very
-      // low reading difficulty send a new learner straight into a passage.
+      // Do not let a very low reading difficulty send a new learner straight
+      // into a passage: grammar leads inside a level.
       if ((a.category === "reading") !== (b.category === "reading")) {
         return a.category === "reading" ? 1 : -1;
       }
-      return KPS.indexOf(a) - KPS.indexOf(b);
+      const sa = softReady(state, a) ? 0 : 1;
+      const sb = softReady(state, b) ? 0 : 1;
+      if (sa !== sb) return sa - sb;
+      return orderOf(a) - orderOf(b);
     });
   }
 
   function nextNewPoint(state) { return newCandidates(state)[0] || null; }
+
+  /* Stable teaching position. curriculum.js sets `order`; the array position is
+     only a fallback for tools that load the engine without it. */
+  function orderOf(kp) {
+    return typeof kp.order === "number" ? kp.order : KPS.indexOf(kp);
+  }
+
+  /* A soft prerequisite never blocks. It only decides which of two ready
+     lessons is the better next step: the one that builds on something you have
+     already met wins. */
+  function softReady(state, kp) {
+    const soft = kp.soft || [];
+    if (!soft.length) return false;
+    return soft.some(function (id) {
+      const pre = KP_BY_ID[id];
+      return pre && hasStarted(state, pre);
+    });
+  }
+
+  /* Why this lesson, in one sentence — used by the dashboard and the drawer. */
+  function lessonReason(state, kp) {
+    if (!kp) return "";
+    const start = levelIndex(startingLevel(state));
+    const missing = (kp.prereqs || []).filter(function (id) {
+      const pre = KP_BY_ID[id];
+      if (pre && levelIndex(pre.level) < start) return false;   // assumed at this entry level
+      const s = state.kps[id];
+      return !(s && s.n >= 2 && display(s.p, s.n) >= 30);
+    });
+    if (missing.length) {
+      return "Needs " + missing.map(function (id) {
+        return (KP_BY_ID[id] && KP_BY_ID[id].title) || id;
+      }).join(" and ") + " first.";
+    }
+    if (hasStarted(state, kp)) {
+      const s = state.kps[kp.id];
+      if (s && s.dueAt && s.dueAt <= Date.now()) return "Due for review.";
+      const score = s && s.n ? display(s.p, s.n) : 0;
+      if (!s || !s.n) return "Introduced, waiting for its first answers.";
+      if (score < 50) return "Weak — scoring " + score + ".";
+      return "Already solid; keeping it warm.";
+    }
+    const soft = (kp.soft || []).filter(function (id) {
+      const pre = KP_BY_ID[id];
+      return pre && hasStarted(state, pre);
+    });
+    if (soft.length) return "Builds on " + ((KP_BY_ID[soft[0]] && KP_BY_ID[soft[0]].title) || soft[0]) + ".";
+    if (!(kp.prereqs || []).length) return "No prerequisites — a starting point.";
+    return "Prerequisites ready — next in the sequence.";
+  }
 
   function priority(state, kp) {
     if (!guidedEligible(state, kp)) return -1;
@@ -318,23 +371,77 @@ const Engine = (function () {
 
   /* Keep the plan deterministic. The first unstudied point is always an
      actionable lesson, not a randomly scored advanced topic. */
+  /* Everything the learner could be doing right now, split into the four
+     buckets the study plan mixes from. One function so Learn, the plan, the
+     quiz and the dashboard cannot disagree about what is eligible. */
+  function schedule(state) {
+    const now = Date.now();
+    const buckets = { due: [], weak: [], current: [], stretch: [] };
+
+    KPS.forEach(function (kp) {
+      if (!hasStarted(state, kp) || !guidedEligible(state, kp)) return;
+      const s = state.kps[kp.id];
+      const score = s && s.n ? display(s.p, s.n) : 0;
+      if (s && s.dueAt && s.dueAt <= now) buckets.due.push(kp);
+      else if (!s || !s.n) buckets.current.push(kp);
+      else if (score < 50) buckets.weak.push(kp);
+      else buckets.stretch.push(kp);
+    });
+
+    const order = function (a, b) {
+      const d = priority(state, b) - priority(state, a);
+      return d || levelIndex(a.level) - levelIndex(b.level) || orderOf(a) - orderOf(b);
+    };
+    Object.keys(buckets).forEach(function (k) { buckets[k].sort(order); });
+
+    return {
+      buckets: buckets,
+      lesson: newCandidates(state)[0] || null,
+      active: buckets.due.concat(buckets.weak, buckets.current, buckets.stretch)
+    };
+  }
+
+  /* Smooth weighted round-robin: 40% due review, 30% weak, 20% the lesson in
+     progress, 10% keeping mastered material warm. A target, not a quota — an
+     empty bucket simply hands its slots to the others. */
+  const SHARES = { due: 0.4, weak: 0.3, current: 0.2, stretch: 0.1 };
+
+  function rankedByShare(state) {
+    const buckets = schedule(state).buckets;
+    const taken = { due: 0, weak: 0, current: 0, stretch: 0 };
+    const total = Object.keys(buckets).reduce(function (n, k) { return n + buckets[k].length; }, 0);
+    const out = [];
+    for (let i = 0; i < total; i++) {
+      let best = null, bestDeficit = -Infinity;
+      Object.keys(buckets).forEach(function (k) {
+        if (taken[k] >= buckets[k].length) return;
+        const deficit = SHARES[k] * (i + 1) - taken[k];
+        if (deficit > bestDeficit) { bestDeficit = deficit; best = k; }
+      });
+      if (!best) break;
+      out.push(buckets[best][taken[best]]);
+      taken[best] += 1;
+    }
+    return out;
+  }
+
   function planList(state, n) {
     const limit = n || 10;
-    const active = KPS.filter(function (k) { return hasStarted(state, k) && guidedEligible(state, k); })
-      .sort(function (a, b) {
-        const d = priority(state, b) - priority(state, a);
-        return d || levelIndex(a.level) - levelIndex(b.level) || a.difficulty - b.difficulty;
-      });
-    const fresh = newCandidates(state);
+    const sched = schedule(state);
     const out = [];
-    // If review is due, prioritise it; otherwise lead with the next lesson.
-    const due = active.filter(function (k) {
-      const s = state.kps[k.id]; return s && s.dueAt && s.dueAt <= Date.now();
-    });
-    due.slice(0, 3).forEach(function (k) { out.push(k); });
-    if (fresh.length) out.push(fresh[0]);
-    active.forEach(function (k) { if (out.indexOf(k) < 0 && out.length < limit) out.push(k); });
-    fresh.slice(0, 3).forEach(function (k) { if (out.indexOf(k) < 0 && out.length < limit) out.push(k); });
+    const push = function (kp) {
+      if (kp && out.indexOf(kp) < 0 && out.length < limit) out.push(kp);
+    };
+    /* Review first, then the next lesson, then everything else in bucket
+       order. Same rule the quiz uses, so the plan cannot promise a lesson the
+       quiz will refuse. */
+    sched.buckets.due.slice(0, 3).forEach(push);
+    push(sched.lesson);
+    sched.buckets.weak.forEach(push);
+    sched.buckets.current.forEach(push);
+    sched.buckets.due.forEach(push);
+    sched.buckets.stretch.forEach(push);
+    newCandidates(state).slice(0, 3).forEach(push);
     return out.slice(0, limit);
   }
 
@@ -349,11 +456,7 @@ const Engine = (function () {
   function buildSession(state, size) {
     const n = size || 10;
     const recent = recentItemIds(state, 24);
-    const ranked = KPS.filter(function (kp) { return hasStarted(state, kp) && guidedEligible(state, kp); })
-      .sort(function (a, b) {
-        const p = priority(state, b) - priority(state, a);
-        return p || levelIndex(a.level) - levelIndex(b.level) || a.difficulty - b.difficulty;
-      });
+    const ranked = rankedByShare(state);
     const chosen = ranked.slice(0, Math.min(8, ranked.length));
     const pools = chosen.map(function (kp) {
       const all = kp.items.filter(function (it) { return it.stage !== "guided"; });
@@ -711,6 +814,10 @@ const Engine = (function () {
     todayMoved: todayMoved,
     weakCount: weakCount,
     planList: planList,
+    schedule: schedule,
+    rankedByShare: rankedByShare,
+    lessonReason: lessonReason,
+    orderOf: orderOf,
     seedDemo: seedDemo,
     normalize: normalize,
     isCorrect: isCorrect,

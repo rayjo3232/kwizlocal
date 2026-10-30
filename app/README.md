@@ -57,6 +57,9 @@ collapses to one column.
 |---|---|
 | 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
 | **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
+| **Explicit curriculum**: `app/curriculum.js` fixes the teaching order per level, adds advisory soft prerequisites, and labels every point's stage; `tools/check_curriculum.js` fails on cycles, cross-level edges, deadlocks and order violations | done |
+| **One scheduler**: `Engine.schedule()` splits eligible work into due / weak / current / stretch, and the Study Plan, the quiz and the dashboard all read from it — 40/30/20/10 mix, deterministic | done |
+| **Reasons shown**: the dashboard and the drawer say why a point is next, why it is locked, or that it is beyond your guided level | done |
 | **Saved-profile migration**: `Engine.migrateState()` upgrades v1 saves, accepts newer ones, repairs broken point records, and rescues an unreadable save instead of overwriting it | done |
 | **Guided scope is one function**: `Engine.practiceOutlook()` is what the dashboard and the quiz both use to decide — and explain — whether practice is available | done |
 | **Lenient French accents**: `etre` passes against `être` and the feedback shows the standard spelling; `parle` still fails against `parler`. Toggle in Settings, default on | done |

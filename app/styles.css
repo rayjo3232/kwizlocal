@@ -412,6 +412,14 @@ p{margin:0 0 12px}
 .gloss-pop b{display:block;font-size:13px;color:var(--ink);margin-bottom:2px;font-weight:750}
 .gloss-pop span{color:var(--ink2)}
 .gloss-pop span.muted{color:var(--faint);font-style:italic}
+/* Why this point is (or is not) the next thing to do. */
+.drawer-why{
+  margin:8px 0 2px;padding:7px 10px;border-radius:6px;
+  background:#F3F9FE;border-left:3px solid #9CC9E8;
+  font-size:12.5px;line-height:1.5;color:#2A5A78;
+}
+.drawer-why.beyond{background:#FFF7E0;border-left-color:var(--yellow);color:#5C410A}
+
 .drawer-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
 .scrim{position:fixed;inset:0;background:rgba(20,24,29,.25);z-index:65}
 
