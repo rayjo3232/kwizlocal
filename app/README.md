@@ -57,6 +57,8 @@ collapses to one column.
 |---|---|
 | 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
 | **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
+| **Saved-profile migration**: `Engine.migrateState()` upgrades v1 saves, accepts newer ones, repairs broken point records, and rescues an unreadable save instead of overwriting it | done |
+| **Guided scope is one function**: `Engine.practiceOutlook()` is what the dashboard and the quiz both use to decide — and explain — whether practice is available | done |
 | **Lenient French accents**: `etre` passes against `être` and the feedback shows the standard spelling; `parle` still fails against `parler`. Toggle in Settings, default on | done |
 | **Question depth**: `app/extra.js` adds three practice questions to every non-reading point, appended as kwiz-stage items so the guided pair and the check trio never move | done |
 | **Quick kwiz**: 3-question (~1 min) and 10-question modes | done |

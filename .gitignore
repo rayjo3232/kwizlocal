@@ -40,3 +40,14 @@ _reference/
 
 # logs
 *.log
+
+# Exported learning backups — personal data, never commit
+kwizlocal-*.json
+
+# Cloudflare / local secrets
+.dev.vars
+.env
+.env.*
+.wrangler/
+*.pem
+*.key

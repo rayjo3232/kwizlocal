@@ -48,3 +48,36 @@ The existing `wrangler.jsonc` deploys `./app` as static assets. To verify deploy
 - CEFR tags on vocabulary do not fully grade sentence complexity; new words are therefore not introduced as surprise questions in guided mixed practice.
 - Explicit level/topic quizzes and free exploration remain unrestricted by design.
 - Practice beyond currently unlocked points is possible via manually navigated Library/Brainmap and level-specific quizzes, intentionally separate from Guided Practice. Such exploration is excluded from Guided Practice until the guided level reaches it.
+
+## Sprint 2 verification (2026-10-30)
+
+The behaviours above were re-checked against the code rather than the prose,
+and the gaps were closed.
+
+**Confirmed working**
+
+- A0 fresh, manual A1, placement A1 and a migrated v1 profile all produce the
+  same eligible scope from Learn, Study Plan and Quiz.
+- Starting at A1 never opens with a reading passage: `newCandidates()` sorts
+  reading after grammar within a level, so a prerequisite-free passage cannot
+  jump the queue.
+- A B2 point touched by the placement test never reaches an A1 plan or quiz.
+- Pre-learn leaves `n === 0` and unlocks practice for that point only.
+- The level-up heuristic needs 75% of a level at `n >= 2` and score >= 50, so
+  it cannot skip a level without evidence.
+
+**Fixed**
+
+- "No guided practice available" was a dead end with no explanation. Both the
+  dashboard and the quiz now use `Engine.practiceOutlook()`, which names the
+  next lesson or says that every point at the current level is already
+  introduced.
+- The dashboard's empty state used to say "a longer kwiz will find something",
+  which stopped being true once practice was restricted to introduced points.
+
+**Known boundary**
+
+Guided Practice is capped by level, but Library and Brainmap still let you open
+and practise any point on purpose. That is free exploration by design: those
+attempts move that point's own score but never unlock it for guided daily
+practice while the guided level is lower.

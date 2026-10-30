@@ -22,19 +22,47 @@ const scrim = document.getElementById("scrim");
 
 /* ---------------- storage ---------------- */
 
+let stateRescued = false;
+let saveFailed = false;
+
+/* Anything stored under our key is treated as the learner's data. If it cannot
+   be read, it is copied aside before a fresh profile replaces it — the old
+   loader simply dropped the profile when `version` was not 1. */
+function rescueStoredState(raw) {
+  try {
+    const key = LS_STATE + ".rescue." + Date.now();
+    localStorage.setItem(key, raw);
+    localStorage.setItem(LS_STATE + ".rescue.last", key);
+    stateRescued = true;
+  } catch (e) { /* out of quota: nothing more we can do */ }
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(LS_STATE);
     if (raw) {
-      const s = JSON.parse(raw);
-      if (s && s.version === 1) return s;
+      let parsed = null;
+      try { parsed = JSON.parse(raw); } catch (e) { parsed = null; }
+      const migrated = Engine.migrateState(parsed);
+      if (migrated) return migrated;
+      rescueStoredState(raw);
     }
   } catch (e) { /* file:// may block storage */ }
   return Engine.newState();
 }
 
 function saveState() {
-  try { localStorage.setItem(LS_STATE, JSON.stringify(state)); } catch (e) {}
+  try {
+    localStorage.setItem(LS_STATE, JSON.stringify(state));
+    saveFailed = false;
+  } catch (e) {
+    /* Silently swallowing this meant answers kept landing in memory and
+       vanished on reload. Say it once. */
+    if (!saveFailed) {
+      saveFailed = true;
+      try { toast("Could not save progress — browser storage is full. Export a backup."); } catch (_) {}
+    }
+  }
 }
 
 function loadSession() {
@@ -689,7 +717,8 @@ function renderDashboard() {
       + '<span class="ns-go">→</span></button>';
   }).join("");
 
-  const canPractise = Engine.buildSession(state, 1).items.length > 0;
+  const outlook = Engine.practiceOutlook(state);
+  const canPractise = outlook.canPractise;
   const primaryBtn = inProgress
     ? '<button class="btn block" id="resumeBtn">Resume · ' + (session.index + 1) + " / " + session.session.items.length + " done</button>"
     : (!canPractise && nextLesson)
@@ -732,8 +761,12 @@ function renderDashboard() {
     + (stepsHtml
       ? '<div class="next-steps"><div class="ns-title">Or, in order of urgency</div>' + stepsHtml
         + (steps.length < 2 ? '<p class="ns-empty">Nothing else is due for review.</p>' : "") + "</div>"
-      : '<div class="next-steps"><div class="ns-title">All caught up</div>'
-        + '<p class="ns-empty">Nothing is due and nothing is weak. A longer kwiz will find something.</p></div>')
+      : '<div class="next-steps"><div class="ns-title">' + (outlook.canPractise ? "All caught up" : "Nothing to quiz yet") + "</div>"
+        + '<p class="ns-empty">' + esc(outlook.canPractise
+          ? "Nothing is due and nothing is weak. The next lesson is the useful move."
+          : outlook.nextLesson
+            ? "Guided quizzes only cover lessons you have started. Learn " + outlook.nextLesson.title + " first."
+            : "Every point at your level is introduced. Review from the Notebook, or change your starting level in Settings.") + "</p></div>")
     + "</div>"
     + "</section>"
 
@@ -1058,11 +1091,15 @@ function startSession(size) {
   const n = size || 10;
   const built = Engine.buildSession(state, n);
   if (!built.items.length) {
-    const next = Engine.nextNewPoint(state);
-    if (next) {
-      toast("Learn the next lesson before starting guided practice");
-      navigate("#/prelearn/" + next.id);
-    } else toast("No guided practice available yet");
+    /* Say what is missing rather than dropping the learner back on the page
+       they came from with no explanation. */
+    const look = Engine.practiceOutlook(state);
+    if (look.nextLesson) {
+      toast("Guided practice only covers lessons you have started — opening " + look.nextLesson.title);
+      navigate("#/prelearn/" + look.nextLesson.id);
+    } else {
+      toast("Every point at your level is introduced. Review from the Notebook, or change your starting level in Settings.");
+    }
     return;
   }
   built.items = addSentenceVariety(built.items);
@@ -4255,7 +4292,14 @@ function renderSettings() {
     renderSettings();
   });
   document.getElementById("exportBtn").addEventListener("click", function () {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    /* The state object stays at the root so older builds can still read the
+       file; the extra keys are metadata and are ignored on import. */
+    const payload = Object.assign({}, state, {
+      exportedAt: new Date().toISOString(),
+      app: "kwizlocal",
+      appVersion: Engine.STATE_VERSION
+    });
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "kwizlocal-" + Engine.todayStr() + ".json";
@@ -4272,13 +4316,12 @@ function renderSettings() {
     reader.onload = function () {
       try {
         const data = JSON.parse(String(reader.result));
-        if (!data || data.version !== 1 || !data.kps) throw new Error("bad shape");
+        /* Old backups, newer backups and hand-edited files all go through the
+           same migration instead of being rejected on a version number. */
+        const migrated = Engine.migrateState(data);
+        if (!migrated) throw new Error("bad shape");
         if (!confirm("Replace current progress with this backup?")) return;
-        state = data;
-        if (!state.attempts) state.attempts = [];
-        if (!state.sessions) state.sessions = [];
-        if (!state.streak) state.streak = { count: 0, last: null };
-        if (!state.goal) state.goal = 20;
+        state = migrated;
         /* Any in-flight session/exam refers to the old state — drop them. */
         session = null;
         exam = null;
@@ -4540,3 +4583,11 @@ route();
   if (typeof requestIdleCallback === "function") requestIdleCallback(go, { timeout: 4000 });
   else setTimeout(go, 1500);
 })();
+
+/* If a stored profile could not be read it was copied aside first. Say so once
+   rather than letting it look like the progress simply vanished. */
+if (stateRescued) {
+  setTimeout(function () {
+    toast("Your saved progress could not be read. A copy was kept in this browser and a fresh profile was started.");
+  }, 800);
+}

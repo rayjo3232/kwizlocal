@@ -3,6 +3,10 @@
 
 const Engine = (function () {
 
+  /* Bump when the saved shape changes in a way that needs code. migrateState
+     upgrades anything older; it never throws away a field it does not know. */
+  const STATE_VERSION = 2;
+
   const P_INIT = 0.30;   // prior for an unseen knowledge point
   const P_LEARN = 0.18;  // learning transition after each attempt
   const P_SLIP = 0.07;   // knows it but answers wrong
@@ -23,7 +27,7 @@ const Engine = (function () {
 
   function newState() {
     return {
-      version: 1,
+      version: STATE_VERSION,
       createdAt: Date.now(),
       kps: {},
       attempts: [],
@@ -46,6 +50,82 @@ const Engine = (function () {
       /* Free-writing (translation) totals: done count and summed match %. */
       translate: { done: 0, totalPct: 0 },
       seeded: false
+    };
+  }
+
+  /* Bring any saved profile up to the current shape.
+
+     The old loader threw away the whole profile whenever `version` was not
+     exactly 1 — one stale or hand-edited backup and months of progress were
+     gone with no warning. This keeps every field it recognises, fills in the
+     ones it does not find, and only returns null when the input is clearly not
+     a profile at all. */
+  function migrateState(raw) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+    const looksLikeProfile = (raw.kps && typeof raw.kps === "object") || Array.isArray(raw.attempts);
+    if (!looksLikeProfile) return null;
+
+    const base = newState();
+    const out = Object.assign({}, base, raw);
+    out.version = STATE_VERSION;
+
+    if (!out.kps || typeof out.kps !== "object") out.kps = {};
+    if (!Array.isArray(out.attempts)) out.attempts = [];
+    if (!Array.isArray(out.sessions)) out.sessions = [];
+    if (!out.streak || typeof out.streak !== "object") out.streak = { count: 0, last: null };
+    if (!out.notebook || typeof out.notebook !== "object") out.notebook = { items: [], kps: [] };
+    if (!Array.isArray(out.notebook.items)) out.notebook.items = [];
+    if (!Array.isArray(out.notebook.kps)) out.notebook.kps = [];
+    if (!out.vocab || typeof out.vocab !== "object") out.vocab = {};
+    if (!out.verbs || typeof out.verbs !== "object") out.verbs = {};
+    if (!out.sentences || typeof out.sentences !== "object") out.sentences = {};
+    if (!out.translate || typeof out.translate !== "object") out.translate = { done: 0, totalPct: 0 };
+    if (typeof out.goal !== "number" || !isFinite(out.goal) || out.goal <= 0) out.goal = base.goal;
+
+    /* Settings added after this profile was saved: default them the way a new
+       profile would be, not the way `undefined` happens to behave. */
+    out.accentLenient = out.accentLenient !== false;
+    out.autoAdvance = out.autoAdvance !== false;
+
+    /* A point record with a missing or broken p / n makes display() return
+       NaN, which then spreads through every score on the Brainmap. */
+    Object.keys(out.kps).forEach(function (id) {
+      const s = out.kps[id];
+      if (!s || typeof s !== "object") { delete out.kps[id]; return; }
+      if (typeof s.p !== "number" || !isFinite(s.p)) s.p = 0.5;
+      if (typeof s.n !== "number" || !isFinite(s.n) || s.n < 0) s.n = 0;
+      if (typeof s.correct !== "number" || !isFinite(s.correct)) s.correct = 0;
+      if (typeof s.wrong !== "number" || !isFinite(s.wrong)) s.wrong = 0;
+    });
+
+    /* Rows without an item id or a timestamp cannot be scored or plotted;
+       everything else is kept even if it predates the current fields. */
+    out.attempts = out.attempts.filter(function (a) {
+      return a && typeof a === "object" && a.itemId && typeof a.at === "number";
+    });
+
+    out.plan = null;   // recomputed on the next dashboard visit
+    return out;
+  }
+
+  /* Why the practice button is available or not, in one place, so the
+     dashboard and the quiz both explain the same thing. */
+  function practiceOutlook(state) {
+    const nextLesson = nextNewPoint(state);
+    const canPractise = buildSession(state, 1).items.length > 0;
+    const introduced = KPS.filter(function (k) { return hasStarted(state, k) && guidedEligible(state, k); }).length;
+    let reason = "ok";
+    if (!canPractise) {
+      if (!introduced) reason = nextLesson ? "nothing-introduced" : "no-next-lesson";
+      else reason = "no-items";
+    }
+    return {
+      canPractise: canPractise,
+      reason: reason,
+      nextLesson: nextLesson,
+      introduced: introduced,
+      due: dueCount(state),
+      weak: weakCount(state)
     };
   }
 
@@ -634,6 +714,9 @@ const Engine = (function () {
     seedDemo: seedDemo,
     normalize: normalize,
     isCorrect: isCorrect,
+    migrateState: migrateState,
+    practiceOutlook: practiceOutlook,
+    STATE_VERSION: STATE_VERSION,
     matchAnswer: matchAnswer,
     todayStr: todayStr
   };
