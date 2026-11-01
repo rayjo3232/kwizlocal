@@ -48,6 +48,7 @@ const Engine = (function () {
       accentLenient: true,
       plan: null,
       autoAdvance: true,
+      libView: "grid",
       /* Notebook: mistakes collected automatically + points saved by hand. */
       notebook: { items: [], kps: [] },
       /* Per-form conjugation drill history: "parler|présent|2" -> { seen, correct }. */

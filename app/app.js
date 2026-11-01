@@ -678,14 +678,18 @@ function activityBars() {
   });
   const max = Math.max(1, Math.max.apply(null, days.map(function (d) { return d.n; })));
   const thin = n > 7;
-  const bars = days.map(function (d) {
-    const h = d.n ? Math.max(10, Math.round(d.n / max * 100)) : 0;
+  const bars = days.map(function (d, i) {
+    const today = i === days.length - 1;
+    /* Height is volume. Colour used to be accuracy as well, which put red and
+       yellow slabs on a card that already states the accuracy — it read as a
+       page of errors. One bar per day, one colour, today marked. */
+    const h = d.n ? Math.max(8, Math.round(d.n / max * 100)) : 3;
     const acc = d.n ? Math.round(d.c / d.n * 100) : 0;
-    const cls = !d.n ? "" : acc >= 70 ? "good" : acc >= 40 ? "mid" : "low";
+    const cls = !d.n ? "empty" : today ? "today" : "on";
     const tip = d.n ? d.n + " questions · " + acc + "% correct" : "no practice";
     return '<div class="act-col" title="' + tip + '">'
       + '<div class="act-track"><span class="act-bar ' + cls + '" style="height:' + h + '%"></span></div>'
-      + (thin ? "" : '<span class="act-day">' + d.label + "</span>")
+      + (thin ? "" : '<span class="act-day' + (today ? " today" : "") + '">' + (today ? "Today" : d.label) + "</span>")
       + "</div>";
   }).join("");
   return '<div class="act-head"><span class="act-title">Last ' + n + " days</span>"
@@ -4493,8 +4497,16 @@ function renderLibrary() {
     + "</select>"
     + '<input id="libSearch" placeholder="Search: agreement, passé composé, pronoun..." autocomplete="off">'
     + '<button class="btn sm ghost" id="readBtn">Reading practice</button>'
+    + '<span class="lib-view" role="group" aria-label="View">'
+    + '<button type="button" data-libview="grid" aria-label="Card view" title="Card view"'
+    + (state.libView === "list" ? "" : ' class="on"') + '>'
+    + '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z"/></svg></button>'
+    + '<button type="button" data-libview="list" aria-label="List view" title="List view"'
+    + (state.libView === "list" ? ' class="on"' : "") + '>'
+    + '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h12v2H2z"/></svg></button>'
+    + "</span>"
     + '<span class="lib-count" id="libCount"></span></div>'
-    + '<div class="lib-grid" id="libGrid">' + cards + "</div>"
+    + '<div class="lib-grid' + (state.libView === "list" ? " list" : "") + '" id="libGrid">' + cards + "</div>"
     + '<div class="empty" id="libEmpty" hidden>No point matches these filters.</div>'
     + "</div>";
 
@@ -4542,6 +4554,18 @@ function renderLibrary() {
   });
   const search = document.getElementById("libSearch");
   search.addEventListener("input", applyFilters);
+  /* Switching view is a class on the grid, so the filters and the search text
+     survive it. */
+  document.querySelectorAll("[data-libview]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.libView = b.getAttribute("data-libview");
+      saveState();
+      document.getElementById("libGrid").classList.toggle("list", state.libView === "list");
+      document.querySelectorAll("[data-libview]").forEach(function (x) {
+        x.classList.toggle("on", x.getAttribute("data-libview") === state.libView);
+      });
+    });
+  });
   const sortSel = document.getElementById("libSort");
   if (sortSel) sortSel.addEventListener("change", function (e) { sortCards(e.target.value); });
   const readBtn = document.getElementById("readBtn");

@@ -80,6 +80,11 @@ body{
   overflow-x:hidden;
 }
 a{color:var(--blue);text-decoration:none}
+/* An inline link in the middle of a sentence is still a link; without the
+   underline it is just blue words. */
+a.small,.kwiz-card a:not(.btn):not(.res-study),.feedback a,.ctx-note a{
+  text-decoration:underline;text-underline-offset:2px;
+}
 button{font-family:inherit}
 button:focus{outline:none}
 button:focus-visible{outline:2px solid #FFB27A;outline-offset:2px}
@@ -277,17 +282,22 @@ p{margin:0 0 12px}
 .btn.block small{font-size:var(--fs-1);font-weight:600;opacity:.82;letter-spacing:0}
 .hero-sub{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
 .hero-sub .btn{flex:1;justify-content:center;min-width:130px}
-.next-steps{margin-top:16px;border-top:1px solid var(--line2);padding-top:12px}
+.next-steps{margin-top:16px;border-top:1px solid var(--line2);padding-top:14px}
 .ns-title{
   font-size:var(--fs-1);font-weight:800;letter-spacing:.08em;text-transform:uppercase;
   color:var(--faint);margin-bottom:4px;
 }
+/* These are navigation, not body text: without an edge they read as a sentence
+   with an arrow at the end. */
 .next-step{
   display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
-  background:none;border:none;border-radius:6px;padding:9px 8px;margin:0 -8px;
+  background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 8px;
   font:inherit;font-size:var(--fs-2);color:var(--ink);text-align:left;cursor:pointer;
+  transition:border-color .12s,background .12s,transform .08s;
 }
-.next-step:hover{background:var(--blue-soft)}
+.next-step:last-child{margin-bottom:0}
+.next-step:hover{border-color:var(--brand-line);background:#FFFCFA}
+.next-step:active{transform:translateY(1px)}
 .next-step .ns-body{display:flex;flex-direction:column;gap:1px;min-width:0}
 .next-step .ns-body b{font-size:var(--fs-2);font-weight:600}
 .next-step .ns-body small{font-size:var(--fs-1);color:var(--faint)}
@@ -799,6 +809,31 @@ p{margin:0 0 12px}
 .lib-card .foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
 .lib-card .score{font-size:var(--fs-2);font-weight:700}
 
+/* ---- view switch: cards for browsing, rows for scanning ---- */
+.lib-view{display:inline-flex;gap:2px;background:#F1F4F6;border-radius:8px;padding:2px}
+.lib-view button{
+  display:grid;place-items:center;width:30px;height:26px;padding:0;
+  border:none;background:none;border-radius:6px;cursor:pointer;color:var(--muted);
+}
+.lib-view button svg{width:14px;height:14px;fill:currentColor}
+.lib-view button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.09)}
+.lib-view button:hover{color:var(--ink2)}
+
+.lib-grid.list{grid-template-columns:minmax(0,1fr);gap:6px}
+.lib-grid.list .lib-card{flex-direction:row;align-items:center;gap:10px;padding:9px 12px}
+/* A row is for scanning: one line of title, the number, the button. The
+   Chinese and French titles stay in card view. */
+.lib-grid.list .lib-card .lvl,
+.lib-grid.list .lib-card .t-zh,
+.lib-grid.list .lib-card .fr,
+.lib-grid.list .lib-card .badge{display:none}
+.lib-grid.list .lib-card .t{
+  flex:1;min-width:0;font-size:var(--fs-2);font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.lib-grid.list .lib-card .foot{margin:0;flex:none;gap:9px}
+.lib-grid.list .lib-card .btn.sm{min-height:28px}
+
 /* ---------- notebook ---------- */
 .nb-actions{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .nb-actions .spacer{flex:1}
@@ -832,7 +867,10 @@ p{margin:0 0 12px}
 .vc-ex .fr{color:var(--ink2)}
 .vc-ex .en{color:var(--muted);font-size:var(--fs-1);margin-top:3px}
 .vc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
-.vc-foot .linkbtn{font-size:var(--fs-1)}
+.vc-foot .linkbtn{
+  font-size:var(--fs-1);background:none;border:none;padding:0;
+  color:var(--brand-ink);text-decoration:underline;text-underline-offset:2px;
+}
 
 .flash-card{text-align:center;padding:36px 26px 24px}
 .flash-word{font-size:40px; /* display size, not part of the text scale */font-weight:800;letter-spacing:-.03em;line-height:1.15}
@@ -961,6 +999,12 @@ p{margin:0 0 12px}
 .wk-stat b{font-size:var(--fs-5);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .wk-stat span{font-size:var(--fs-1);color:var(--muted);letter-spacing:.02em}
 .wk-weak{margin-top:10px;font-size:var(--fs-2);color:var(--ink2)}
+/* Inline in a sentence, so it reads as a link, not as a chip in the middle of
+   the words. */
+.wk-weak .linkbtn{
+  background:none;border:none;padding:0;font-size:inherit;color:var(--brand-ink);
+  text-decoration:underline;text-underline-offset:2px;
+}
 .wk-mix{margin-top:8px;font-size:var(--fs-2);color:var(--muted)}
 .wk-empty{font-size:var(--fs-2);color:var(--muted)}
 
@@ -980,21 +1024,26 @@ p{margin:0 0 12px}
 }
 .act-toggle button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.09)}
 .act-bars{
-  display:flex;align-items:flex-end;gap:7px;margin-top:10px;
+  display:flex;align-items:flex-end;gap:7px;margin-top:12px;padding-bottom:2px;
+  border-bottom:1px solid var(--line2);
 }
 .act-bars.thin{gap:2px;margin-top:8px}
 .act-bars.thin .act-track{height:34px;border-radius:2px}
 .act-bars.thin .act-bar{border-radius:2px 2px 0 0}
 .act-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+/* No grey slab behind every day: the bars stand on a baseline instead, which
+   is quieter and leaves the one colour meaning "you practised". */
 .act-track{
-  width:100%;height:46px;display:flex;align-items:flex-end;
-  background:#F4F6F8;border-radius:5px;overflow:hidden;
+  width:100%;height:46px;display:flex;align-items:flex-end;background:none;
 }
-.act-bar{display:block;width:100%;border-radius:5px 5px 0 0;background:#D9DEE3}
-.act-bar.good{background:#5FB56F}
-.act-bar.mid{background:#F2C94C}
-.act-bar.low{background:#E4574C}
+.act-bar{
+  display:block;width:100%;max-width:26px;margin:0 auto;
+  border-radius:4px 4px 2px 2px;background:var(--brand);opacity:.72;
+}
+.act-bar.today{opacity:1;background:var(--brand-action)}
+.act-bar.empty{background:var(--line);opacity:1}
 .act-day{font-size:var(--fs-1);font-weight:700;color:var(--faint);letter-spacing:.04em}
+.act-day.today{color:var(--brand-ink);font-weight:800;letter-spacing:.02em}
 
 @media (max-width:520px){.wk-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
@@ -1161,9 +1210,13 @@ kbd{
   font-size:var(--fs-1);font-weight:700;letter-spacing:.01em;color:var(--faint);
   text-decoration:none;cursor:pointer;flex:1;
 }
-.tabbar svg{width:21px;height:21px;fill:currentColor;opacity:.7;transition:opacity .12s}
-.tabbar a.active,.tabbar button.active{color:var(--brand-ink)}
-.tabbar a.active svg,.tabbar button.active svg{opacity:1}
+.tabbar svg{
+  width:22px;height:22px;fill:currentColor;opacity:.6;
+  padding:5px 13px;box-sizing:content-box;border-radius:999px;
+  transition:background .16s ease,opacity .16s ease;
+}
+.tabbar a.active,.tabbar button.active{color:var(--brand-ink);font-weight:800}
+.tabbar a.active svg,.tabbar button.active svg{opacity:1;background:var(--brand-soft)}
 
 @media (max-width:700px){
   .tabbar{
@@ -1275,11 +1328,14 @@ kbd{
 }
 .resume .spacer{flex:1}
 
+/* A secondary action still has to look like one. Quiet, not invisible. */
 .linkbtn{
-  background:none;border:none;padding:0;color:var(--brand-ink);font-weight:700;font-size:inherit;
-  font-family:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px;
+  background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 12px;
+  color:var(--ink2);font-weight:700;font-size:var(--fs-2);
+  font-family:inherit;cursor:pointer;text-decoration:none;
+  transition:border-color .12s,color .12s,background .12s;
 }
-.linkbtn:hover{color:var(--brand-dark)}
+.linkbtn:hover{border-color:var(--brand-line);color:var(--brand-ink);background:#FFFCFA}
 
 .firstrun{
   display:flex;align-items:center;gap:12px;background:#FFF7F1;border:1px solid #FFD9BF;
@@ -1406,10 +1462,10 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
   margin-top:12px;
 }
 .res-links .linkbtn{
-  font-size:var(--fs-2);color:var(--muted);background:none;border:0;
-  padding:4px 2px;cursor:pointer;font-family:inherit;text-decoration:none;
+  font-size:var(--fs-2);color:var(--ink2);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:6px 11px;cursor:pointer;font-family:inherit;text-decoration:none;
 }
-.res-links .linkbtn:hover{color:var(--ink);text-decoration:underline}
+.res-links .linkbtn:hover{border-color:var(--brand-line);color:var(--brand-ink);background:#FFFCFA}
 
 /* Vocabulary: one solid action, then the three modes as quiet buttons. */
 .vocab-modes{

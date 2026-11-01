@@ -59,6 +59,9 @@ collapses to one column.
 | **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
 | **Level countdown**: the dashboard and Settings show how many points are left before the next level unlocks, using the same numbers the unlock rule uses | done |
 | **A0 vocabulary**: one word question per session at A0, from words already met in Vocab; conjugation still unlocks at A1 | done |
+| **Every control looks like one**: `tools/check_controls.js` fails if a button or link ends up with no border, no fill and no underline — the three things that separate a control from a sentence | done |
+| **Library view switch**: cards for browsing, one-line rows for scanning 162 points; the choice is remembered | done |
+| **Activity strip**: one bar per day, one colour, today labelled — accuracy lives in the stat above it | done |
 | **Two taps to answer a choice**: the first tap selects, the second confirms and submits — no Check button. Double-clicking is the same two taps; the number keys follow the same rule. Placement advances the same way; the timed exam keeps an explicit Next | done |
 | **Skips are remembered**: a skipped question is never evidence, but it is not served again either — and after three skips on one point the feedback offers the lesson | done |
 | **Accent keys**: é è ê ë à â ù û ç ï î ô œ under every typed French input; tapping one after its base letter replaces it | done |
@@ -370,6 +373,11 @@ else is a white card on the warm page.
 
 The type scale is six steps (`--fs-1` … `--fs-6`); `tools/check_ui_tokens.js`
 fails the build if a raw pixel size comes back.
+
+`tools/check_controls.js` is the other half of that: every `<button>` and `<a>`
+in the markup must resolve to a border, a background or an underline. A control
+with none of the three is a sentence with a cursor — it works, and nobody
+presses it. Run it with `--list` to see what each control relies on.
 
 Practice screens share one header (`kwizTopHtml`): the count, one segment per
 question, and what the session covers. Ten questions then reads as a shape as
