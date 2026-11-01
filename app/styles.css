@@ -346,65 +346,73 @@ p{margin:0 0 12px}
 .bmap-lv-meta .new{color:var(--blue);font-weight:700}
 .bmap-lv-meta .due{color:var(--yellow);font-weight:700}
 
-.bmap-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
-.bmap-cats.compact{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:7px}
-.bmap-cat{
-  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
-  padding:12px 14px;border:1px solid var(--line);border-radius:9px;background:#fff;
-  font-family:inherit;cursor:pointer;transition:border-color .12s,background .12s;
-}
-.bmap-cat:hover,.bmap-cat:focus-visible{border-color:var(--brand);background:#FFFCFA}
-.bmap-cat-dot{flex:none;width:13px;height:13px;border-radius:4px}
-.bmap-cat-body{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
-.bmap-cat-body b{font-size:var(--fs-2);font-weight:650;color:var(--ink);letter-spacing:-.01em}
-.bmap-cat-meta{font-size:var(--fs-1);color:var(--faint)}
-.bmap-cat-score{
-  font-style:normal;font-size:var(--fs-4);font-weight:800;color:var(--ink2);
-  font-variant-numeric:tabular-nums;flex:none;
-}
-
 @media (max-width:700px){
   .bmap-lv{padding:14px 15px}
   .bmap-lv-top b{font-size:var(--fs-3)}
   .bmap-lv-meta{font-size:var(--fs-2)}
-  .bmap-cats,.bmap-cats.compact{grid-template-columns:1fr}
-  .bmap-cat{padding:13px 14px}
-  .bmap-cat-body b{font-size:var(--fs-3)}
-  .bmap-cat-meta{font-size:var(--fs-2)}
 }
 .map-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
 .map-toolbar .spacer{flex:1}
-.map-svg{width:100%;display:block;user-select:none}
-.map-cell{cursor:pointer;transition:opacity .12s}
-.map-cell:hover{opacity:.82}
-.map-label{font-size:var(--fs-1);font-weight:700;fill:#fff;pointer-events:none}
-.map-label.dark{fill:#2A3138}
-.map-level-label{font-size:var(--fs-5);font-weight:800;fill:rgba(255,255,255,.55);pointer-events:none;letter-spacing:-.02em}
-.map-mobile-note{display:none;font-size:var(--fs-1);color:var(--faint);margin:0 0 6px}
+/* ---- the map: one canvas per zoom level --------------------------------
+   Cells are positioned in pixels by a squarified treemap, so the page needs a
+   measured width — paintMap() does that after the markup is in place. Area is
+   proportional to the amount of material, colour is the score. */
+.map-host{position:relative}
+.map-canvas{
+  position:relative;border-radius:10px;
+  background:#F7F8FA;overflow:hidden;margin:0 auto;
+}
+.map-tile{
+  position:absolute;box-sizing:border-box;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:center;gap:2px;
+  border:0;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(20,24,29,.05);
+  transition:filter .12s ease,transform .08s ease;
+}
+.map-tile:hover{filter:brightness(.97)}
+.map-tile:active{transform:scale(.995)}
+.map-tile:focus-visible{outline:2px solid var(--brand-ink);outline-offset:-2px}
+.map-tile .mt-top{display:flex;align-items:flex-start;gap:6px}
+.map-tile .mt-name{
+  flex:1;min-width:0;font-weight:700;line-height:1.22;letter-spacing:-.01em;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.map-tile .mt-score{flex:none;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.map-tile .mt-sub,
+.map-tile .mt-meta{
+  font-size:var(--fs-1);opacity:.75;line-height:1.3;overflow:hidden;
+}
+.map-tile .mt-sub{white-space:nowrap;text-overflow:ellipsis}
+/* The meta line may wrap: "22 pts · 1 weak" is more useful broken in two than
+   cut to "22 pts · 1 wea…". */
+.map-tile .mt-meta{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.map-tile .mt-meta{margin-top:2px}
 
-/* The SVG map scales a 1000-wide viewBox down to a 375px phone, which shrinks
-   every hexagon label to about 4px. Hiding the text (the old behaviour) left
-   coloured blocks nobody could read, so on a phone the innermost level is
-   rendered as a plain list instead — same data, readable type, and a direct
-   way into each point. */
-.map-list{display:none}
-.map-row{
-  display:flex;align-items:center;gap:9px;padding:9px 2px;
-  border-bottom:1px solid var(--line2);cursor:pointer;
-}
-.map-row:last-child{border-bottom:none}
-.map-row:hover{background:var(--blue-soft)}
-.map-row .mr-dot{flex:none;width:10px;height:10px;border-radius:3px}
-.map-row .mr-body{flex:1;min-width:0}
-.map-row .mr-body b{display:block;font-size:var(--fs-3);font-weight:600;line-height:1.35}
-.map-row .mr-body small{display:block;font-size:var(--fs-1);color:var(--faint);margin-top:1px}
-.map-row .mr-score{
-  flex:none;font-size:var(--fs-2);font-weight:700;font-variant-numeric:tabular-nums;
-  min-width:34px;text-align:right;
-}
-.map-row .btn.sm{flex:none;min-height:32px;padding:5px 10px;font-size:var(--fs-2)}
+/* Size carries the hierarchy, because a 60px cell cannot hold a 17px title. */
+.map-tile.d-full .mt-name{font-size:var(--fs-4)}
+.map-tile.d-full .mt-score{font-size:var(--fs-4)}
+.map-tile.d-mid .mt-name{font-size:var(--fs-2)}
+.map-tile.d-mid .mt-score{font-size:var(--fs-3)}
+/* A narrow cell cannot hold a title and a number side by side; stack them and
+   the title gets the full width. */
+.map-tile.d-small .mt-top,
+.map-tile.d-mid .mt-top{flex-direction:column;gap:0;align-items:flex-start}
+/* In the stacked layout the name is a column flex item: flex:1 would make its
+   basis the height, collapsing two lines into one. */
+.map-tile.d-small .mt-name,
+.map-tile.d-mid .mt-name{flex:none}
+.map-tile.d-small .mt-name{font-size:var(--fs-1);-webkit-line-clamp:1}
+.map-tile.d-small .mt-score,
+.map-tile.d-mid .mt-score{font-size:var(--fs-2);margin-top:1px}
+.map-tile.d-mid .mt-name{-webkit-line-clamp:2}
+
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--fs-1);color:var(--muted);align-items:center;margin-top:10px}
-.legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:-1px}
+.legend i{
+  width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px;
+  border:1.5px solid transparent;box-sizing:border-box;
+}
 
 /* ---------- tooltip / drawer ---------- */
 .tooltip{
@@ -1162,9 +1170,6 @@ kbd{
   .kwiz-actions{gap:8px}
   .kwiz-actions .btn{flex:1;justify-content:center}
   .word-chip{padding:9px 13px;font-size:var(--fs-3)}
-  .map-svg-wrap{display:none}
-  .map-list{display:block}
-  .map-mobile-note{display:block}
   .page-head h1{font-size:var(--fs-5)}
   .kwiz-card{padding:18px 16px}
   .kwiz-prompt{font-size:var(--fs-4)}

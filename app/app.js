@@ -275,36 +275,102 @@ function monthSessions() {
   }).length;
 }
 
-/* ---------------- treemap ---------------- */
+/* ---------------- the map's layout ----------------
 
-function treemap(items, x, y, w, h) {
-  if (!items.length || w <= 0 || h <= 0) return [];
-  if (items.length === 1) return [{ item: items[0], x: x, y: y, w: w, h: h }];
-  const total = items.reduce(function (s, i) { return s + i.value; }, 0);
-  let acc = 0, idx = 0;
-  while (idx < items.length - 1 && acc + items[idx].value < total / 2) {
-    acc += items[idx].value;
-    idx++;
+   A mosaic: cells whose area is proportional to how much material they hold,
+   packed into rows whose heights are proportional too.
+
+   Greedy squarified packing was tried first and produced a sliver for the
+   smallest region — five levels came out as 2 + 2 + one full-width strip 40px
+   tall, which reads as a broken layout. Instead every row count is laid out
+   and scored by its worst aspect ratio, and the best one wins. Five items land
+   on 2 + 3; ten items on 3 + 3 + 4. */
+
+function splitIntoRows(values, rows) {
+  const groups = [];
+  let i = 0;
+  for (let r = 0; r < rows; r++) {
+    const left = rows - r;
+    let remaining = 0;
+    for (let k = i; k < values.length; k++) remaining += values[k];
+    const target = remaining / left;
+    const g = [];
+    let sum = 0;
+    /* Always leave one item for each row that still has to be filled. */
+    while (i < values.length - (left - 1)) {
+      const v = values[i];
+      if (g.length && Math.abs(sum + v - target) > Math.abs(sum - target)) break;
+      g.push(v); sum += v; i++;
+    }
+    groups.push(g);
   }
-  if (idx <= 0) idx = 1;
-  if (idx >= items.length) idx = items.length - 1;
-  const a = items.slice(0, idx), b = items.slice(idx);
-  const aVal = a.reduce(function (s, i) { return s + i.value; }, 0);
-  const ratio = total ? aVal / total : 0.5;
-  if (w >= h) {
-    const w1 = w * ratio;
-    return treemap(a, x, y, w1, h).concat(treemap(b, x + w1, y, w - w1, h));
+  return groups;
+}
+
+function mosaic(items, W, H) {
+  if (!items.length || W <= 0 || H <= 0) return [];
+  const n = items.length;
+
+  /* Largest first: a big cell at the edge of a row keeps the rest squarer. */
+  const order = items.map(function (it, i) { return i; })
+    .sort(function (a, b) { return items[b].value - items[a].value; });
+  const values = order.map(function (i) { return Math.max(1, items[i].value); });
+  const total = values.reduce(function (a, b) { return a + b; }, 0) || 1;
+
+  let best = null;
+  for (let rows = 1; rows <= Math.min(n, 6); rows++) {
+    const groups = splitIntoRows(values, rows);
+    let worst = 0;
+    let vi = 0;
+    const rects = new Array(n);
+    let y = 0;
+    groups.forEach(function (g) {
+      const gSum = g.reduce(function (a, b) { return a + b; }, 0) || 1;
+      const rh = (gSum / total) * H;
+
+      /* A one-point category next to a seven-point one would get 39px, which
+         holds nothing. Lift every cell to a floor and take the difference from
+         the wider ones — the areas stay close enough to proportional to read. */
+      const MIN_W = 74;
+      const widths = g.map(function (v) { return (v / gSum) * W; });
+      let deficit = 0;
+      widths.forEach(function (cw) { if (cw < MIN_W) deficit += MIN_W - cw; });
+      if (deficit > 0) {
+        const donors = [];
+        widths.forEach(function (cw, i) { if (cw > MIN_W) donors.push(i); });
+        const slack = donors.reduce(function (acc, i) { return acc + (widths[i] - MIN_W); }, 0);
+        if (slack > 0) {
+          const take = Math.min(1, deficit / slack);
+          donors.forEach(function (i) { widths[i] -= (widths[i] - MIN_W) * take; });
+          widths.forEach(function (cw, i) { if (cw < MIN_W) widths[i] = MIN_W; });
+        }
+      }
+
+      let x = 0;
+      g.forEach(function (v, i) {
+        const cw = widths[i];
+        const r = { x: x, y: y, w: cw, h: rh };
+        rects[order[vi]] = r;
+        const ratio = Math.max(r.w / Math.max(1, r.h), r.h / Math.max(1, r.w));
+        if (ratio > worst) worst = ratio;
+        x += cw; vi++;
+      });
+      y += rh;
+    });
+    if (!best || worst < best.worst - 0.001) best = { worst: worst, rects: rects };
   }
-  const h1 = h * ratio;
-  return treemap(a, x, y, w, h1).concat(treemap(b, x, y + h1, w, h - h1));
+
+  return best.rects.map(function (r) {
+    return {
+      x: Math.round(r.x * 10) / 10,
+      y: Math.round(r.y * 10) / 10,
+      w: Math.round(r.w * 10) / 10,
+      h: Math.round(r.h * 10) / 10
+    };
+  });
 }
 
 let mapFocus = null; // null | { level, category }
-
-const CAT_SHORT = {
-  articles: "ARTICLES", pronouns: "PRONOUNS", verbs: "VERBS",
-  adjectives: "ADJ. & ADV.", prepositions: "PREP.", syntax: "STRUCTURE", expressions: "EXPRESSIONS", reading: "READING"
-};
 
 function groupByCategory(list) {
   const groups = {};
@@ -321,127 +387,6 @@ function groupByCategory(list) {
   });
 }
 
-/* Pointy-top hexagon, the shape Kwiziq tiles its Brainmap with. */
-function hexPath(cx, cy, r) {
-  let d = "";
-  for (let i = 0; i < 6; i++) {
-    const a = Math.PI / 180 * (60 * i - 30);
-    d += (i ? "L" : "M") + (cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1);
-  }
-  return d + "Z";
-}
-
-/* Pick the column count that yields the largest hexagon.
-
-   Bisecting on the radius does not work: it happily accepts a single row of
-   tiny hexagons because that also "fits". Enumerating columns and keeping the
-   best radius fills the box properly. The radius is capped so that a level
-   with only two or three points does not turn into three giant tiles. */
-function hexGrid(n, w, h) {
-  const MAX_R = 64, MIN_R = 10;
-  let best = null;
-  for (let cols = 1; cols <= n; cols++) {
-    const rows = Math.ceil(n / cols);
-    const RbyW = (w / (cols + 0.5)) / Math.sqrt(3);
-    const RbyH = h / (1.5 * (rows - 1) + 2);
-    const R = Math.min(RbyW, RbyH, MAX_R);
-    if (R < MIN_R) continue;
-    /* Same radius in several layouts? Prefer the one closest to square, so
-       five points do not end up in a single vertical column. */
-    const square = Math.sqrt(n);
-    const better = !best || R > best.R + 0.01 ||
-      (Math.abs(R - best.R) <= 0.01 && Math.abs(cols - square) < Math.abs(best.cols - square));
-    if (better) {
-      best = {
-        R: R,
-        cols: cols,
-        rows: rows,
-        hexW: Math.sqrt(3) * R,
-        rowStep: 1.5 * R,
-        totalW: cols * Math.sqrt(3) * R + Math.sqrt(3) * R * 0.5,
-        totalH: (rows - 1) * 1.5 * R + 2 * R
-      };
-    }
-  }
-  return best;
-}
-
-function kpCells(svg, kps, x, y, w, h, labels) {
-  if (w <= 2 || h <= 2 || !kps.length) return;
-  const g = hexGrid(kps.length, w, h);
-  if (!g) return;
-
-  const startX = x + (w - g.totalW) / 2;
-  const startY = y + (h - g.totalH) / 2;
-
-  kps.forEach(function (kp, i) {
-    const row = Math.floor(i / g.cols);
-    const col = i % g.cols;
-    const offset = row % 2 ? g.hexW / 2 : 0;
-    const cx = startX + col * g.hexW + g.hexW / 2 + offset;
-    const cy = startY + row * g.rowStep + g.R;
-
-    const st = state.kps[kp.id];
-    const sc = st ? Engine.display(st.p, st.n) : 0;
-    const n = st ? st.n : 0;
-    const fill = Engine.colorFor(sc, n);
-
-    svg.push('<path class="map-cell" data-kp="' + kp.id + '" d="' + hexPath(cx, cy, g.R * 0.93)
-      + '" fill="' + fill + '"/>');
-
-    if (labels !== false && g.R >= 14) {
-      const short = kp.category === "reading" ? kp.title.replace("Reading: ", "") : kp.title.split(":")[0];
-      const fs = Math.max(7, Math.min(11, g.R * 0.42));
-      /* A hexagon only offers about 60% of its width as usable line length. */
-      const maxChars = Math.max(3, Math.floor((g.hexW * 0.62) / (fs * 0.55)));
-      const label = short.length > maxChars ? short.slice(0, maxChars - 1) + "…" : short;
-      const dark = (n === 0 || (sc >= 0 && sc < 50));
-      svg.push('<text class="map-label' + (dark ? " dark" : "") + '" x="' + cx.toFixed(1) + '" y="'
-        + (cy + fs * 0.35).toFixed(1) + '" text-anchor="middle" style="font-size:' + fs.toFixed(1) + 'px">'
-        + esc(label) + '</text>');
-    }
-  });
-}
-
-function categoryBlocks(svg, kps, x, y, w, h, showLabels, levelId) {
-  if (!showLabels) {
-    kpCells(svg, kps, x, y, w, h, false);
-    return;
-  }
-  const cats = groupByCategory(kps);
-  const rects = treemap(cats, x, y, w, h);
-  rects.forEach(function (r) {
-    const item = r.item;
-    if (r.w < 6 || r.h < 6) return;
-    const label = (CAT_SHORT[item.cat] || CATEGORIES[item.cat] || item.cat).toUpperCase();
-    svg.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" rx="3" fill="none" stroke="#E6E8EB"/>');
-    const maxChars = Math.floor((r.w - 8) / 5.4);
-    const canLabel = r.w > 56 && r.h > 40 && maxChars >= 6;
-    const labelH = canLabel ? 14 : 2;
-    if (canLabel) {
-      const text = label.length > maxChars ? label.slice(0, maxChars - 1) + "…" : label;
-      svg.push('<text x="' + (r.x + 5) + '" y="' + (r.y + 9) + '" font-size="8" font-weight="700" fill="#8A939E" letter-spacing=".02em">'
-        + esc(text) + '</text>');
-      svg.push('<line x1="' + (r.x + 3) + '" y1="' + (r.y + labelH - 2) + '" x2="' + (r.x + r.w - 3) + '" y2="' + (r.y + labelH - 2) + '" stroke="#E6E8EB"/>');
-      svg.push('<rect data-cat="' + item.cat + '" data-cat-level="' + levelId + '" x="' + r.x + '" y="' + r.y
-        + '" width="' + r.w + '" height="' + labelH + '" fill="transparent" style="cursor:pointer"/>');
-    }
-    kpCells(svg, item.kps, r.x + 1, r.y + labelH, r.w - 2, r.h - labelH - 1);
-  });
-}
-
-function levelRegion(svg, rect, levelId, kps, showCategories) {
-  const lvScore = Math.max(0, Math.round(Engine.levelScore(state, levelId)));
-  const name = (LEVELS.filter(function (l) { return l.id === levelId; })[0] || { name: levelId }).name;
-  svg.push('<rect x="' + rect.x + '" y="' + rect.y + '" width="' + rect.w + '" height="' + rect.h
-    + '" rx="8" fill="#FAFBFC" stroke="#E6E8EB"/>');
-  svg.push('<text x="' + (rect.x + 10) + '" y="' + (rect.y + 15) + '" font-size="10.5" font-weight="700" fill="#6B7480">'
-    + esc(name) + ' · score ' + lvScore + '</text>');
-  svg.push('<rect data-level="' + levelId + '" x="' + rect.x + '" y="' + rect.y + '" width="' + rect.w
-    + '" height="' + Math.min(22, rect.h) + '" fill="transparent" style="cursor:pointer"/>');
-  const pad = 4;
-  categoryBlocks(svg, kps, rect.x + pad, rect.y + 22, rect.w - pad * 2, rect.h - 28, showCategories, levelId);
-}
 
 /* ---------- brainmap: card views ----------
    The SVG map scales a 1000-wide viewBox down to a phone screen, which makes
@@ -505,60 +450,163 @@ function levelCardsHtml(compact) {
     + "</div>";
 }
 
-function categoryCardsHtml(levelId, compact) {
+/* ---------------- brainmap: one canvas, three zoom levels ----------------
+
+   Level, then grammar area, then the points inside — the same mosaic at every
+   depth, so zooming in feels like zooming rather than like opening a list.
+   Area carries the amount of material, colour carries how well it is known. */
+
+/* Background tint and ink for a score. Solid colour blocks would shout; these
+   are the same hues the legend uses, softened so text stays readable. */
+function mapTone(score, n) {
+  if (!n) return { bg: "#EDEFF2", ink: "#5F6873", bar: "#C9CFD6" };
+  if (score < 0) return { bg: "#F8E4E4", ink: "#8A2A2A", bar: "#D51C1B" };
+  if (score < 50) return { bg: "#FBF2D4", ink: "#6A5000", bar: "#E0B92B" };
+  if (score < 75) return { bg: "#E9F4EB", ink: "#2C5A38", bar: "#8FCB9B" };
+  if (score < 90) return { bg: "#DCEEE0", ink: "#23502D", bar: "#5FB56F" };
+  return { bg: "#CEE7D3", ink: "#1C4524", bar: "#2E7D32" };
+}
+
+/* One-word labels for cells too narrow for the full name. A clipped word reads
+   as a bug; a shorter one reads as a decision. */
+const CAT_TILE_SHORT = {
+  articles: "Articles", pronouns: "Pronouns", verbs: "Verbs",
+  adjectives: "Adj./adv.", prepositions: "Preps",
+  syntax: "Structure", expressions: "Expressions", reading: "Reading"
+};
+
+/* How much room a tile has decides how much it says — one flag per line, so a
+   narrow cell keeps its number instead of losing it along with the meta. */
+function tileHtml(t, cell) {
+  /* A hair of gap so two neighbouring tints never read as one block. */
+  const gap = 1.5;
+  const x = t.x + gap, y = t.y + gap;
+  const w = Math.max(10, t.w - gap * 2), h = Math.max(10, t.h - gap * 2);
+  const pad = w < 90 || h < 52 ? 8 : 12;
+  const size = w >= 132 && h >= 78 ? "full" : w >= 100 && h >= 56 ? "mid" : "small";
+  const showScore = cell.score != null && w >= 64 && h >= 46;
+  const showMeta = !!cell.meta && w >= 104 && h >= 62;
+  const showSub = !!cell.sub && w >= 128 && h >= 76;
+  return '<button class="map-tile d-' + size + (cell.cls ? " " + cell.cls : "") + '"'
+    + (cell.attrs || "")
+    + ' style="left:' + x + "px;top:" + y + "px;width:" + w + "px;height:" + h + "px;"
+    + "background:" + cell.tone.bg + ";color:" + cell.tone.ink + ";padding:" + pad + 'px"'
+    + ' aria-label="' + esc(cell.label) + '">'
+    + '<span class="mt-top">'
+    + '<span class="mt-name">' + esc(w < 104 && cell.short ? cell.short : cell.name) + "</span>"
+    + (showScore ? '<span class="mt-score">' + cell.score + "</span>" : "")
+    + "</span>"
+    + (showSub ? '<span class="mt-sub">' + esc(cell.sub) + "</span>" : "")
+    + (showMeta ? '<span class="mt-meta">' + esc(cell.meta) + "</span>" : "")
+    + "</button>";
+}
+
+function mapCanvasHtml(cells) {
+  const W = cells.W, H = cells.H;
+  const rects = mosaic(cells.items.map(function (c) { return { value: c.value }; }), W, H);
+  return '<div class="map-canvas" style="width:' + W + "px;height:" + H + 'px">'
+    + cells.items.map(function (c, i) {
+      const t = rects[i];
+      if (!t || t.w < 24 || t.h < 20) return "";
+      return tileHtml(t, c);
+    }).join("")
+    + "</div>";
+}
+
+/* The canvas height: roughly square on a phone, a wide band on a desktop, and
+   never taller than the number of cells needs. */
+function mapHeight(W, n) {
+  const base = W < 560 ? Math.round(W * 0.92) : 250;
+  return Math.max(150, Math.min(base, Math.round(96 * Math.ceil(n / 2))));
+}
+
+function levelTiles(W) {
+  const items = [];
+  LEVELS.forEach(function (lv) {
+    const list = KPS.filter(function (k) { return k.level === lv.id; });
+    if (!list.length) return;
+    const raw = avgScoreOf(list);
+    const score = raw == null ? null : Math.max(0, Math.round(raw));
+    const seen = list.filter(function (k) { const s = state.kps[k.id]; return s && s.n; });
+    const tested = seen.length;
+    const weak = list.filter(function (k) {
+      const s = state.kps[k.id];
+      return Engine.guidedEligible(state, k) && Engine.hasStarted(state, k) && s && s.n && Engine.display(s.p, s.n) < 50;
+    }).length;
+    const due = list.filter(function (k) {
+      const s = state.kps[k.id];
+      return s && s.dueAt && s.dueAt <= Date.now();
+    }).length;
+    const unseen = list.length - tested;
+
+    const meta = [];
+    if (weak) meta.push(weak + " weak");
+    if (due) meta.push(due + " due");
+    if (unseen) meta.push(unseen + " new");
+
+    /* The code is the label, the descriptor is the subtitle: "A0" fits in a
+       74px cell, "A0 · Entry" does not. */
+    const parts = String(lv.name).split("·");
+    items.push({
+      value: list.length,
+      cls: "lvl",
+      attrs: ' data-level="' + lv.id + '"',
+      name: lv.id,
+      score: score == null ? null : score,
+      sub: (parts[1] || "").trim() || null,
+      meta: list.length + " pts" + (meta.length ? " · " + meta.join(" · ") : ""),
+      tone: mapTone(score, tested),
+      label: lv.name + ", " + list.length + " points" + (score == null ? "" : ", score " + score)
+    });
+  });
+  return { items: items, W: W, H: mapHeight(W, items.length) };
+}
+
+function categoryTiles(W, levelId) {
   const list = KPS.filter(function (k) { return k.level === levelId; });
   const cats = groupByCategory(list);
-  return '<div class="bmap-cats' + (compact ? " compact" : "") + '">'
-    + cats.map(function (c) {
-      const score = avgScoreOf(c.kps);
-      return '<button class="bmap-cat" data-cat="' + c.cat + '" data-cat-level="' + levelId + '">'
-        + '<span class="bmap-cat-dot" style="background:' + scoreTint(c.kps) + '"></span>'
-        + '<span class="bmap-cat-body"><b>' + esc(CATEGORIES[c.cat] || c.cat) + "</b>"
-        + '<span class="bmap-cat-meta">' + c.kps.length + " points</span></span>"
-        + '<em class="bmap-cat-score">' + (score == null ? "—" : score) + "</em>"
-        + "</button>";
-    }).join("")
-    + "</div>";
-}
-
-function renderMap(height, compact) {
-  const focus = compact ? null : mapFocus;
-  if (focus && focus.category) return hexMapSvg(height, focus);
-  if (focus) return categoryCardsHtml(focus.level, compact);
-  return levelCardsHtml(compact);
-}
-
-/* Phone fallback for the hexagon grid: the same points as readable rows. */
-function kpListHtml(list) {
-  return '<div class="map-list">'
-    + list.map(function (kp) {
-      const s = state.kps[kp.id];
-      const n = s ? s.n : 0;
-      const sc = s ? Engine.display(s.p, s.n) : 0;
-      return '<div class="map-row" data-kp="' + kp.id + '">'
-        + '<span class="mr-dot" style="background:' + Engine.colorFor(sc, n) + '"></span>'
-        + '<span class="mr-body"><b>' + esc(kp.title) + "</b>"
-        + "<small>" + esc(CATEGORIES[kp.category] || kp.category) + " · " + esc(kp.level) + "</small></span>"
-        + badge(Engine.statusOf(state, kp))
-        + '<span class="mr-score" style="color:' + scoreColor(sc, n) + '">' + (n ? sc : "—") + "</span>"
-        + '<button class="btn sm ghost" data-practice="' + kp.id + '">Practise</button>'
-        + "</div>";
-    }).join("")
-    + "</div>";
-}
-
-function hexMapSvg(H, focus) {
-  const width = 1000;
-  const list = KPS.filter(function (k) {
-    return k.level === focus.level && k.category === focus.category;
+  const items = cats.map(function (c) {
+    const score = avgScoreOf(c.kps);
+    const tested = c.kps.filter(function (k) { const s = state.kps[k.id]; return s && s.n; }).length;
+    return {
+      value: c.kps.length,
+      cls: "cat",
+      attrs: ' data-cat="' + c.cat + '" data-cat-level="' + levelId + '"',
+      name: CATEGORIES[c.cat] || c.cat,
+      short: CAT_TILE_SHORT[c.cat] || null,
+      score: score == null ? null : Math.max(0, Math.round(score)),
+      sub: null,
+      meta: c.kps.length + " point" + (c.kps.length === 1 ? "" : "s"),
+      tone: mapTone(score == null ? 0 : Math.max(0, Math.round(score)), tested),
+      label: (CATEGORIES[c.cat] || c.cat) + ", " + c.kps.length + " points"
+    };
   });
-  const title = CATEGORIES[focus.category] || focus.category;
-  const svg = ['<svg class="map-svg" viewBox="0 0 ' + width + " " + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Knowledge points">'];
-  svg.push('<text x="10" y="22" font-size="20" font-weight="800" fill="#262626" letter-spacing="-.02em">' + esc(title) + "</text>");
-  svg.push('<text x="10" y="40" font-size="11" fill="#666">' + list.length + " knowledge points · tap one for details</text>");
-  kpCells(svg, list, 8, 54, width - 16, H - 62);
-  svg.push("</svg>");
-  return '<div class="map-svg-wrap">' + svg.join("") + "</div>" + kpListHtml(list);
+  return { items: items, W: W, H: mapHeight(W, items.length) };
+}
+
+function pointTiles(W, levelId, cat) {
+  const list = KPS.filter(function (k) { return k.level === levelId && k.category === cat; });
+  const items = list.map(function (kp) {
+    const s = state.kps[kp.id];
+    const n = s ? s.n : 0;
+    const sc = n ? Engine.display(s.p, s.n) : 0;
+    const parts = kp.title.split(":");
+    const name = parts[0];
+    const sub = parts.slice(1).join(":").trim();
+    const st = pointStatus(kp);
+    return {
+      value: Math.max(1, kp.weight || 1),
+      cls: "pt",
+      attrs: ' data-kp="' + kp.id + '"',
+      name: name,
+      score: n ? Math.max(0, Math.round(sc)) : null,
+      sub: sub || null,
+      meta: st === "due" ? "due" : st === "weak" ? "weak" : st === "solid" ? "solid" : (n ? "practising" : "not started"),
+      tone: mapTone(sc, n),
+      label: kp.title + (n ? ", score " + Math.max(0, Math.round(sc)) : ", not started")
+    };
+  });
+  return { items: items, W: W, H: mapHeight(W, items.length) };
 }
 
 /* ---------------- dashboard ---------------- */
@@ -861,7 +909,7 @@ function renderDashboard() {
     + '<section class="card section-gap dash-map"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
     + '<h2 style="font-size:15px">Your Brainmap</h2><span class="spacer" style="flex:1"></span>'
     + '<a href="#/brainmap" class="small">Open full map</a></div>'
-    + '<div class="map-wrap" style="border:none;padding:0">' + renderMap(300, true) + "</div>"
+    + '<div class="map-wrap" style="border:none;padding:0">' + levelCardsHtml(true) + "</div>"
     + legendHtml() + "</section>"
 
     + '<section class="card section-gap"><h2 style="font-size:15px;margin-bottom:4px">Your Studyplan</h2>'
@@ -906,14 +954,20 @@ function renderDashboard() {
   if (resumeBtn) resumeBtn.addEventListener("click", function () { navigate("#/kwiz"); });
 }
 
+/* The legend swatches are the tiles' own tints, so the key and the map speak
+   the same colour rather than a brighter cousin of it. */
 function legendHtml() {
+  const swatch = function (score, n) {
+    const t = mapTone(score, n);
+    return '<i style="background:' + t.bg + ";border-color:" + t.bar + '"></i>';
+  };
   return '<div class="legend">'
-    + '<span><i style="background:#DDE0E4"></i>Not seen</span>'
-    + '<span><i style="background:#D51C1B"></i>Needs review</span>'
-    + '<span><i style="background:#F2D24B"></i>Weak</span>'
-    + '<span><i style="background:#8FCB9B"></i>Getting there</span>'
-    + '<span><i style="background:#5FB56F"></i>Strong</span>'
-    + '<span><i style="background:#2E7D32"></i>Mastered</span>'
+    + "<span>" + swatch(0, 0) + "Not seen</span>"
+    + "<span>" + swatch(-20, 4) + "Needs review</span>"
+    + "<span>" + swatch(30, 4) + "Weak</span>"
+    + "<span>" + swatch(60, 4) + "Getting there</span>"
+    + "<span>" + swatch(80, 4) + "Strong</span>"
+    + "<span>" + swatch(95, 4) + "Mastered</span>"
     + "</div>";
 }
 
@@ -940,25 +994,43 @@ function renderBrainmap() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Your Brainmap</h1>'
-    + '<p>Level, then grammar area, then the points inside.</p></div>'
+    + '<p>Area is how much there is; colour is how well you know it. Tap to zoom in.</p></div>'
     + '<div class="map-wrap"><div class="map-toolbar">'
     + '<span class="small"><b>' + shown + '</b> points shown · <b>' + KPS.length + '</b> total</span>'
     + '<span class="spacer"></span>'
     + '<span class="small">' + Engine.dueCount(state) + ' due · ' + Engine.weakCount(state) + ' weak</span>'
     + "</div>"
-    + crumbsHtml() + renderMap(mapFocus ? 440 : 680) + legendHtml() + "</div>"
+    + crumbsHtml() + '<div id="mapHost" class="map-host"></div>' + legendHtml() + "</div>"
     + '<div class="section-gap" style="text-align:center">'
     + '<button class="btn" data-start="1">Start a 10-question kwiz</button></div>'
     + "</div>";
 
-  bindMap();
+  paintMap();
   bindMapNav();
   document.querySelectorAll("[data-start]").forEach(function (b) {
     b.addEventListener("click", function () { startSession(); });
   });
 }
 
-function bindMapNav() {
+/* The canvas is laid out in pixels, so it needs a measured width. Measuring
+   after the markup is in place keeps it correct at every viewport; jsdom
+   reports 0, so there is a sensible fallback for tests. */
+function paintMap() {
+  const host = document.getElementById("mapHost");
+  if (!host) return;
+  /* Capped so a wide desktop does not stretch five cells into ribbons. */
+  const W = Math.max(260, Math.min(820, Math.round(host.clientWidth || 340)));
+  const cells = !mapFocus ? levelTiles(W)
+    : mapFocus.category ? pointTiles(W, mapFocus.level, mapFocus.category)
+      : categoryTiles(W, mapFocus.level);
+  host.innerHTML = mapCanvasHtml(cells);
+  bindMapTiles();
+  bindMap();
+}
+
+/* Zooming. Kept apart from the crumb binding because the canvas is repainted
+   on resize and only these listeners belong to it. */
+function bindMapTiles() {
   document.querySelectorAll("[data-level]").forEach(function (el) {
     el.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -973,6 +1045,9 @@ function bindMapNav() {
       renderBrainmap();
     });
   });
+}
+
+function bindMapNav() {
   document.querySelectorAll("[data-crumb]").forEach(function (b) {
     b.addEventListener("click", function () {
       mapFocus = b.getAttribute("data-crumb") === "level" && mapFocus
@@ -984,7 +1059,7 @@ function bindMapNav() {
 }
 
 function bindMap() {
-  document.querySelectorAll(".map-cell").forEach(function (cell) {
+  document.querySelectorAll(".map-tile[data-kp]").forEach(function (cell) {
     const kpId = cell.getAttribute("data-kp");
     cell.addEventListener("mousemove", function (e) {
       const kp = KP_BY_ID[kpId];
@@ -1001,19 +1076,6 @@ function bindMap() {
     cell.addEventListener("click", function () { openDrawer(kpId); });
   });
 
-  /* Phone list rows: tap the row for the drawer, tap Practise to drill it. */
-  document.querySelectorAll(".map-row[data-kp]").forEach(function (row) {
-    row.addEventListener("click", function (e) {
-      if (e.target && e.target.closest && e.target.closest("[data-practice]")) return;
-      openDrawer(row.getAttribute("data-kp"));
-    });
-  });
-  document.querySelectorAll(".map-list [data-practice]").forEach(function (b) {
-    b.addEventListener("click", function (e) {
-      e.stopPropagation();
-      startFocusSession(b.getAttribute("data-practice"));
-    });
-  });
 }
 
 /* A note for Chinese speakers, when Chinese and French genuinely diverge on
@@ -4826,6 +4888,17 @@ document.addEventListener("keydown", function (e) {
 
 document.getElementById("drawerClose").addEventListener("click", closeDrawer);
 scrim.addEventListener("click", closeDrawer);
+
+/* The map is laid out in pixels, so a new viewport means a new layout. Only the
+   canvas is repainted; the page around it does not move. */
+let mapResizeTimer = null;
+window.addEventListener("resize", function () {
+  if (location.hash.indexOf("#/brainmap") !== 0) return;
+  clearTimeout(mapResizeTimer);
+  mapResizeTimer = setTimeout(function () {
+    if (location.hash.indexOf("#/brainmap") === 0) paintMap();
+  }, 140);
+});
 
 /* ---------------- mobile tab bar ---------------- */
 

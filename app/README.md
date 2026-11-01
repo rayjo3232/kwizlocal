@@ -43,7 +43,7 @@ collapses to one column.
 1. Take the **placement test** from the dashboard banner (20 questions across A0–B2, no feedback until the end).
    It estimates your level and fills the Brainmap in one go, aligned to the CEFR grammar progression.
    Prefer a shortcut? **Load demo progress** in Settings fills the map with synthetic scores.
-2. Open **Brainmap** and click any rectangle: score, rule, examples, and a practice button.
+2. Open **Brainmap** and tap any tile: it zooms one level in, and a point tile opens its drawer with the rule, examples and a practice button.
 3. Click **Kwiz your Studyplan** on the dashboard: 10 questions, mixed points, instant feedback.
 4. Finish the set to see the results table and how the map changes.
 5. Open **Library**, pick a point marked `NEW`, and try the **Pre-learn** flow:
@@ -84,7 +84,7 @@ collapses to one column.
 | Display score −100…100 with evidence shrinkage | done |
 | Level score aggregation (weighted, can go negative) | done |
 | 10-question session builder (weak / due / new, difficulty ramp) | done |
-| Brainmap treemap with grammar areas, drill-down, colour by score, drawer | done |
+| Brainmap mosaic: one canvas per zoom level (level → grammar area → points), area = amount of material, colour = score, drawer on tap | done |
 | Pre-learn state machine (Primer → Guided → Check) | done |
 | Results table with per-answer explanation + practise-mistakes | done |
 | **Result page "What changed"**: score delta per point vs. session start | done |
@@ -133,7 +133,7 @@ collapses to one column.
 | **Sentence bank loads after first paint**: 2.3 MB no longer blocks the first screen | done |
 | **Dashboard with one primary action**: daily goal → Quick · 3 → two secondary options → at most three ranked next steps; achievements and the study plan moved below | done |
 | **Pre-learn primer**: rule + two examples + one mix-up + the CTA on the first screen; extra examples, usage, mistakes, watch-out and tip collapsed into `<details>` | done |
-| **Phone Brainmap**: the innermost hexagon grid becomes a readable list (title, area, level, score, Practise) instead of hiding the SVG labels | done |
+| **Phone Brainmap**: the mosaic is laid out in pixels from the measured width, so it is the same map at 360px and at 1280px — no separate phone view | done |
 | **French-first typography**: French examples 18px dark roman, English glosses 14px muted — the target language leads | done |
 | **Accessibility floor**: 4.5:1 contrast on buttons, brand text, badges and muted copy; drawer is a real dialog with Esc, focus trap and focus restore; answer feedback is `aria-live` | done |
 | Audio | **not included** (by choice) |
