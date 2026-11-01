@@ -778,6 +778,20 @@ function renderDashboard() {
     + '<span class="streak-lbl">day streak</span></div>'
     + '</div>'
 
+    /* Where this level ends. At three questions a day a level takes months, and
+       "still A0" with no distance attached reads as "nothing changes". */
+    + (function () {
+      const p = Engine.levelProgress(state);
+      if (!p.next) {
+        return '<div class="lvl-progress"><span class="lvl-now">' + esc(p.level) + "</span>"
+          + '<span class="lvl-note">' + p.ready + " of " + p.points + " points solid · top level of the course</span></div>";
+      }
+      return '<div class="lvl-progress"><span class="lvl-now">' + esc(p.level) + "</span>"
+        + '<span class="lvl-track" title="' + p.ready + " of " + p.need + " points needed for " + esc(p.next) + '">'
+        + '<i style="width:' + Math.min(100, Math.round(p.ready / Math.max(1, p.need) * 100)) + '%"></i></span>'
+        + '<span class="lvl-note">' + p.left + " more point" + (p.left === 1 ? "" : "s") + " to " + esc(p.next) + "</span></div>";
+    })()
+
     + '<section class="card hero">'
     + '<div class="hero-left">'
     + '<div class="hero-top"><div class="avatar">K</div><div class="hero-copy">'
@@ -1401,10 +1415,13 @@ function topicItem(itemId) {
    getting wrong, then whatever you have not seen for longest. */
 function topicVocabRefs(n) {
   const pool = VOCAB_LIST.filter(function (v) {
-    // Vocabulary starts at A1; avoid mixing it into A0 foundation sessions.
     const cap = Engine.guidedLevel(state);
     const levelRank = { A0: 0, A1: 1, A2: 2, B1: 3, B2: 4 };
-    if (levelRank[v.level || "B2"] > levelRank[cap]) return false;
+    /* The word deck starts at A1 — there are no A0 words — so an A0 learner
+       gets one level of allowance rather than none at all. Everything below
+       still has to have been met in Vocab first. */
+    const allowance = cap === "A0" ? 1 : 0;
+    if (levelRank[v.level || "B2"] > levelRank[cap] + allowance) return false;
     if (!(v.ex && v.ex[0] && v.ex[0][0])) return false;
     // A vocabulary word should enter mixed review only after it was learned
     // in Vocab. CEFR word labels alone do not guarantee a simple sentence.
@@ -1470,11 +1487,14 @@ function topicVerbRefs(n) {
 /* Replace roughly one question in three, never the opening one, so a session
    still starts with the grammar it was built around. */
 function mixTopics(items, n) {
-  // No random topic mix in a brand-new learner's foundation practice.
-  if (Engine.guidedLevel(state) === "A0") return items;
-  const slots = n <= 3 ? 1 : Math.max(1, Math.round(n * 0.3));
-  const wantVocab = Math.ceil(slots / 2);
-  const picks = topicVocabRefs(wantVocab).concat(topicVerbRefs(slots - wantVocab));
+  const level = Engine.guidedLevel(state);
+  /* At A0 only vocabulary joins, and only one question per session: a word you
+     have already met is a fair question, a conjugated form you have not is not.
+     Conjugation unlocks with A1, along with the tenses that make it meaningful. */
+  const slots = level === "A0" ? 1 : (n <= 3 ? 1 : Math.max(1, Math.round(n * 0.3)));
+  const wantVocab = level === "A0" ? slots : Math.ceil(slots / 2);
+  const picks = topicVocabRefs(wantVocab)
+    .concat(level === "A0" ? [] : topicVerbRefs(slots - wantVocab));
   if (!picks.length) return items;
 
   const out = items.slice();
@@ -4504,7 +4524,12 @@ function renderSettings() {
     }).join("")
     + '</select></div>'
     + '<div class="setting-row"><div class="txt"><b>Current guided level</b>'
-    + '<span>Advances after at least 75% of points at the current level are confidently practised.</span></div>'
+    + '<span>' + (function () {
+      const p = Engine.levelProgress(state);
+      const where = p.next ? "A level advances once " + p.need + " of its " + p.points + " points are confidently practised."
+        : "This is the last level in the course.";
+      return esc(where) + (p.next ? " " + p.left + " to go for " + esc(p.next) + "." : "");
+    })() + "</span></div>"
     + '<b>' + esc(Engine.guidedLevel(state)) + '</b></div>'
     + '<div class="setting-row"><div class="txt"><b>Daily goal</b>'
     + '<span>Questions per day shown on the dashboard.</span></div>'

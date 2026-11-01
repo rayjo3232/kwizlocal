@@ -312,6 +312,30 @@ const Engine = (function () {
   const LEVEL_ORDER = ["A0", "A1", "A2", "B1", "B2"];
   function levelIndex(level) { return Math.max(0, LEVEL_ORDER.indexOf(level)); }
 
+  /* How far the current level is from the next one, in the same terms the
+     unlock rule uses. At three questions a day a level takes months, so the
+     distance has to be visible — otherwise "I am still A0" reads as "nothing
+     I do changes anything". */
+  function levelProgress(state) {
+    const level = guidedLevel(state);
+    const i = LEVEL_ORDER.indexOf(level);
+    const points = KPS.filter(function (k) { return k.level === level; });
+    const ready = points.filter(function (k) {
+      const s = state.kps[k.id];
+      return s && s.n >= 2 && display(s.p, s.n) >= 50;
+    }).length;
+    const need = Math.ceil(points.length * 0.75);
+    return {
+      level: level,
+      next: i < LEVEL_ORDER.length - 1 ? LEVEL_ORDER[i + 1] : null,
+      points: points.length,
+      ready: ready,
+      need: need,
+      left: Math.max(0, need - ready),
+      pct: points.length ? Math.round(ready / points.length * 100) : 0
+    };
+  }
+
   function startingLevel(state) {
     const level = state.learningLevel || (state.placement && state.placement.level);
     return LEVEL_ORDER.indexOf(level) >= 0 ? level : "A0";
@@ -967,6 +991,7 @@ const Engine = (function () {
     buildSession: buildSession,
     startingLevel: startingLevel,
     guidedLevel: guidedLevel,
+    levelProgress: levelProgress,
     prereqReady: prereqReady,
     guidedEligible: guidedEligible,
     nextNewPoint: nextNewPoint,

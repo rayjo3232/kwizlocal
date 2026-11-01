@@ -222,4 +222,51 @@ for (const mode of ['manual', 'placement']) {
     "once nothing is due or weak, the next lesson is the useful move");
 }
 
+/* ---- the distance to the next level is visible --------------------------
+
+   At three questions a day a level takes months. "Still A0" with no distance
+   attached reads as "nothing I do changes anything", so levelProgress has to
+   report the same numbers the unlock rule uses. */
+{
+  const s = Engine.newState();
+  const p0 = Engine.levelProgress(s);
+  const a0 = KPS.filter(k => k.level === 'A0');
+  assert.equal(p0.level, 'A0');
+  assert.equal(p0.next, 'A1');
+  assert.equal(p0.points, a0.length);
+  assert.equal(p0.need, Math.ceil(a0.length * 0.75));
+  assert.equal(p0.ready, 0);
+  assert.equal(p0.left, p0.need, 'nothing is solid yet');
+
+  /* One short of the threshold: the level must not move, and the countdown
+     must show exactly one. */
+  const solid = k => { const r = Engine.ensure(s, k.id); r.p = 0.95; r.n = 5; r.correct = 5; r.wrong = 0; };
+  a0.slice(0, p0.need - 1).forEach(solid);
+  const p1 = Engine.levelProgress(s);
+  assert.equal(Engine.guidedLevel(s), 'A0', 'one point short must not unlock the next level');
+  assert.equal(p1.ready, p0.need - 1);
+  assert.equal(p1.left, 1);
+
+  /* The threshold point: the level moves and the countdown restarts on A1. */
+  solid(a0[p0.need - 1]);
+  const p2 = Engine.levelProgress(s);
+  assert.equal(Engine.guidedLevel(s), 'A1');
+  assert.equal(p2.level, 'A1');
+  assert.equal(p2.next, 'A2');
+  assert.equal(p2.ready, 0, 'a new level starts from zero');
+
+  /* A point that has been answered but is not solid does not count. */
+  const t = Engine.newState();
+  const weak = Engine.ensure(t, a0[0].id);
+  weak.p = 0.35; weak.n = 4; weak.correct = 1; weak.wrong = 3;
+  assert.equal(Engine.levelProgress(t).ready, 0, 'a weak point must not count as solid');
+
+  /* The last level has no next. */
+  const top = Engine.newState();
+  top.learningLevel = 'B2';
+  const pTop = Engine.levelProgress(top);
+  assert.equal(pTop.level, 'B2');
+  assert.equal(pTop.next, null);
+}
+
 console.log('Guided scheduler regression checks passed.');

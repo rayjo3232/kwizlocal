@@ -171,6 +171,24 @@ p{margin:0 0 12px}
   display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--line);
   border-radius:8px;padding:10px 14px;margin-bottom:14px;
 }
+/* Where the current level ends. Deliberately quieter than the today bar: it
+   is a horizon, not a task. */
+.lvl-progress{
+  display:flex;align-items:center;gap:9px;
+  margin:-4px 0 14px;padding:0 2px;
+  font-size:var(--fs-1);color:var(--muted);
+}
+.lvl-progress .lvl-now{
+  flex:none;font-weight:800;letter-spacing:.04em;color:var(--brand-ink);
+}
+.lvl-progress .lvl-track{
+  flex:none;width:74px;height:4px;border-radius:2px;background:var(--line2);overflow:hidden;
+}
+.lvl-progress .lvl-track i{
+  display:block;height:100%;border-radius:2px;background:var(--brand);transition:width .3s ease;
+}
+.lvl-progress .lvl-note{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 .todaybar .goal{flex:1;min-width:0}
 .todaybar .goal-head{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
 .todaybar .label{font-size:var(--fs-1);font-weight:800;letter-spacing:.1em;color:var(--faint)}
