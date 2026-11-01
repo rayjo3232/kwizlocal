@@ -39,7 +39,9 @@
   --faint:#737373;
   --line:#e5e5e5;
   --line2:#f0f0f0;
-  --bg:#f7f8fa;
+  /* Warm neutral instead of cool grey: white cards read as paper on a desk
+     rather than as cut-outs, and the brand orange sits on it without clashing. */
+  --bg:#F3F2EF;
   --card:#FFFFFF;
   --green:#2E7D32;
   --green-soft:#EDF7EF;
@@ -49,8 +51,11 @@
   --yellow-soft:#FFF7E0;
   --blue:#0B6FB8;
   --blue-soft:#e5f4ff;
-  --radius:8px;
-  --shadow:0 1px 3px rgba(20,24,29,.06);
+  --radius:14px;
+  /* Two-part elevation: a hairline for the edge, a soft wide shadow for lift.
+     One shadow alone either disappears or looks like a sticker. */
+  --shadow:0 1px 2px rgba(20,24,29,.05), 0 14px 34px -26px rgba(20,24,29,.55);
+  --shadow-lift:0 2px 4px rgba(20,24,29,.06), 0 22px 44px -26px rgba(20,24,29,.45);
   --font:"Inter","Helvetica Neue",-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
   --font-head:"Poppins","Inter",-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
   /* language content — French examples and their English glosses */
@@ -139,7 +144,7 @@ p{margin:0 0 12px}
 .page-head{text-align:left;margin:6px 0 18px}
 .page-head p{color:var(--muted);font-size:var(--fs-2);margin:6px 0 0}
 .card{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--card);border:1px solid rgba(20,24,29,.07);border-radius:var(--radius);
   padding:18px;box-shadow:var(--shadow);
 }
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
@@ -168,14 +173,14 @@ p{margin:0 0 12px}
 
 /* ---------- daily goal bar ---------- */
 .todaybar{
-  display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--line);
-  border-radius:8px;padding:10px 14px;margin-bottom:14px;
+  display:flex;align-items:center;gap:16px;background:#fff;border:1px solid rgba(20,24,29,.07);
+  border-radius:var(--radius);padding:13px 16px;margin-bottom:10px;box-shadow:var(--shadow);
 }
 /* Where the current level ends. Deliberately quieter than the today bar: it
    is a horizon, not a task. */
 .lvl-progress{
   display:flex;align-items:center;gap:9px;
-  margin:-4px 0 14px;padding:0 2px;
+  margin:0 0 14px;padding:0 2px;
   font-size:var(--fs-1);color:var(--muted);
 }
 .lvl-progress .lvl-now{
@@ -192,12 +197,18 @@ p{margin:0 0 12px}
 .todaybar .goal{flex:1;min-width:0}
 .todaybar .goal-head{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
 .todaybar .label{font-size:var(--fs-1);font-weight:800;letter-spacing:.1em;color:var(--faint)}
-.todaybar .goal-num{font-size:var(--fs-2);font-weight:800;color:var(--ink2);font-variant-numeric:tabular-nums}
+.todaybar .goal-num{font-size:var(--fs-3);font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .todaybar .goal-num small{font-size:var(--fs-1);font-weight:600;color:var(--muted)}
-.todaybar .goal-check{margin-left:auto;font-size:var(--fs-1);font-weight:800;color:var(--green)}
-.todaybar .track{height:6px;background:var(--line2);border-radius:3px;overflow:hidden}
-.todaybar .fill{display:block;height:6px;background:var(--brand);border-radius:3px;transition:width .35s}
-.todaybar.done .fill{background:var(--green)}
+.todaybar .goal-check{
+  margin-left:auto;font-size:var(--fs-1);font-weight:800;color:#1F6B28;
+  background:#E4F3E6;border-radius:999px;padding:2px 9px;white-space:nowrap;
+}
+.todaybar .track{height:9px;background:var(--line2);border-radius:999px;overflow:hidden}
+.todaybar .fill{
+  display:block;height:9px;border-radius:999px;transition:width .35s;
+  background:linear-gradient(90deg,#FF8A3D 0%,#C25200 100%);
+}
+.todaybar.done .fill{background:linear-gradient(90deg,#5FB56F 0%,#2E7D32 100%)}
 .todaybar .streak-box{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding-left:16px;border-left:1px solid var(--line2);min-width:78px;
@@ -221,8 +232,15 @@ p{margin:0 0 12px}
   border-radius:var(--radius);padding:16px 18px;
 }
 .avatar{
-  width:44px;height:44px;border-radius:50%;background:#DDEBD0;color:#3E7A4C;flex:none;
+  width:46px;height:46px;border-radius:50%;background:#DDEBD0;color:#3E7A4C;flex:none;
   display:grid;place-items:center;font-weight:800;font-size:var(--fs-4);
+}
+/* The level, not a brand initial: the first thing you see should tell you
+   where you are. */
+.avatar.lvl{
+  background:linear-gradient(150deg,#FFE2C9,#FFD0A8);
+  color:#8A3B00;font-family:var(--font-head);font-size:var(--fs-3);letter-spacing:.02em;
+  box-shadow:inset 0 0 0 1px rgba(196,90,10,.16);
 }
 .kwizbot .body{flex:1;min-width:0}
 .kwizbot .hello{font-weight:800;font-size:var(--fs-3);margin-bottom:2px}
@@ -232,17 +250,30 @@ p{margin:0 0 12px}
 /* ---------- dashboard hero ----------
    One card, one primary button. Everything else on the first screen is either
    the daily goal or a ranked reason to do something different. */
-.hero{padding:18px 18px 16px;margin-top:14px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.hero{
+  padding:18px 18px 16px;margin-top:14px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;
+  /* The one warm surface on the page: it is where the day starts. */
+  background:
+    radial-gradient(120% 140% at 0% 0%, #FFE7D2 0%, rgba(255,231,210,0) 62%),
+    linear-gradient(180deg,#FFFFFF 0%,#FFFDFB 100%);
+  border-color:#F1E1D1;
+  box-shadow:var(--shadow-lift);
+}
 .hero-left{min-width:0}
 .hero-side{min-width:0}
 .hero-top{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
 .hero-copy{flex:1;min-width:0}
-.hero-copy .hello{font-weight:800;font-size:var(--fs-4);margin-bottom:3px;font-family:var(--font-head)}
+.hero-copy .hello{font-weight:700;font-size:var(--fs-5);margin-bottom:3px;font-family:var(--font-head);letter-spacing:-.02em}
 .hero-copy p{font-size:var(--fs-2);color:var(--muted);margin:0}
 .btn.block{
   width:100%;display:flex;align-items:center;justify-content:center;gap:9px;
-  font-size:var(--fs-4);padding:14px 18px;
+  font-size:var(--fs-4);padding:15px 18px;border-radius:11px;
+  background:linear-gradient(180deg,#C25200 0%,#A84800 100%);
+  border-color:#A84800;
+  box-shadow:0 10px 22px -12px rgba(168,72,0,.9), inset 0 1px 0 rgba(255,255,255,.16);
 }
+.btn.block:hover{background:linear-gradient(180deg,#B54B00 0%,#993F00 100%)}
+.btn.block:active{transform:translateY(1px)}
 .btn.block small{font-size:var(--fs-1);font-weight:600;opacity:.82;letter-spacing:0}
 .hero-sub{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
 .hero-sub .btn{flex:1;justify-content:center;min-width:130px}
@@ -486,10 +517,19 @@ p{margin:0 0 12px}
 
 /* ---------- kwiz ---------- */
 .kwiz-wrap{max-width:720px;margin:0 auto}
-.kwiz-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:var(--fs-2);color:var(--muted)}
-.kwiz-top .track{flex:1;height:6px;background:var(--line2);border-radius:3px;overflow:hidden}
-.kwiz-top .fill{height:6px;background:var(--brand);border-radius:3px;transition:width .25s}
-.kwiz-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:26px 26px 22px;box-shadow:var(--shadow)}
+/* One segment per question: the count is a number, the segments are a shape.
+   At ten questions the shape says "near the end" without reading anything. */
+.kwiz-top{display:flex;align-items:center;gap:11px;margin-bottom:14px;font-size:var(--fs-1);color:var(--faint)}
+.kt-count{flex:none;font-weight:800;font-size:var(--fs-2);color:var(--ink2);font-variant-numeric:tabular-nums}
+.kt-segs{flex:1;min-width:0;display:flex;gap:3px}
+.kt-segs i{flex:1;min-width:3px;height:5px;border-radius:3px;background:var(--line2);transition:background .2s}
+.kt-segs i.done{background:var(--brand)}
+.kt-segs i.now{background:var(--brand-line)}
+.kt-tag{
+  flex:none;max-width:46%;font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.kwiz-card{background:#fff;border:1px solid rgba(20,24,29,.07);border-radius:var(--radius);padding:26px 26px 22px;box-shadow:var(--shadow-lift)}
 .kwiz-kicker{font-size:var(--fs-1);font-weight:800;letter-spacing:.1em;color:var(--brand-ink);text-transform:uppercase;margin-bottom:8px}
 .retry-badge{
   display:inline-block;background:#FFF3EA;border:1px solid var(--brand-line);
@@ -591,7 +631,15 @@ p{margin:0 0 12px}
 .score-move .delta{margin-left:2px}
 
 /* ---------- result ---------- */
-.result-head{text-align:center;padding:8px 0 18px}
+.result-head{
+  text-align:center;padding:24px 18px 20px;margin:4px 0 18px;
+  border-radius:var(--radius);border:1px solid #F1E1D1;
+  background:
+    radial-gradient(120% 150% at 50% 0%, #FFF1E3 0%, rgba(255,241,227,0) 72%),
+    #FFFFFF;
+  box-shadow:var(--shadow);
+}
+.result-head h1{margin:0 0 4px;font-family:var(--font-head);letter-spacing:-.02em}
 .stars{font-size:var(--fs-6);letter-spacing:4px;color:#E3E6EA;margin:6px 0}
 .stars .on{color:#F2B01E}
 .result-score{font-size:var(--fs-2);color:var(--muted)}
@@ -744,7 +792,7 @@ p{margin:0 0 12px}
 .chip:hover{border-color:var(--brand-line)}
 .chip.active{background:var(--brand-action);border-color:var(--brand-action);color:#fff}
 .lib-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.lib-card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:13px 14px;display:flex;flex-direction:column;gap:6px}
+.lib-card{background:#fff;border:1px solid rgba(20,24,29,.07);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;box-shadow:0 1px 2px rgba(20,24,29,.04)}
 .lib-card .lvl{font-size:var(--fs-1);font-weight:800;letter-spacing:.08em;color:var(--faint)}
 .lib-card .t{font-size:var(--fs-2);font-weight:700;line-height:1.35}
 .lib-card .fr{font-size:var(--fs-1);color:var(--muted);font-style:italic}
@@ -1318,10 +1366,13 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
 
 /* Narrow screens: a 190px select next to a paragraph squeezes the text into a
    column of eight words. Stack them instead. */
+/* Only rows holding a wide control stack. A 60px Start button does not squeeze
+   the text, and stacking those made the settings page twice as long as it
+   needed to be. */
 @media (max-width:560px){
-  .setting-row{flex-direction:column;align-items:stretch;gap:9px}
-  .setting-row .txt{flex:none}
-  .setting-row .goal-select,.setting-row .btn{align-self:flex-start;max-width:100%}
+  .setting-row:has(.goal-select){flex-direction:column;align-items:stretch;gap:9px}
+  .setting-row:has(.goal-select) .txt{flex:none}
+  .setting-row:has(.goal-select) .goal-select{align-self:flex-start;max-width:100%}
 }
 
 /* D3: the ← → glyphs at 12.5px read as dashes. */
@@ -1338,6 +1389,10 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
   flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;padding-bottom:2px;
+  /* Fades instead of cutting a character in half: the row is scrollable and
+     should look it. */
+  mask-image:linear-gradient(90deg,#000 0,#000 88%,rgba(0,0,0,.15) 100%);
+  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 88%,rgba(0,0,0,.15) 100%);
 }
 .accent-bar::-webkit-scrollbar{display:none}
 .accent-key{flex:0 0 auto}

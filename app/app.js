@@ -826,9 +826,21 @@ function renderDashboard() {
     + '<span class="streak-lbl">day streak</span></div>'
     + '</div>'
 
-    /* Where this level ends. At three questions a day a level takes months, and
-       "still A0" with no distance attached reads as "nothing changes". */
+
+    + '<section class="card hero">'
+    + '<div class="hero-left">'
+    + '<div class="hero-top"><div class="avatar lvl">' + esc(Engine.guidedLevel(state)) + '</div><div class="hero-copy">'
+    + '<div class="hello">' + (today ? "Welcome back." : "Hello!") + "</div>"
+    + "<p>" + (inProgress
+      ? "You left a session part-finished — pick it up where you stopped."
+      : (outlook.recommend === "learn" && nextLesson
+        ? "Nothing is due. The next lesson takes about three minutes."
+        : canPractise
+          ? "Short on time? Three questions takes about a minute."
+          : "Start with the next unlocked lesson. Quizzes will follow the material you learn.")) + "</p></div></div>"
     + (function () {
+      /* Where this level ends. At three questions a day a level takes months,
+         and "still A0" with no distance attached reads as "nothing changes". */
       const p = Engine.levelProgress(state);
       if (!p.next) {
         return '<div class="lvl-progress"><span class="lvl-now">' + esc(p.level) + "</span>"
@@ -839,18 +851,6 @@ function renderDashboard() {
         + '<i style="width:' + Math.min(100, Math.round(p.ready / Math.max(1, p.need) * 100)) + '%"></i></span>'
         + '<span class="lvl-note">' + p.left + " more point" + (p.left === 1 ? "" : "s") + " to " + esc(p.next) + "</span></div>";
     })()
-
-    + '<section class="card hero">'
-    + '<div class="hero-left">'
-    + '<div class="hero-top"><div class="avatar">K</div><div class="hero-copy">'
-    + '<div class="hello">' + (today ? "Welcome back." : "Hello!") + "</div>"
-    + "<p>" + (inProgress
-      ? "You left a session part-finished — pick it up where you stopped."
-      : (outlook.recommend === "learn" && nextLesson
-        ? "Nothing is due. The next lesson takes about three minutes."
-        : canPractise
-          ? "Short on time? Three questions takes about a minute."
-          : "Start with the next unlocked lesson. Quizzes will follow the material you learn.")) + "</p></div></div>"
     + primaryBtn
     + '<div class="hero-sub">'
     + (inProgress
@@ -1650,6 +1650,19 @@ function startReadingSession() {
   }));
 }
 
+/* One header for every practice screen: the count, a segment per question, and
+   what the session is about. */
+function kwizTopHtml(index, total, label) {
+  const segs = [];
+  for (let i = 0; i < total; i++) {
+    segs.push("<i" + (i < index ? ' class="done"' : i === index ? ' class="now"' : "") + "></i>");
+  }
+  return '<div class="kwiz-top">'
+    + '<span class="kt-count">' + (index + 1) + " / " + total + "</span>"
+    + '<span class="kt-segs">' + segs.join("") + "</span>"
+    + '<span class="kt-tag">' + label + "</span></div>";
+}
+
 function renderKwiz() {
   if (!session || !session.session || !session.session.items.length) {
     app.innerHTML = '<div class="container"><div class="empty">No active session. '
@@ -1744,9 +1757,7 @@ function renderKwiz() {
     : esc(kp.level) + " · " + esc(kp.title.split(":")[0]);
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (session.index + 1) + " / " + total + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (session.index / total * 100) + '%"></span></span>'
-    + "<span>" + headLabel + "</span></div>"
+    + kwizTopHtml(session.index, total, headLabel)
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">' + (ref.retry ? '<span class="retry-badge">Retry</span> ' : "") + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
@@ -2170,9 +2181,7 @@ function renderPlacement() {
   }
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (placement.index + 1) + " / " + total + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (placement.index / total * 100) + '%"></span></span>'
-    + "<span>Placement · " + esc(kp.level) + "</span></div>"
+    + kwizTopHtml(placement.index, total, "Placement · " + esc(kp.level))
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">Find your level · ' + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
@@ -2403,9 +2412,7 @@ function renderExam() {
   const left = exam.duration - (Date.now() - exam.startedAt);
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (exam.index + 1) + " / " + total + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (exam.index / total * 100) + '%"></span></span>'
-    + '<span class="exam-timer" id="examTimer">' + fmtTime(left) + "</span></div>"
+    + kwizTopHtml(exam.index, total, '<span class="exam-timer" id="examTimer">' + fmtTime(left) + "</span>")
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">TCF-style · ' + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
@@ -3443,9 +3450,7 @@ function renderVocabFlash() {
   const g = v.g === "f" ? "f." : v.g === "m" ? "m." : "";
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (f.index + 1) + " / " + f.queue.length + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (f.index / f.queue.length * 100) + '%"></span></span>'
-    + "<span>Vocabulary</span></div>"
+    + kwizTopHtml(f.index, f.queue.length, "Vocabulary")
     + '<div class="kwiz-card flash-card">'
     + '<div class="flash-word">' + esc(v.w) + "</div>"
     + '<div class="flash-meta">' + esc(v.pos) + (g ? " · " + g : "")
@@ -3521,9 +3526,7 @@ function renderGenderDrill() {
   const isRight = g.picked === v.g;
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (g.index + 1) + " / " + g.queue.length + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (g.index / g.queue.length * 100) + '%"></span></span>'
-    + "<span>Gender · " + g.correct + " ✓ / " + g.wrong + " ✗</span></div>"
+    + kwizTopHtml(g.index, g.queue.length, "Gender · " + g.correct + " ✓ / " + g.wrong + " ✗")
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">Masculine or feminine?</div>'
     + '<div class="flash-word" style="margin-bottom:4px">' + esc(v.w) + "</div>"
@@ -3703,9 +3706,7 @@ function renderVerbDrill() {
   const pronoun = VERB_PERSON_LIST[q.person];
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (d.index + 1) + " / " + d.queue.length + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (d.index / d.queue.length * 100) + '%"></span></span>'
-    + "<span>Conjugation · " + d.correct + " ✓ / " + d.wrong + " ✗</span></div>"
+    + kwizTopHtml(d.index, d.queue.length, "Conjugation · " + d.correct + " ✓ / " + d.wrong + " ✗")
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">' + esc(q.tense) + "</div>"
     + '<div class="verb-drill-prompt"><span class="verb-inf">' + esc(q.inf) + "</span>"
@@ -3836,9 +3837,7 @@ function renderCloze() {
   const isRight = answered && c.picked === q.v.w;
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (c.index + 1) + " / " + c.queue.length + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (c.index / c.queue.length * 100) + '%"></span></span>'
-    + "<span>Cloze · " + c.correct + " ✓ / " + c.wrong + " ✗</span></div>"
+    + kwizTopHtml(c.index, c.queue.length, "Cloze · " + c.correct + " ✓ / " + c.wrong + " ✗")
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">Fill the gap</div>'
     + '<div class="cloze-sentence">' + esc(q.blanked).replace(/____/g, '<span class="blank">____</span>') + "</div>"
@@ -4129,9 +4128,7 @@ function renderSentDrill() {
   }
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (d.index + 1) + " / " + d.queue.length + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (d.index / d.queue.length * 100) + '%"></span></span>'
-    + "<span>" + esc(tagLabel) + (lvl ? " · " + esc(lvl) : "") + " · " + d.correct + " ✓ / " + d.wrong + " ✗</span></div>"
+    + kwizTopHtml(d.index, d.queue.length, esc(tagLabel) + (lvl ? " · " + esc(lvl) : "") + " · " + d.correct + " ✓ / " + d.wrong + " ✗")
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">' + (type === "gap" ? "Fill the gap" : "Put the words in order") + "</div>"
     + body
@@ -4382,9 +4379,7 @@ function renderTranslate() {
   }
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="kwiz-top"><span>' + (d.index + 1) + " / " + d.queue.length + "</span>"
-    + '<span class="track"><span class="fill" style="width:' + (d.index / d.queue.length * 100) + '%"></span></span>'
-    + "<span>Translate · " + esc(lvl) + " · avg " + (d.done ? Math.round(d.score / d.done) : 0) + "%</span></div>"
+    + kwizTopHtml(d.index, d.queue.length, "Translate · " + esc(lvl) + " · avg " + (d.done ? Math.round(d.score / d.done) : 0) + "%")
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">Write this in French · ' + esc(item.kp.title.split(":")[0]) + "</div>"
     + '<div class="tr-prompt">' + esc(en) + "</div>"

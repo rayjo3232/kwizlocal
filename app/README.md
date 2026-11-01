@@ -353,6 +353,28 @@ A drill-heavy point (the imparfait / passé composé contrast, for instance) may
 carry up to 12 — pre-learn still uses items 2–4, and "Practice this" takes up
 to 8.
 
+## The visual system
+
+Four tokens carry most of the look, and everything else defers to them:
+
+| Token | Value | Used for |
+|---|---|---|
+| `--bg` | `#F3F2EF` | the page — a warm neutral, so white cards read as paper on a desk |
+| `--radius` | `14px` | cards; buttons keep their own smaller radius |
+| `--shadow` | hairline + wide soft shadow | the default lift |
+| `--shadow-lift` | stronger | the hero, the practice card, the result band |
+
+Two surfaces are deliberately warm rather than white — the dashboard hero and
+the result header — because they are where a session starts and ends. Everything
+else is a white card on the warm page.
+
+The type scale is six steps (`--fs-1` … `--fs-6`); `tools/check_ui_tokens.js`
+fails the build if a raw pixel size comes back.
+
+Practice screens share one header (`kwizTopHtml`): the count, one segment per
+question, and what the session covers. Ten questions then reads as a shape as
+well as a number.
+
 ## Known limits (on purpose)
 
 - The engine is a demo-grade BKT: parameters are fixed, not fitted.
