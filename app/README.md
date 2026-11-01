@@ -57,6 +57,8 @@ collapses to one column.
 |---|---|
 | 162 knowledge points, A0–B2, CEFR-aligned, English explanations | done |
 | **1,274 items**: 8 per point through B2, plus 10 reading passages (A1–B2) | done |
+| **Two taps to answer a choice**: the first tap selects, the second confirms and submits — no Check button. Double-clicking is the same two taps; the number keys follow the same rule. Placement advances the same way; the timed exam keeps an explicit Next | done |
+| **Skips are remembered**: a skipped question is never evidence, but it is not served again either — and after three skips on one point the feedback offers the lesson | done |
 | **Accent keys**: é è ê ë à â ù û ç ï î ô œ under every typed French input; tapping one after its base letter replaces it | done |
 | **Update prompt**: a new build waits instead of taking over — the page offers Reload / Later, so a quiz is never swapped mid-answer | done |
 | **Seven library states**: locked / available / learning / weak / due / solid, with locked cards dimmed and marked Preview | done |

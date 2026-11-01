@@ -680,7 +680,7 @@ function weeklyHtml() {
 function renderDashboard() {
   const streak = state.streak.count;
   const today = Engine.todayCount(state);
-  const dailyGoal = state.goal || 20;
+  const dailyGoal = state.goal || 10;
   const due = Engine.dueCount(state);
   const weak = Engine.weakCount(state);
 
@@ -1591,8 +1591,12 @@ function renderKwiz() {
         if (Engine.normalize(o) === Engine.normalize(item.answer)) cls += " correct";
         else if (session.selected === o) cls += " wrong";
       }
-      return '<button class="' + cls + '" data-option="' + esc(o) + '"' + (answered ? " disabled" : "") + ">"
-        + '<span class="opt-key">' + (oi + 1) + "</span>" + esc(o) + "</button>";
+      return '<button class="' + cls + '" data-option="' + esc(o) + '"'
+        + ' aria-pressed="' + (session.selected === o ? "true" : "false") + '"'
+        + (answered ? " disabled" : "") + ">"
+        + '<span class="opt-key">' + (oi + 1) + "</span>"
+        + '<span class="opt-label">' + esc(o) + "</span>"
+        + '<span class="opt-confirm">tap again</span></button>';
     }).join("") + "</div>";
   } else {
     inputHtml = '<input class="answer-input" id="answerInput" autocomplete="off" autocapitalize="off" spellcheck="false" '
@@ -1618,10 +1622,18 @@ function renderKwiz() {
         ? '<div class="ctx-note">Context question — a real sentence from the bank. It counts towards this session but not towards your confidence score.</div>'
         : "");
     if (l.skip) {
+      /* Skipping the same point over and over means the question is not the
+         problem — the lesson is. Say so instead of serving it a fourth time. */
+      const skipped = kp && kp.id ? Engine.skipCount(state, kp.id) : 0;
       feedback = '<div class="feedback skip" role="status" aria-live="polite"><div class="mark">–</div><div class="body">'
         + "<b>Skipped — no penalty.</b>"
         + '<div class="answer-line">' + esc(item.answer) + "</div>"
-        + esc(item.explain) + "</div></div>";
+        + esc(item.explain)
+        + (kp && kp.id && !item.topic
+          ? '<div style="margin-top:6px"><a href="#/prelearn/' + kp.id + '" class="small" style="color:var(--blue);font-weight:600">'
+            + (skipped >= 3 ? "Skipped " + skipped + " times — learn this point →" : "Learn this point →") + "</a></div>"
+          : "")
+        + "</div></div>";
     } else if (l.correct) {
       feedback = '<div class="feedback ok" role="status" aria-live="polite"><div class="mark">✓</div><div class="body">'
         + "<b>Correct.</b>" + accentNoteHtml(l.accent) + moveHtml + ctxNote + esc(item.explain) + "</div></div>";
@@ -1661,19 +1673,33 @@ function renderKwiz() {
     + '<div class="kwiz-actions">'
     + (answered
       ? '<button class="btn" id="continueBtn">' + (session.index + 1 >= total ? "See results" : "Continue") + "</button>"
-      : '<button class="btn" id="checkBtn">Check</button>'
-        + '<button class="btn subtle" id="skipBtn">Skip</button>'
-        + '<span class="spacer"></span><span class="kbd-hint"><kbd>1</kbd>–<kbd>4</kbd> pick · <kbd>Enter</kbd> check · <kbd>Esc</kbd> skip</span>')
+      : item.type === "choice"
+        /* No Check button: a choice answers itself on the second tap. */
+        ? '<button class="btn subtle" id="skipBtn">Skip</button>'
+          + '<span class="spacer"></span><span class="kbd-hint"><kbd>1</kbd>–<kbd>4</kbd> pick · tap again to confirm · <kbd>Esc</kbd> skip</span>'
+        : '<button class="btn" id="checkBtn">Check</button>'
+          + '<button class="btn subtle" id="skipBtn">Skip</button>'
+          + '<span class="spacer"></span><span class="kbd-hint"><kbd>Enter</kbd> check · <kbd>Esc</kbd> skip</span>')
     + "</div></div></div></div>";
 
   if (!answered) {
     if (item.type === "choice") {
-      document.querySelectorAll("[data-option]").forEach(function (b) {
+      /* Two taps: the first selects, the second confirms and submits. A stray
+         tap therefore costs nothing, there is no Check button to hunt for, and
+         a double-click is the same two taps. */
+      const buttons = Array.prototype.slice.call(document.querySelectorAll("[data-option]"));
+      buttons.forEach(function (b) {
         b.addEventListener("click", function () {
-          session.selected = b.getAttribute("data-option");
+          const value = b.getAttribute("data-option");
+          const wasSelected = session.selected === value;
+          session.selected = value;
           saveSession();
-          document.querySelectorAll("[data-option]").forEach(function (x) { x.classList.remove("selected"); });
-          b.classList.add("selected");
+          buttons.forEach(function (x) {
+            const on = x === b;
+            x.classList.toggle("selected", on);
+            x.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+          if (wasSelected) checkAnswer();
         });
       });
     } else {
@@ -1684,7 +1710,8 @@ function renderKwiz() {
       });
       wireAccentBars();
     }
-    document.getElementById("checkBtn").addEventListener("click", checkAnswer);
+    const checkBtn = document.getElementById("checkBtn");
+    if (checkBtn) checkBtn.addEventListener("click", checkAnswer);
     document.getElementById("skipBtn").addEventListener("click", skipAnswer);
   } else {
     document.getElementById("continueBtn").addEventListener("click", continueSession);
@@ -1814,8 +1841,11 @@ function skipAnswer() {
   const ref = session.session.items[session.index];
   const pair = getItem(ref);
   /* A skip is not a wrong answer: nothing is written to mastery, the Notebook
-     or the attempts log. It only records that the question went unanswered. */
+     or the attempts log. It only records that the question went unanswered —
+     and that this exact question has now been seen, so the next session does
+     not serve it again. */
   session.answers.push({ itemId: pair.item.id, kpId: ref.kpId, correct: null, given: "", applied: true });
+  if (ref.kpId) { Engine.noteSkip(state, ref.kpId, pair.item.id); saveState(); }
   const now = Engine.scoreOf(state, ref.kpId);
   session.last = { correct: false, given: "", skip: true, before: now, after: now, delta: 0 };
   session.phase = "feedback";
@@ -1839,7 +1869,7 @@ function continueSession() {
     saveState();
 
     /* Celebrate the moment the daily goal is crossed, not every session after. */
-    const goal = state.goal || 20;
+    const goal = state.goal || 10;
     const nowToday = Engine.todayCount(state);
     if (session.todayBefore != null && session.todayBefore < goal && nowToday >= goal) {
       setTimeout(function () { toast("Daily goal reached — " + nowToday + " questions today"); }, 500);
@@ -2047,7 +2077,11 @@ function renderPlacement() {
   let inputHtml = "";
   if (item.type === "choice") {
     inputHtml = '<div class="options">' + item.options.map(function (o) {
-      return '<button class="option' + (placement.selected === o ? " selected" : "") + '" data-p-option="' + esc(o) + '">' + esc(o) + "</button>";
+      const on = placement.selected === o;
+      return '<button class="option' + (on ? " selected" : "") + '" data-p-option="' + esc(o) + '"'
+        + ' aria-pressed="' + (on ? "true" : "false") + '">'
+        + '<span class="opt-label">' + esc(o) + "</span>"
+        + '<span class="opt-confirm">tap again</span></button>';
     }).join("") + "</div>";
   } else {
     inputHtml = '<input class="answer-input" id="pInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer">';
@@ -2063,17 +2097,27 @@ function renderPlacement() {
     + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
     + inputHtml
     + '<div class="kwiz-actions">'
-    + '<button class="btn" id="pNext">Next</button>'
-    + '<button class="btn subtle" id="pSkip">Skip</button>'
-    + '<span class="spacer"></span><span class="kbd-hint">No feedback until the end</span>'
+    + (item.type === "choice"
+      ? '<button class="btn subtle" id="pSkip">Skip</button>'
+        + '<span class="spacer"></span><span class="kbd-hint">tap again to confirm · no feedback until the end</span>'
+      : '<button class="btn" id="pNext">Next</button>'
+        + '<button class="btn subtle" id="pSkip">Skip</button>'
+        + '<span class="spacer"></span><span class="kbd-hint">No feedback until the end</span>')
     + "</div></div></div></div>";
 
   if (item.type === "choice") {
-    document.querySelectorAll("[data-p-option]").forEach(function (b) {
+    const buttons = Array.prototype.slice.call(document.querySelectorAll("[data-p-option]"));
+    buttons.forEach(function (b) {
       b.addEventListener("click", function () {
-        placement.selected = b.getAttribute("data-p-option");
-        document.querySelectorAll("[data-p-option]").forEach(function (x) { x.classList.remove("selected"); });
-        b.classList.add("selected");
+        const value = b.getAttribute("data-p-option");
+        const wasSelected = placement.selected === value;
+        placement.selected = value;
+        buttons.forEach(function (x) {
+          const on = x === b;
+          x.classList.toggle("selected", on);
+          x.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        if (wasSelected) placementNext(false);
       });
     });
   } else {
@@ -2083,7 +2127,8 @@ function renderPlacement() {
       if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); placementNext(false); }
     });
   }
-  document.getElementById("pNext").addEventListener("click", function () { placementNext(false); });
+  const pNext = document.getElementById("pNext");
+  if (pNext) pNext.addEventListener("click", function () { placementNext(false); });
   document.getElementById("pSkip").addEventListener("click", function () { placementNext(true); });
 }
 
@@ -2709,7 +2754,7 @@ function renderPrelearn(kpId) {
   const kp = KP_BY_ID[kpId];
   if (!kp) { app.innerHTML = '<div class="container"><div class="empty">Unknown point.</div></div>'; return; }
   if (!prelearn || prelearn.kpId !== kpId) {
-    prelearn = { kpId: kpId, step: 1, g: 0, c: 0, checkCorrect: 0, feedback: null, given: "", revealed: false, match: null };
+    prelearn = { kpId: kpId, step: 1, g: 0, c: 0, checkCorrect: 0, feedback: null, given: "", revealed: false, match: null, selected: null };
   }
 
   const stepHtml = function (n, label) {
@@ -2775,13 +2820,18 @@ function renderPrelearn(kpId) {
       + (item.type === "choice"
         ? '<div class="options">' + item.options.map(function (o) {
             let cls = "option";
+            if (!fb && prelearn.selected === o) cls += " selected";
             if (fb) {
               /* After a miss we only mark the choice you made, so "Try again"
                  is a real retry rather than a second look at the answer. */
               if (prelearn.given === o && fb !== "ok") cls += " wrong";
               else if ((fb === "ok" || reveal) && Engine.normalize(o) === Engine.normalize(item.answer)) cls += " correct";
             }
-            return '<button class="' + cls + '" data-g-option="' + esc(o) + '"' + (fb ? " disabled" : "") + ">" + esc(o) + "</button>";
+            return '<button class="' + cls + '" data-g-option="' + esc(o) + '"'
+              + ' aria-pressed="' + (prelearn.selected === o ? "true" : "false") + '"'
+              + (fb ? " disabled" : "") + ">"
+              + '<span class="opt-label">' + esc(o) + "</span>"
+              + '<span class="opt-confirm">tap again</span></button>';
           }).join("") + "</div>"
         : '<input class="answer-input" id="gInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">"
           + (fb ? "" : accentBarHtml("gInput")))
@@ -2801,7 +2851,9 @@ function renderPrelearn(kpId) {
         : fb === "bad"
           ? '<button class="btn" id="gRetry">Try again</button>'
             + '<button class="btn subtle" id="gShow">Show answer</button>'
-          : '<button class="btn" id="gCheck">Check</button>')
+          : item.type === "choice"
+            ? '<span class="kbd-hint">tap your choice again to answer</span>'
+            : '<button class="btn" id="gCheck">Check</button>')
       + "</div>";
   }
 
@@ -2837,11 +2889,16 @@ function renderPrelearn(kpId) {
         + (item.type === "choice"
           ? '<div class="options">' + item.options.map(function (o) {
               let cls = "option";
+              if (!fb && prelearn.selected === o) cls += " selected";
               if (fb) {
                 if (Engine.normalize(o) === Engine.normalize(item.answer)) cls += " correct";
                 else if (prelearn.given === o) cls += " wrong";
               }
-              return '<button class="' + cls + '" data-c-option="' + esc(o) + '"' + (fb ? " disabled" : "") + ">" + esc(o) + "</button>";
+              return '<button class="' + cls + '" data-c-option="' + esc(o) + '"'
+                + ' aria-pressed="' + (prelearn.selected === o ? "true" : "false") + '"'
+                + (fb ? " disabled" : "") + ">"
+                + '<span class="opt-label">' + esc(o) + "</span>"
+                + '<span class="opt-confirm">tap again</span></button>';
             }).join("") + "</div>"
           : '<input class="answer-input" id="cInput" autocomplete="off" value="' + esc(prelearn.given) + '"' + (fb ? " disabled" : "") + ">"
             + (fb ? "" : accentBarHtml("cInput")))
@@ -2852,7 +2909,11 @@ function renderPrelearn(kpId) {
             + (fb === "bad" && item.type === "choice" ? whyWrongHtml(kp.id, prelearn.given) : "")
             + esc(item.explain) + "</div></div>" : "")
         + '<div class="kwiz-actions">'
-        + (fb ? '<button class="btn" id="cNext">Continue</button>' : '<button class="btn" id="cCheck">Check</button>')
+        + (fb
+          ? '<button class="btn" id="cNext">Continue</button>'
+          : item.type === "choice"
+            ? '<span class="kbd-hint">tap your choice again to answer</span>'
+            : '<button class="btn" id="cCheck">Check</button>')
         + "</div>";
     }
   }
@@ -2877,9 +2938,21 @@ function bindPrelearn(kp) {
   if (prelearn.step === 2) {
     const item = kp.items[prelearn.g];
     if (item.type === "choice") {
-      document.querySelectorAll("[data-g-option]").forEach(function (b) {
+      const buttons = Array.prototype.slice.call(document.querySelectorAll("[data-g-option]"));
+      buttons.forEach(function (b) {
         b.addEventListener("click", function () {
-          prelearn.given = b.getAttribute("data-g-option");
+          const value = b.getAttribute("data-g-option");
+          const wasSelected = prelearn.selected === value;
+          prelearn.selected = value;
+          if (!wasSelected) {
+            buttons.forEach(function (x) {
+              const on = x === b;
+              x.classList.toggle("selected", on);
+              x.setAttribute("aria-pressed", on ? "true" : "false");
+            });
+            return;
+          }
+          prelearn.given = value;
           prelearn.match = matchOf(item, prelearn.given);
           prelearn.feedback = prelearn.match.accepted ? "ok" : "bad";
           renderPrelearn(kp.id);
@@ -2909,6 +2982,7 @@ function bindPrelearn(kp) {
       prelearn.given = "";
       prelearn.revealed = false;
       prelearn.match = null;
+      prelearn.selected = null;
       if (prelearn.g >= 2) { prelearn.step = 3; prelearn.c = 0; prelearn.checkCorrect = 0; }
       renderPrelearn(kp.id);
     });
@@ -2920,6 +2994,7 @@ function bindPrelearn(kp) {
       prelearn.feedback = null;
       prelearn.given = "";
       prelearn.revealed = false;
+      prelearn.selected = null;
       renderPrelearn(kp.id);
     });
     const gShow = document.getElementById("gShow");
@@ -2934,9 +3009,21 @@ function bindPrelearn(kp) {
     if (prelearn.c < items.length) {
       const item = items[prelearn.c];
       if (item.type === "choice") {
-        document.querySelectorAll("[data-c-option]").forEach(function (b) {
+        const buttons = Array.prototype.slice.call(document.querySelectorAll("[data-c-option]"));
+        buttons.forEach(function (b) {
           b.addEventListener("click", function () {
-            prelearn.given = b.getAttribute("data-c-option");
+            const value = b.getAttribute("data-c-option");
+            const wasSelected = prelearn.selected === value;
+            prelearn.selected = value;
+            if (!wasSelected) {
+              buttons.forEach(function (x) {
+                const on = x === b;
+                x.classList.toggle("selected", on);
+                x.setAttribute("aria-pressed", on ? "true" : "false");
+              });
+              return;
+            }
+            prelearn.given = value;
             prelearn.match = matchOf(item, prelearn.given);
             const ok = prelearn.match.accepted;
             if (ok) prelearn.checkCorrect++;
@@ -2969,6 +3056,7 @@ function bindPrelearn(kp) {
         prelearn.feedback = null;
         prelearn.given = "";
         prelearn.match = null;
+        prelearn.selected = null;
         renderPrelearn(kp.id);
       });
     } else {
@@ -2976,7 +3064,7 @@ function bindPrelearn(kp) {
       if (sp) sp.addEventListener("click", function () { startFocusSession(kp.id); });
       const rg = document.getElementById("retryGuided");
       if (rg) rg.addEventListener("click", function () {
-        prelearn.step = 2; prelearn.g = 0; prelearn.feedback = null; prelearn.given = ""; prelearn.revealed = false;
+        prelearn.step = 2; prelearn.g = 0; prelearn.feedback = null; prelearn.given = ""; prelearn.revealed = false; prelearn.selected = null;
         renderPrelearn(kp.id);
       });
     }
@@ -4422,7 +4510,7 @@ function renderSettings() {
     + '<span>Questions per day shown on the dashboard.</span></div>'
     + '<select id="goalSelect" class="goal-select">'
     + [10, 20, 30, 50].map(function (g) {
-      return '<option value="' + g + '"' + ((state.goal || 20) === g ? " selected" : "") + ">" + g + " / day</option>";
+      return '<option value="' + g + '"' + ((state.goal || 10) === g ? " selected" : "") + ">" + g + " / day</option>";
     }).join("")
     + "</select></div>"
     + '<div class="setting-row"><div class="txt"><b>Auto-advance</b>'
@@ -4518,7 +4606,9 @@ function renderSettings() {
     toast("Guided learning starts at " + Engine.startingLevel(state));
   });
   document.getElementById("goalSelect").addEventListener("change", function (e) {
-    state.goal = parseInt(e.target.value, 10) || 20;
+    state.goal = parseInt(e.target.value, 10) || 10;
+    /* Marked so a future change of default never overrides this choice. */
+    state.goalSet = true;
     saveState();
     toast("Daily goal set to " + state.goal);
   });
@@ -4680,11 +4770,17 @@ document.addEventListener("keydown", function (e) {
       const n = parseInt(e.key, 10);
       if (n >= 1 && n <= item.options.length) {
         e.preventDefault();
-        session.selected = item.options[n - 1];
+        const value = item.options[n - 1];
+        const wasSelected = session.selected === value;
+        session.selected = value;
         saveSession();
         document.querySelectorAll("[data-option]").forEach(function (x, i) {
-          x.classList.toggle("selected", i === n - 1);
+          const on = i === n - 1;
+          x.classList.toggle("selected", on);
+          x.setAttribute("aria-pressed", on ? "true" : "false");
         });
+        /* The number keys follow the same rule as tapping: pick, then commit. */
+        if (wasSelected) checkAnswer();
         return;
       }
     }

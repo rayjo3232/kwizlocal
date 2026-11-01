@@ -510,6 +510,16 @@ p{margin:0 0 12px}
 .option.wrong .opt-key{background:var(--red);color:#fff}
 .option:hover{border-color:var(--brand-line);background:#FFFCF9}
 .option.selected{border-color:var(--brand);background:var(--brand-soft)}
+/* A choice answers itself: the first tap selects, the second confirms. The
+   chip is the whole instruction, so there is no Check button to look for. */
+.option .opt-label{flex:1;min-width:0}
+.option .opt-confirm{
+  display:none;flex:none;align-self:center;margin-left:10px;
+  font-size:var(--fs-1);font-weight:700;letter-spacing:.02em;
+  color:var(--brand-ink);white-space:nowrap;
+}
+.option.selected .opt-confirm{display:inline-flex;animation:confirm-in .18s ease-out}
+@keyframes confirm-in{from{opacity:0;transform:translateX(-3px)}to{opacity:1;transform:translateX(0)}}
 .option.correct{border-color:var(--green);background:var(--green-soft)}
 .option.wrong{border-color:var(--red);background:var(--red-soft)}
 

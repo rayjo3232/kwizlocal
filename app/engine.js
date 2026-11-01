@@ -33,7 +33,14 @@ const Engine = (function () {
       attempts: [],
       sessions: [],
       streak: { count: 0, last: null },
-      goal: 20,
+      /* Ten, not twenty. The primary action is three questions, so a
+         twenty-question goal meant the bar never filled for anyone using the
+         app the way it asks to be used. */
+      goal: 10,
+      goalSet: false,
+      /* Items that were skipped. A skip is not evidence, so it never becomes an
+         attempt — but the same three questions must not come back forever. */
+      skips: [],
       learningLevel: null, // null = use placement estimate or start at A0
       /* Lenient French accents: "etre" passes against "être". Default on
          because typing accents on a phone keyboard is genuinely painful;
@@ -81,6 +88,15 @@ const Engine = (function () {
     if (!out.sentences || typeof out.sentences !== "object") out.sentences = {};
     if (!out.translate || typeof out.translate !== "object") out.translate = { done: 0, totalPct: 0 };
     if (typeof out.goal !== "number" || !isFinite(out.goal) || out.goal <= 0) out.goal = base.goal;
+
+    /* The default goal was 20 and is now 10. A profile that still carries 20
+       without a `goalSet` flag never chose it, so it moves to the new default;
+       anything the learner picked in Settings is left alone. */
+    if (!out.goalSet && out.goal === 20) out.goal = base.goal;
+    out.goalSet = out.goalSet === true;
+
+    if (!Array.isArray(out.skips)) out.skips = [];
+    out.skips = out.skips.filter(function (s) { return s && s.itemId; }).slice(-120);
 
     /* Settings added after this profile was saved: default them the way a new
        profile would be, not the way `undefined` happens to behave. */
@@ -512,10 +528,28 @@ const Engine = (function () {
     return out.slice(0, limit);
   }
 
+  /* What the learner has just seen. Skips count here even though they are not
+     evidence: a skipped question has been answered by nobody, so without this
+     the same three items came back every single session. */
   function recentItemIds(state, n) {
     const ids = {};
     state.attempts.slice(-n).forEach(function (a) { ids[a.itemId] = true; });
+    (state.skips || []).slice(-n).forEach(function (s) { ids[s.itemId] = true; });
     return ids;
+  }
+
+  /* Remember a skip without treating it as an answer. */
+  function noteSkip(state, kpId, itemId) {
+    if (!Array.isArray(state.skips)) state.skips = [];
+    state.skips.push({ kpId: kpId, itemId: itemId, at: Date.now() });
+    if (state.skips.length > 120) state.skips = state.skips.slice(-120);
+    return state.skips;
+  }
+
+  /* How many times this point has been skipped — the signal that the learner
+     needs the lesson, not another attempt at the question. */
+  function skipCount(state, kpId) {
+    return (state.skips || []).filter(function (s) { return s.kpId === kpId; }).length;
   }
 
   /* Only introduced knowledge points enter Guided Practice. All selection
@@ -960,6 +994,8 @@ const Engine = (function () {
     accentCount: accentCount,
     itemDifficulty: itemDifficulty,
     itemStats: itemStats,
+    noteSkip: noteSkip,
+    skipCount: skipCount,
     seedDemo: seedDemo,
     normalize: normalize,
     isCorrect: isCorrect,

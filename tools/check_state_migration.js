@@ -167,4 +167,42 @@ ok("an object with only attempts is", Engine.migrateState({ attempts: [] }) !== 
   eq("and the reason is ok", b.reason, "ok");
 }
 
+/* ---------- the daily goal default moved from 20 to 10 ---------- */
+{
+  /* A profile that still carries 20 without ever choosing it moves over. */
+  const old = Engine.migrateState({ version: 1, goal: 20, kps: {}, attempts: [] });
+  eq("an untouched 20 becomes the new default", old.goal, 10);
+  eq("a new profile starts at the same number", Engine.newState().goal, 10);
+
+  /* A goal the learner picked in Settings is left alone, whatever it is. */
+  const chosen = Engine.migrateState({ version: 1, goal: 20, goalSet: true, kps: {}, attempts: [] });
+  eq("a chosen goal is kept", chosen.goal, 20);
+  const fifty = Engine.migrateState({ version: 1, goal: 50, kps: {}, attempts: [] });
+  eq("a non-default goal is kept", fifty.goal, 50);
+
+  /* Garbage still falls back to the default rather than to NaN. */
+  const broken = Engine.migrateState({ version: 1, goal: "many", kps: {}, attempts: [] });
+  eq("a broken goal falls back", broken.goal, 10);
+}
+
+/* ---------- skipped items are remembered, not counted ---------- */
+{
+  const s = Engine.newState();
+  Engine.noteSkip(s, "a0.etre.present", "a0.etre.present.i3");
+  Engine.noteSkip(s, "a0.etre.present", "a0.etre.present.i4");
+  eq("skips are stored", s.skips.length, 2);
+  eq("skips never become attempts", s.attempts.length, 0);
+  eq("skips are counted per point", Engine.skipCount(s, "a0.etre.present"), 2);
+
+  /* Migration keeps them and drops entries that carry no item id. */
+  const back = Engine.migrateState(JSON.parse(JSON.stringify(s)));
+  eq("migration keeps the skips", back.skips.length, 2);
+  const dirty = Engine.migrateState({ version: 1, kps: {}, attempts: [], skips: [{ at: 1 }, null, { itemId: "x", at: 2 }] });
+  eq("migration drops malformed skips", dirty.skips.length, 1);
+
+  /* The cap keeps the list from growing forever. */
+  for (let i = 0; i < 200; i++) Engine.noteSkip(s, "a0.etre.present", "item" + i);
+  ok("the skip list is capped", s.skips.length <= 120, "len=" + s.skips.length);
+}
+
 console.log(checks + " state-migration checks passed.");
