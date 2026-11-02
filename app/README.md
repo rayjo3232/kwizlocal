@@ -90,6 +90,7 @@ collapses to one column.
 | 10-question session builder (weak / due / new, difficulty ramp) | done |
 | Brainmap mosaic: one canvas per zoom level (level → grammar area → points), area = amount of material, **percentage = share of it mastered**, colour = the same percentage as a band, drawer on tap | done |
 | **Mastery percentage**: every tile says how much of that region you have mastered; untouched points count as 0, so 62% of A0 means 62% of A0 | done |
+| **Tile anatomy**: title, figure, a bar drawing the same number, then the detail — the figure is the tile, so it is set as one (display size, percent sign as a caption) | done |
 | **Level summary band**: opening a level shows the percentage, a bar split into mastered / getting there / needs work / not started, and a "Practise this level" button | done |
 | Pre-learn state machine (Primer → Guided → Check) | done |
 | Results table with per-answer explanation + practise-mistakes | done |

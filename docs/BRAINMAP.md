@@ -103,21 +103,65 @@ Two corrections keep small cells usable:
 - **content is decided per line**, not per size class — a narrow cell keeps its
   score and drops its meta, rather than dropping both.
 
+## Anatomy of a tile
+
+```
+┌──────────────────────────┐
+│ Verbs & tenses           │  title, up to the lines the height allows
+│ 56%                      │  the figure, display size
+│ ████████████░░░░░░░░░░░  │  the same number as a length
+│ 7 pts · 1 weak           │  detail, only when there is room
+└──────────────────────────┘
+```
+
+The figure is the point of the tile, so it is set as one: tight leading, tabular
+digits, and the percent sign dropped to a caption so `56%` reads as one object.
+The bar under it draws the same number as a length — without it the tile was a
+title at the top, a number at the bottom and 120px of nothing in between.
+
+Three sizes, decided by width *and* height:
+
+| Size | When | Title | Figure |
+|---|---|---|---|
+| full | ≥132×148 | up to 2 lines, 17px | display (32px) |
+| mid | ≥100×84 | up to 3 lines, 13px | 20px |
+| small | smaller | up to 2 lines, 11px | 15px |
+
+Height matters as much as width: a 150×125 cell took the display size on width
+alone and had no room left for a second title line.
+
+### What gets dropped, and in what order
+
+Every tile has a fixed budget. When it runs out, the order is:
+
+1. **detail line** (dropped below 126px tall)
+2. **subtitle** (dropped below 180px — it repeats what the level code says)
+3. **title lines** — last, and computed from the remaining height and the
+   length of the title itself, not from a constant
+
+That last point is the one that bit twice. A fixed three-line clamp in a 95px
+row sliced titles in half; a fixed one-line clamp turned "Articles & nouns" into
+"Articles &…" forever.
+
+## Two floors, not one
+
+The mosaic gives each row a height proportional to its material and each cell a
+width proportional to its own. Both are floored, and for the same reason: a row
+holding two of twelve points got 90px, which is less than a tile's own content,
+so the title was cut. The floor is taken from the rows (or cells) that have
+slack, so the proportions stay readable.
+
+A row is never shorter than 128px, and the canvas grows with the cell count
+(`128 × ceil(n/3)`) rather than dividing a fixed height into ever-shorter
+strips.
+
 ## Labels
-
-Tiles say as much as they can hold, and no more:
-
-| Room | Shows |
-|---|---|
-| ≥132×78 | name, score, subtitle, meta |
-| ≥100×56 | name (2 lines), score below, meta |
-| smaller | name (1 line), score below |
 
 Below 104px a category switches to a short label (`Adj./adv.`), because a
 clipped word reads as a bug and a shorter one reads as a decision.
 
-Level tiles use the CEFR code as the name and the descriptor as the subtitle:
-`A0` fits in 74px, `A0 · Entry` does not.
+Level tiles use the CEFR code as the name: `A0` fits in 74px, `A0 · Entry`
+does not.
 
 ## Why pixels and not CSS
 
@@ -140,7 +184,10 @@ have no room for a label, and a map with no labels is decoration.
 
 `smoke21` covers the geometry (nothing spills out, no two cells overlap, a level
 with more points gets more area, no cell under the floor), the three zoom
-levels, the drawer opening from a point tile, and colour following the score
-rather than the level.
+levels, the drawer opening from a point tile, colour following the score rather
+than the level, the mastery percentage and its buckets, the summary band, the
+dashboard cards opening the map — and, since the tiles started carrying a
+figure and a bar, that no row is shorter than 128px and that titles are allowed
+to wrap.
 
 Overflow was checked at 360 / 390 / 768 / 1280: zero on every width.

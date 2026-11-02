@@ -317,52 +317,64 @@ function mosaic(items, W, H) {
   const values = order.map(function (i) { return Math.max(1, items[i].value); });
   const total = values.reduce(function (a, b) { return a + b; }, 0) || 1;
 
+  /* Both axes get a floor, for the same reason. A row holding two of twelve
+     points of material got 90px, which is less than a tile's own content, so
+     the title was cut in half. The floor is taken from the rows that have
+     slack, exactly as the width floor is taken from the wider cells. */
+  const MIN_W = 74;
+  const MIN_H = 128;
+
+  const lift = function (sizes, floor) {
+    let deficit = 0;
+    sizes.forEach(function (v) { if (v < floor) deficit += floor - v; });
+    if (deficit <= 0) return sizes;
+    const donors = [];
+    sizes.forEach(function (v, i) { if (v > floor) donors.push(i); });
+    const slack = donors.reduce(function (a, i) { return a + (sizes[i] - floor); }, 0);
+    if (slack > 0) {
+      const take = Math.min(1, deficit / slack);
+      donors.forEach(function (i) { sizes[i] -= (sizes[i] - floor) * take; });
+      sizes.forEach(function (v, i) { if (sizes[i] < floor) sizes[i] = floor; });
+    }
+    return sizes;
+  };
+
   let best = null;
   for (let rows = 1; rows <= Math.min(n, 6); rows++) {
     const groups = splitIntoRows(values, rows);
+    const sums = groups.map(function (g) {
+      return g.reduce(function (a, b) { return a + b; }, 0) || 1;
+    });
+    const heights = lift(sums.map(function (v) { return (v / total) * H; }), MIN_H);
+
     let worst = 0;
     let vi = 0;
-    const rects = new Array(n);
     let y = 0;
-    groups.forEach(function (g) {
-      const gSum = g.reduce(function (a, b) { return a + b; }, 0) || 1;
-      const rh = (gSum / total) * H;
+    const rects = new Array(n);
 
-      /* Score the row on its honest proportions. The minimum width below makes
-         a sliver look acceptable (74px wide, 250 tall scores as a 3.4 aspect
+    groups.forEach(function (g, gi) {
+      const gSum = sums[gi];
+      const rh = heights[gi];
+
+      /* Score the row on its honest proportions: the width floor below makes a
+         sliver look acceptable (74px wide, 250 tall scores as a 3.4 aspect
          ratio) and that pushed six areas into one row on a desktop. */
-      const raw = g.map(function (v) { return (v / gSum) * W; });
-      raw.forEach(function (cw) {
+      g.forEach(function (v) {
+        const cw = (v / gSum) * W;
         const ratio = Math.max(cw / Math.max(1, rh), rh / Math.max(1, cw));
         if (ratio > worst) worst = ratio;
       });
 
-      /* A one-point category next to a seven-point one would get 39px, which
-         holds nothing. Lift every cell to a floor and take the difference from
-         the wider ones — the areas stay close enough to proportional to read. */
-      const MIN_W = 74;
-      const widths = raw.slice();
-      let deficit = 0;
-      widths.forEach(function (cw) { if (cw < MIN_W) deficit += MIN_W - cw; });
-      if (deficit > 0) {
-        const donors = [];
-        widths.forEach(function (cw, i) { if (cw > MIN_W) donors.push(i); });
-        const slack = donors.reduce(function (acc, i) { return acc + (widths[i] - MIN_W); }, 0);
-        if (slack > 0) {
-          const take = Math.min(1, deficit / slack);
-          donors.forEach(function (i) { widths[i] -= (widths[i] - MIN_W) * take; });
-          widths.forEach(function (cw, i) { if (cw < MIN_W) widths[i] = MIN_W; });
-        }
-      }
+      const widths = lift(g.map(function (v) { return (v / gSum) * W; }), MIN_W);
 
       let x = 0;
       g.forEach(function (v, i) {
-        const cw = widths[i];
-        rects[order[vi]] = { x: x, y: y, w: cw, h: rh };
-        x += cw; vi++;
+        rects[order[vi]] = { x: x, y: y, w: widths[i], h: rh };
+        x += widths[i]; vi++;
       });
       y += rh;
     });
+
     if (!best || worst < best.worst - 0.001) best = { worst: worst, rects: rects };
   }
 
@@ -466,12 +478,16 @@ function regionStat(list) {
    readable. `weak` turns the tile red: an area where you are getting things
    wrong is worth more attention than one you have simply not opened. */
 function mapTone(pct, tested, weak) {
-  if (!tested) return { bg: "#EDEFF2", ink: "#5F6873", bar: "#C9CFD6" };
-  if (weak) return { bg: "#F8E4E4", ink: "#8A2A2A", bar: "#D51C1B" };
-  if (pct < 40) return { bg: "#FBF2D4", ink: "#6A5000", bar: "#E0B92B" };
-  if (pct < 70) return { bg: "#E9F4EB", ink: "#2C5A38", bar: "#8FCB9B" };
-  if (pct < 90) return { bg: "#DCEEE0", ink: "#23502D", bar: "#5FB56F" };
-  return { bg: "#CEE7D3", ink: "#1C4524", bar: "#2E7D32" };
+  /* The background stays soft so a wall of tiles is not a traffic light, and
+     the bar carries the saturation — it is the part that has to be read at a
+     glance. The first pass used pastel bars on pastel backgrounds and the
+     steps between 70% and 79% were invisible. */
+  if (!tested) return { bg: "#EDEFF2", ink: "#5F6873", bar: "#AEB6BF" };
+  if (weak) return { bg: "#F8E4E4", ink: "#8A2A2A", bar: "#C2181A" };
+  if (pct < 40) return { bg: "#FBF2D4", ink: "#6A5000", bar: "#C08A00" };
+  if (pct < 70) return { bg: "#E9F4EB", ink: "#2C5A38", bar: "#4E9A60" };
+  if (pct < 90) return { bg: "#DCEEE0", ink: "#23502D", bar: "#2E7D42" };
+  return { bg: "#CEE7D3", ink: "#1C4524", bar: "#1B5E27" };
 }
 
 /* A tile's percentage is the number people ask for, so every level of the map
@@ -496,25 +512,60 @@ function tileHtml(t, cell) {
   const x = t.x + gap, y = t.y + gap;
   const w = Math.max(10, t.w - gap * 2), h = Math.max(10, t.h - gap * 2);
   const pad = w < 90 || h < 52 ? 8 : 12;
-  const size = w >= 132 && h >= 78 ? "full" : w >= 100 && h >= 56 ? "mid" : "small";
-  const showScore = cell.score != null && w >= 64 && h >= 46;
-  const showMeta = !!cell.meta && w >= 104 && h >= 62;
-  const showSub = !!cell.sub && w >= 128 && h >= 76;
+  /* "full" is the size with the display figure, so it also needs the height to
+     carry a two-line title above it. A 150×125 cell took the display size on
+     width alone and had no room left for the second line. */
+  const size = w >= 132 && h >= 148 ? "full" : w >= 100 && h >= 84 ? "mid" : "small";
   const name = w < 104 && cell.short ? cell.short : cell.name;
-  const scoreHtml = showScore
-    ? '<span class="mt-score">' + cell.score + (cell.pct ? "%" : "") + "</span>" : "";
-  const metaHtml = showMeta ? '<span class="mt-meta">' + esc(cell.meta) + "</span>" : "";
+  const known = cell.score != null;
+  const showScore = known ? (w >= 56 && h >= 44) : (w >= 64 && h >= 46);
 
-  /* Two layouts. A big cell puts the number beside the title and can afford a
-     subtitle and a meta line. A small one stacks the title and pins a single
-     foot row to the bottom: the number and the status share one line, so a
-     three-line title can never push them out of the cell. */
-  const body = size === "full"
-    ? '<span class="mt-top"><span class="mt-name">' + esc(name) + "</span>" + scoreHtml + "</span>"
-      + (showSub ? '<span class="mt-sub">' + esc(cell.sub) + "</span>" : "")
-      + metaHtml
-    : '<span class="mt-top"><span class="mt-name">' + esc(name) + "</span></span>"
-      + '<span class="mt-foot">' + scoreHtml + metaHtml + "</span>";
+  /* The percentage is the point of the tile, so it gets the weight: a large
+     number with the sign set small, and a bar underneath that draws the same
+     number as a length. Without the bar a tile was a name at the top, a number
+     at the far right and 120px of nothing in between. */
+  const scoreHtml = '<span class="mt-score' + (known ? "" : " is-none") + '">'
+    + (known ? cell.score : "—")
+    + (known && cell.pct ? '<span class="pc">%</span>' : "") + "</span>";
+  const bar = cell.pct
+    ? '<span class="mt-bar"><i style="width:' + (known ? cell.score : 0)
+      + "%;background:" + cell.tone.bar + '"></i></span>'
+    : "";
+  /* A row that only just fits its title, figure and bar has no room for a
+     detail line; adding one there is what clipped the bottom of the tile. */
+  const metaHtml = cell.meta && w >= 104 && h >= 126
+    ? '<span class="mt-meta">' + esc(cell.meta) + "</span>" : "";
+
+  /* How many lines the title may have is a function of the cell's height and
+     of the title itself, not a constant. Ten points in four rows leave ~95px,
+     and a fixed three-line clamp there sliced the title in half; a fixed
+     one-line clamp gave "Articles &…". The other blocks have known heights, so
+     the title is fitted into what is left. */
+  const fsName = size === "full" ? 17 : size === "mid" ? 13 : 11;
+  const lineH = Math.round(fsName * 1.2);
+  const scoreH = size === "full" ? 33 : size === "mid" ? 20 : 15;
+  const barH = size === "full" ? 6 : size === "mid" ? 5 : 4;
+  const barGap = size === "full" ? 14 : size === "mid" ? 10 : 6;
+  /* The descriptor is the first thing to go: it repeats what the level code
+     already says, and it cost every tile a line and a half. */
+  const hasSub = !!(cell.sub && size === "full" && h >= 180);
+  const subH = hasSub ? 18 : 0;
+  const metaH = metaHtml ? 15 : 0;
+  const gaps = 3 * (2 + (hasSub ? 1 : 0) + (metaHtml ? 1 : 0));
+  const room = h - pad * 2 - scoreH - barH - barGap - subH - metaH - gaps - 8;
+  const perLine = Math.max(4, Math.floor((w - pad * 2) / (fsName * 0.55)));
+  const wantLines = Math.ceil(name.length / perLine);
+  const fitLines = Math.max(1, Math.floor(room / lineH));
+  const nameLines = Math.max(1, Math.min(wantLines, fitLines, size === "mid" ? 3 : 2));
+
+  /* One layout at every size: title, figure, bar, detail. Putting the figure
+     beside the title cost the title half the width — "Articles & nouns" came
+     out as "Articles &…" in a 165px tile — and stacking gives the number a
+     full line to be big on. */
+  const body = '<span class="mt-name" style="-webkit-line-clamp:' + nameLines + '">' + esc(name) + "</span>"
+    + scoreHtml
+    + (hasSub ? '<span class="mt-sub">' + esc(cell.sub) + "</span>" : "")
+    + bar + metaHtml;
 
   return '<button class="map-tile d-' + size + (cell.cls ? " " + cell.cls : "") + '"'
     + (cell.attrs || "")
@@ -541,8 +592,18 @@ function mapCanvasHtml(cells) {
    never taller than the number of cells needs. */
 function mapHeight(W, n) {
   /* A desktop band of 250px made six areas into one row of slivers. */
-  const base = W < 560 ? Math.round(W * 0.92) : 330;
-  return Math.max(150, Math.min(base, Math.round(96 * Math.ceil(n / 2))));
+  /* 0.8 squeezed a level tile below its own content and clipped the last line.
+     The per-row budget is 118px, not 96: a row now holds a title, a figure, a
+     bar and a detail line, and 96 was the height of a row that held two. */
+  /* 300 is the floor a two-row layout needs for its taller row to hold a
+     title, a figure, a bar and a detail line. Past six cells the rows start
+     to squeeze, so the canvas grows with the count instead of dividing a fixed
+     height into ever-shorter strips — ten points at 75px a row had room for
+     one word of title. */
+  const base = W < 560
+    ? Math.max(300, Math.round(W * 0.9), 128 * Math.ceil(n / 3))
+    : 330;
+  return Math.max(150, Math.min(base, Math.round(118 * Math.ceil(n / 2))));
 }
 
 function levelTiles(W) {
@@ -561,6 +622,7 @@ function levelTiles(W) {
     /* The code is the label, the descriptor is the subtitle: "A0" fits in a
        74px cell, "A0 · Entry" does not. */
     const parts = String(lv.name).split("·");
+    const desc = (parts[1] || "").trim();
     items.push({
       value: list.length,
       cls: "lvl",
@@ -568,12 +630,11 @@ function levelTiles(W) {
       name: lv.id,
       score: pctText(st.pct, tested),
       pct: true,
-      sub: (parts[1] || "").trim() || null,
-      /* "0 of 38 mastered" next to "54%" read as a contradiction: one is a
-         count of finished points, the other is how far through the whole level
-         you are. The tile keeps the percentage and the amount of material; the
-         breakdown lives in the band you see after tapping in. */
-      meta: st.total + " points" + (meta.length ? " · " + meta.join(" · ") : ""),
+      /* The descriptor, and only the descriptor. "Upper Intermediate · 37 pts"
+         ran out of a 165px tile and ended in an ellipsis; the amount of
+         material is what the tile's area already shows. */
+      sub: desc || null,
+      meta: meta.join(" · ") || null,
       tone: mapTone(st.pct, tested, st.review),
       label: lv.name + ", " + st.pct + "% mastered, " + st.mastered + " of " + st.total + " points"
     });
@@ -596,7 +657,7 @@ function categoryTiles(W, levelId) {
       score: pctText(st.pct, tested),
       pct: true,
       sub: null,
-      meta: c.kps.length + " point" + (c.kps.length === 1 ? "" : "s")
+      meta: c.kps.length + " pts"
         + (st.unseen ? " · " + st.unseen + " new" : "")
         + (st.weak ? " · " + st.weak + " weak" : ""),
       tone: mapTone(st.pct, tested, st.review),
@@ -1012,13 +1073,15 @@ function legendHtml() {
     const t = mapTone(pct, tested, weak);
     return '<i style="background:' + t.bg + ";border-color:" + t.bar + '"></i>';
   };
+  /* Five chips, one line. Six at full length wrapped onto a second row and
+     read as a paragraph under the map. A grey tile says "not started" on its
+     own face, so that key is not needed. */
   return '<div class="legend">'
-    + "<span>" + swatch(0, 0) + "Not started</span>"
-    + "<span>" + swatch(30, 4, true) + "Needs review</span>"
-    + "<span>" + swatch(30, 4) + "Under 40%</span>"
+    + "<span>" + swatch(30, 4) + "&lt;40%</span>"
     + "<span>" + swatch(55, 4) + "40–69%</span>"
     + "<span>" + swatch(80, 4) + "70–89%</span>"
     + "<span>" + swatch(95, 4) + "90%+</span>"
+    + "<span>" + swatch(30, 4, true) + "needs review</span>"
     + "</div>";
 }
 
@@ -1033,8 +1096,6 @@ function crumbsHtml() {
     + (mapFocus.category
       ? '<button data-crumb="level">' + esc(mapFocus.level) + '</button><span class="sep">/</span><span class="here">' + esc(cat) + '</span>'
       : '<span class="here">' + esc(mapFocus.level) + '</span>')
-    + '<span class="spacer"></span>'
-    + '<button class="btn sm subtle" data-crumb="all">Reset view</button>'
     + "</div>";
 }
 
@@ -1089,9 +1150,13 @@ function renderBrainmap() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Your Brainmap</h1>'
-    + '<p>Area is how much there is; the percentage is how much of it you have mastered. Tap to zoom in.</p></div>'
+    + '<p>Area is how much material there is. The percentage is how much of it you have mastered.</p></div>'
     + '<div class="map-wrap"><div class="map-toolbar">'
-    + '<span class="small"><b>' + shown + '</b> points shown · <b>' + KPS.length + '</b> total</span>'
+    /* "162 points shown · 162 total" said the same number twice; with no
+       filter applied there is only one number to give. */
+    + '<span class="small">' + (mapFocus
+      ? "<b>" + shown + "</b> of " + KPS.length + " points"
+      : "<b>" + KPS.length + "</b> points") + "</span>"
     + '<span class="spacer"></span>'
     + '<span class="small">' + Engine.dueCount(state) + ' due · ' + Engine.weakCount(state) + ' weak</span>'
     + "</div>"
