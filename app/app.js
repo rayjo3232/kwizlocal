@@ -1374,12 +1374,21 @@ function addSentenceVariety(items) {
   if (!sentenceBank().length) return items;
   const usedKp = {};
   let swaps = 0;
+  /* Word order is a production task: rebuilding a whole sentence is the
+     slowest thing this app can ask for, so it never lands in a quick three,
+     only once the point is properly established, and never twice in a row. */
+  const fullLength = items.length >= 6;
+  let orderUsed = false;
   return items.map(function (ref) {
     const st = state.kps[ref.kpId];
     if (!st || st.n < 3 || swaps >= 2 || usedKp[ref.kpId]) return ref;
     const taken = {};
     items.forEach(function (x) { taken[x.itemId] = true; });
-    const id = sentIdsFor(ref.kpId, st.n + swaps).filter(function (x) { return !taken[x]; })[0];
+    const free = function (list) { return list.filter(function (x) { return !taken[x]; })[0]; };
+    const wantOrder = fullLength && !orderUsed && st.n >= 6;
+    let id = wantOrder ? free(sentIdsFor(ref.kpId, st.n + swaps, true)) : null;
+    if (id) orderUsed = true;
+    else id = free(sentIdsFor(ref.kpId, st.n + swaps, false));
     if (!id) return ref;
     usedKp[ref.kpId] = true;
     swaps++;
@@ -1482,8 +1491,13 @@ function pickByRotation(kps, size, perKpCap) {
 
    The 13k-sentence bank was only reachable from its own page. Each grammar tag
    maps to the points that tag actually exercises, so a kwiz can drop in a real
-   sentence once you have seen the hand-written questions for that point. Only
-   "gap" items qualify: word-order items need their own interface. */
+   sentence once you have seen the hand-written questions for that point.
+
+   Both item types qualify now. Gap-fill is a recognition task and word-order
+   is a production task, so they are not interchangeable: order items only
+   appear in a full-length session, only for a point you have already answered
+   six times, and at most one per session. A quick three-question kwiz stays
+   quick. */
 const SENT_TAG_KPS = {
   negation: ["a1.negation.ne_pas", "a1.syntax.negation_rien_jamais"],
   question: ["a1.questions.est_ce_que", "a0.syntax.questions_intonation", "b1.syntax.inversion"],
@@ -1515,38 +1529,70 @@ function sentTagIndex() {
   if (SENT_TAG_INDEX) return SENT_TAG_INDEX;
   SENT_TAG_INDEX = {};
   sentenceBank().forEach(function (s, i) {
-    if (s[5] !== "gap" || !s[3] || !s[4] || !s[4].length) return;
-    (SENT_TAG_INDEX[s[2]] = SENT_TAG_INDEX[s[2]] || []).push(i);
+    const type = s[5];
+    if (type !== "gap" && type !== "order") return;
+    if (type === "gap" && (!s[3] || !s[4] || !s[4].length)) return;
+    if (type === "order" && !s[0]) return;
+    if (!s[2]) return;
+    const slot = SENT_TAG_INDEX[s[2]] = SENT_TAG_INDEX[s[2]] || { gap: [], order: [] };
+    slot[type].push(i);
   });
   return SENT_TAG_INDEX;
 }
 
-/* Turn a bank row into an item shaped like a hand-written choice question. */
+/* Which type a bank row is. The id alone does not say. */
+function sentTypeOf(itemId) {
+  const s = sentenceBank()[parseInt(String(itemId).slice(5), 10)];
+  return s ? s[5] : null;
+}
+
+/* Turn a bank row into an item the kwiz can render.
+
+   A gap row becomes a choice question. An order row becomes a production
+   question: the English sentence is the cue, the French words arrive shuffled,
+   and the answer is the sentence in its natural order. */
 function sentItem(itemId) {
   const i = parseInt(String(itemId).slice(5), 10);
   const s = sentenceBank()[i];
   if (!s) return null;
-  return {
+  const base = {
     id: itemId,
-    type: "choice",
-    prompt: blankWord(s[0], s[3]) || s[0],
-    options: s[4],
-    answer: s[3],
-    explain: s[1],
     difficulty: SENT_LEVEL_DIFF[s[6]] || 2,
     stage: "kwiz",
     fromSentence: true
   };
+  if (s[5] === "order") {
+    return Object.assign(base, {
+      type: "order",
+      /* The cue is the meaning, not the words: you are rebuilding the French,
+         not copying it. */
+      prompt: s[1],
+      tokens: sentWords(s[0]),
+      answer: s[0],
+      explain: ""
+    });
+  }
+  return Object.assign(base, {
+    type: "choice",
+    prompt: blankWord(s[0], s[3]) || s[0],
+    options: s[4],
+    answer: s[3],
+    explain: s[1]
+  });
 }
 
-/* Candidate sentence ids for a point, rotated by how often it has been seen. */
-function sentIdsFor(kpId, offset) {
+/* Candidate sentence ids for a point, rotated by how often it has been seen.
+   `wantOrder` asks for production items only; the caller decides whether the
+   point is ready for one. */
+function sentIdsFor(kpId, offset, wantOrder) {
   const tags = SENT_KP_TAGS[kpId];
   if (!tags || !sentenceBank().length) return [];
   const idx = sentTagIndex();
   const ids = [];
   tags.forEach(function (t) {
-    (idx[t] || []).forEach(function (i) { ids.push("sent." + i); });
+    const slot = idx[t];
+    if (!slot) return;
+    (slot[wantOrder ? "order" : "gap"] || []).forEach(function (i) { ids.push("sent." + i); });
   });
   if (!ids.length) return [];
   const start = (offset * 11) % ids.length;
@@ -1807,6 +1853,39 @@ function kwizTopHtml(index, total, label) {
     + '<span class="kt-tag">' + label + "</span></div>";
 }
 
+/* Word-order builder, the same interaction as the Sentences page: tap a word
+   to place it, tap it in the line to send it back. The pool is keyed to the
+   item id, so re-rendering (or resuming a saved session) keeps the same
+   shuffle instead of reshuffling under the learner's finger. */
+function orderBuilderHtml(item, answered) {
+  /* Keyed by position as well as id: a retry re-queues the same item, and the
+     second attempt has to start from an empty line, not the finished one. */
+  const key = item.id + "@" + session.index;
+  if (session.poolFor !== key) {
+    session.pool = shuffleWords(item.tokens || []);
+    session.chosen = [];
+    session.poolFor = key;
+  }
+  if (!session.chosen) session.chosen = [];
+  const placed = {};
+  session.chosen.forEach(function (i) { placed[i] = true; });
+  const skipped = !!(session.last && session.last.skip);
+  const right = answered && !skipped && session.last && session.last.correct;
+  const line = session.chosen.length
+    ? session.chosen.map(function (i) {
+      return '<button class="word-chip chosen" data-rw="' + i + '"' + (answered ? " disabled" : "") + ">"
+        + esc(session.pool[i]) + "</button>";
+    }).join("")
+    : '<span class="order-hint">Tap the words in order</span>';
+  const pool = session.pool.map(function (w, i) {
+    return '<button class="word-chip' + (placed[i] ? " used" : "") + '" data-ww="' + i + '"'
+      + (placed[i] || answered ? " disabled" : "") + ">" + esc(w) + "</button>";
+  }).join("");
+  /* A skip is not a wrong answer, so it does not paint the line red. */
+  return '<div class="order-target' + (answered && !skipped ? (right ? " ok" : " bad") : "") + '">' + line + "</div>"
+    + '<div class="order-pool">' + pool + "</div>";
+}
+
 function renderKwiz() {
   if (!session || !session.session || !session.session.items.length) {
     app.innerHTML = '<div class="container"><div class="empty">No active session. '
@@ -1837,6 +1916,8 @@ function renderKwiz() {
         + '<span class="opt-label">' + esc(o) + "</span>"
         + '<span class="opt-confirm">tap again</span></button>';
     }).join("") + "</div>";
+  } else if (item.type === "order") {
+    inputHtml = orderBuilderHtml(item, answered);
   } else {
     inputHtml = '<input class="answer-input" id="answerInput" autocomplete="off" autocapitalize="off" spellcheck="false" '
       + 'placeholder="Type your answer" value="' + (answered ? esc(session.last && session.last.given || "") : "") + '"'
@@ -1914,9 +1995,12 @@ function renderKwiz() {
         /* No Check button: a choice answers itself on the second tap. */
         ? '<button class="btn subtle" id="skipBtn">Skip</button>'
           + '<span class="spacer"></span><span class="kbd-hint"><kbd>1</kbd>–<kbd>4</kbd> pick · tap again to confirm · <kbd>Esc</kbd> skip</span>'
-        : '<button class="btn" id="checkBtn">Check</button>'
+        : '<button class="btn" id="checkBtn"' + (item.type === "order"
+          && (!session.chosen || session.chosen.length < (session.pool || []).length) ? " disabled" : "") + '>Check</button>'
           + '<button class="btn subtle" id="skipBtn">Skip</button>'
-          + '<span class="spacer"></span><span class="kbd-hint"><kbd>Enter</kbd> check · <kbd>Esc</kbd> skip</span>')
+          + '<span class="spacer"></span><span class="kbd-hint">'
+          + (item.type === "order" ? "tap every word · <kbd>Esc</kbd> skip" : "<kbd>Enter</kbd> check · <kbd>Esc</kbd> skip")
+          + "</span>")
     + "</div></div></div></div>";
 
   if (!answered) {
@@ -1937,6 +2021,23 @@ function renderKwiz() {
             x.setAttribute("aria-pressed", on ? "true" : "false");
           });
           if (wasSelected) checkAnswer();
+        });
+      });
+    } else if (item.type === "order") {
+      document.querySelectorAll("[data-ww]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          const i = parseInt(b.getAttribute("data-ww"), 10);
+          if (session.chosen.indexOf(i) < 0) session.chosen.push(i);
+          saveSession();
+          renderKwiz();
+        });
+      });
+      document.querySelectorAll("[data-rw]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          const i = parseInt(b.getAttribute("data-rw"), 10);
+          session.chosen = session.chosen.filter(function (x) { return x !== i; });
+          saveSession();
+          renderKwiz();
         });
       });
     } else {
@@ -1996,6 +2097,12 @@ function answerMode() {
 }
 
 function matchOf(item, given) {
+  /* Word order is the whole question here, so there is no partial credit: the
+     fuzzy matcher would accept the same words in the wrong order. */
+  if (item.type === "order") {
+    const ok = Engine.normalize(given) === Engine.normalize(item.answer);
+    return { status: ok ? "exact" : "incorrect", accepted: ok, expected: item.answer, input: given, notes: [], semantic: false };
+  }
   if (item.type === "choice") {
     const ok = Engine.normalize(given) === Engine.normalize(item.answer);
     return { status: ok ? "exact" : "incorrect", accepted: ok, expected: item.answer, input: given, notes: [], semantic: false };
@@ -2027,6 +2134,10 @@ function checkAnswer() {
   if (item.type === "choice") {
     if (!session.selected) { toast("Pick an option first"); return; }
     given = session.selected;
+  } else if (item.type === "order") {
+    const pool = session.pool || [];
+    if (!session.chosen || session.chosen.length !== pool.length) { toast("Use every word"); return; }
+    given = session.chosen.map(function (i) { return pool[i]; }).join(" ");
   } else {
     const input = document.getElementById("answerInput");
     given = input ? input.value : "";

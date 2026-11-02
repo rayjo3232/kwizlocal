@@ -133,6 +133,7 @@ collapses to one column.
 | **Distractor feedback**: the 20 most-confused points explain why the option you picked is wrong (`app/distract.js`) | done |
 | **Rotation-based session building**: one question per point before any point repeats, recent items skipped, a point serves a different question each time | done |
 | **Sentence bank in the main kwiz**: once a point is established, real sentences from the 13k bank join the rotation as *context* questions — scored in the session, deliberately not scored in the mastery model | done |
+| **Word-order sentences in the main kwiz**: the 4,256 word-order items have a builder (tap to place, tap to send back), gated to full-length sessions and established points, one per session | done |
 | **Vocabulary and conjugation in the daily kwiz**: about one question in three comes from the word deck or a verb form, so the three-question session covers the whole language instead of only grammar | done |
 | **One activity ledger**: vocabulary cards, cloze, gender drill and conjugation all count towards the daily goal and the weekly card (labelled separately from grammar accuracy) | done |
 | **Result page leads with the next action**: Practise mistakes / Learn a new point sit above the review list, and correct answers are folded away | done |
@@ -235,6 +236,24 @@ to. Once a point has three attempts behind it, `pickByRotation` and
 `addSentenceVariety` start mixing gap-fill sentences from that tag into normal
 sessions, so you meet the structure in real vocabulary instead of re-reading
 the same hand-written question.
+
+**Word order joined them too.** The bank is roughly half gap-fill (9,613) and
+half word order (4,256), and for a long time only the gap half could reach a
+kwiz: rebuilding a sentence needs a builder interface the practice screen did
+not have. It has one now (`orderBuilderHtml`), with three rules that keep it
+from taking over a short session:
+
+| Rule | Why |
+|---|---|
+| only in a session of six or more questions | production is the slowest thing the app can ask for; a quick three stays quick |
+| only once the point has six answers | you cannot rebuild a structure you have only met three times |
+| at most one per session | two sentence rebuilds in ten questions is a slog, not practice |
+
+The cue is the **English meaning**, not the French words: you are rebuilding
+the sentence, not copying it. The answer is the order, so `matchOf` compares
+word-order items as strings — the fuzzy matcher would otherwise accept the same
+words shuffled. The pool is keyed to the item *and its position in the session*,
+so a retry starts from an empty line rather than from the finished sentence.
 
 They are deliberately **not scored in the mastery model**. The blank in a bank
 sentence is always a noun slot, so getting it wrong says nothing about whether

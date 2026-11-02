@@ -169,7 +169,10 @@ p{margin:0 0 12px}
   transition:background .12s,border-color .12s;
 }
 .btn:hover{background:var(--brand-dark);border-color:var(--brand-dark)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+/* A disabled primary button has to look inert. At 45% opacity the orange was
+   still the most prominent thing on the screen, so people tapped it and
+   nothing happened. */
+.btn:disabled{opacity:.5;filter:grayscale(1);box-shadow:none;cursor:not-allowed}
 .btn.ghost{background:#fff;color:var(--brand-ink);border-color:var(--brand-line)}
 .btn.ghost:hover{background:var(--brand-soft)}
 .btn.subtle{background:#fff;color:var(--ink2);border-color:var(--line)}
