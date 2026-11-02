@@ -1,16 +1,19 @@
 /* Offline cache for the app shell.
 
-   Bump CACHE on every release. The name is the only thing that makes the
+   Update release.js on every release. Its id is what makes the
    browser treat the new files as new — without a bump, cache-first would
    serve the previous build forever. */
 
-const CACHE = "kwizlocal-v45-tiles";
+importScripts("./release.js");
+const CACHE = "kwizlocal-" + RELEASE.id;
 
 /* Workers Static Assets answers /index.html with a 307 to /, and a redirect
    inside cache.addAll can abort the whole install. "./" alone is enough —
    every static host we target serves index.html at the root. */
 const ASSETS = [
   "./",
+  "./release.js",
+  "./coaching.js",
   "./styles.css",
   "./data.js",
   "./extra.js",
@@ -67,7 +70,7 @@ self.addEventListener("message", function (e) {
 self.addEventListener("activate", function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) {
+      return Promise.all(keys.filter(function (k) { return k.indexOf("kwizlocal-") === 0 && k !== CACHE; }).map(function (k) {
         return caches.delete(k);
       }));
     }).then(function () {
@@ -86,20 +89,12 @@ self.addEventListener("fetch", function (e) {
     url.pathname.endsWith(".html");
 
   if (isShell) {
-    /* Network-first for the HTML shell: while online you always get the
-       current index.html, which is what points at the current app.js. */
+    /* Serve the HTML and assets from the same release. A newer release waits
+       behind the update banner, rather than mixing new HTML with old JS. */
     e.respondWith(
-      fetch(e.request).then(function (res) {
-        if (res && res.status === 200) {
-          const copy = res.clone();
-          currentCache().then(function (c) { c.put("./", copy); });
-        }
-        return res;
-      }).catch(function () {
-        return currentCache().then(function (c) {
-          return c.match("./").then(function (hit) {
-            return hit || c.match(e.request);
-          });
+      currentCache().then(function (c) {
+        return c.match("./").then(function (hit) {
+          return hit || fetch(e.request);
         });
       })
     );

@@ -5,6 +5,9 @@ const LS_SESSION = "kwizlocal.session.v1";
 const LS_PLACEMENT = "kwizlocal.placement.v1";
 const LS_EXAM = "kwizlocal.exam.v1";
 
+let stateRescued = false;
+let saveFailed = false;
+let lastSavedAt = null;
 let state = loadState();
 let session = loadSession();
 let prelearn = null;
@@ -21,9 +24,6 @@ const drawerTitle = document.getElementById("drawerTitle");
 const scrim = document.getElementById("scrim");
 
 /* ---------------- storage ---------------- */
-
-let stateRescued = false;
-let saveFailed = false;
 
 /* Anything stored under our key is treated as the learner's data. If it cannot
    be read, it is copied aside before a fresh profile replaces it — the old
@@ -55,6 +55,7 @@ function saveState() {
   try {
     localStorage.setItem(LS_STATE, JSON.stringify(state));
     saveFailed = false;
+    lastSavedAt = new Date();
   } catch (e) {
     /* Silently swallowing this meant answers kept landing in memory and
        vanished on reload. Say it once. */
@@ -63,7 +64,57 @@ function saveState() {
       try { toast("Could not save progress — browser storage is full. Export a backup."); } catch (_) {}
     }
   }
+  renderSaveStatus();
 }
+
+function renderSaveStatus() {
+  const el = document.getElementById("saveStatus");
+  if (!el) return;
+  el.classList.toggle("save-error", saveFailed);
+  el.innerHTML = saveFailed
+    ? '<span>● 进度未保存，请先导出备份</span><a href="#/settings">备份与恢复 →</a>'
+    : '<span>● ' + (lastSavedAt ? "已保存到此浏览器 · " + esc(lastSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })) : "学习记录保存在此浏览器") + '</span>';
+}
+
+function releaseHtml(compact) {
+  return '<section class="release-card' + (compact ? ' release-compact' : '') + '" aria-labelledby="releaseTitle">'
+    + '<div class="release-heading"><span class="release-tag">WHAT’S NEW · V' + esc(RELEASE.version) + '</span>'
+    + '<span class="release-date">' + esc(RELEASE.date) + '</span></div>'
+    + '<h2 id="releaseTitle">' + esc(RELEASE.title) + '</h2>'
+    + (compact ? '' : '<p>让每一次练习，都知道为什么。</p>')
+    + '<details><summary>看看这次更新了什么</summary><ul>'
+    + RELEASE.changes.map(function (line) { return '<li>' + esc(line) + '</li>'; }).join("")
+    + '</ul></details></section>';
+}
+
+function coachingHtml(kpId, withPractice) {
+  const note = COACHING[kpId];
+  if (!note) return "";
+  return '<section class="coach-note"><div class="coach-kicker">理解 → 对比 → 再试一次</div>'
+    + '<h3>用中文理清这一点</h3><p>' + esc(note.rule) + '</p>'
+    + (withPractice ? '<details class="coach-details"><summary>展开易错提醒与对比例句</summary>' : '')
+    + '<p class="coach-trap"><b>易错提醒</b> ' + esc(note.trap) + '</p>'
+    + '<div class="coach-examples">' + note.examples.map(function (e) {
+      return '<div><span lang="fr">' + esc(e[0]) + '</span><small>' + esc(e[1]) + '</small></div>';
+    }).join("") + '</div>' + (withPractice ? '</details>' : '')
+    + (withPractice ? '<div class="coach-practice" data-coach="' + esc(kpId) + '"><b>换个语境，再试一次</b>'
+      + '<p lang="fr">' + esc(note.prompt) + '</p><div class="coach-options">'
+      + note.options.map(function (o) { return '<button type="button" class="btn sm ghost" data-coach-answer="' + esc(o) + '">' + esc(o) + '</button>'; }).join("")
+      + '</div><p class="coach-result" role="status" aria-live="polite"></p>'
+      + '<small>这是有提示的巩固练习，不计入掌握度。</small></div>' : "") + '</section>';
+}
+
+/* Delegation survives course and quiz rerenders. A correction can be retried
+   without changing the main question, score, or saved session. */
+app.addEventListener("click", function (event) {
+  const button = event.target.closest("[data-coach-answer]");
+  if (!button) return;
+  const block = button.closest("[data-coach]");
+  const note = COACHING[block.getAttribute("data-coach")];
+  const correct = button.getAttribute("data-coach-answer") === note.answer;
+  block.querySelector(".coach-result").textContent = (correct ? "✓ 答对了。" : "再想一想。") + note.why;
+  if (correct) block.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+});
 
 function loadSession() {
   try {
@@ -229,6 +280,9 @@ function toast(msg) {
   if (!el) {
     el = document.createElement("div");
     el.className = "toast";
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    el.setAttribute("aria-atomic", "true");
     document.body.appendChild(el);
   }
   el.textContent = msg;
@@ -832,6 +886,84 @@ function weeklyHtml() {
     + "</div>";
 }
 
+/* These stores only contain lifetime aggregates. Do not invent dates, weekly
+   totals, or grammar mastery from vocabulary-in-context and reference matching. */
+function practiceReport() {
+  const count = function (n) { return typeof n === "number" && Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0; };
+  const translation = state.translate || {};
+  const done = count(translation.done);
+  const totalPct = typeof translation.totalPct === "number" && Number.isFinite(translation.totalPct) ? translation.totalPct : 0;
+  const tags = Object.keys(state.sentences || {}).map(function (tag) {
+    const s = state.sentences[tag] || {};
+    const seen = count(s.seen);
+    const correct = Math.min(seen, count(s.correct));
+    const label = SENT_TAGS.find(function (entry) { return entry[0] === tag; });
+    return { tag: tag, label: label ? label[1] : tag, seen: seen, correct: correct, pct: seen ? Math.round(correct / seen * 100) : null };
+  }).filter(function (s) { return s.seen > 0; });
+  const seen = tags.reduce(function (n, s) { return n + s.seen; }, 0);
+  const correct = tags.reduce(function (n, s) { return n + s.correct; }, 0);
+  return {
+    translationDone: done,
+    translationPct: done ? Math.round(Math.max(0, Math.min(100, totalPct / done))) : null,
+    sentenceSeen: seen,
+    sentencePct: seen ? Math.round(correct / seen * 100) : null,
+    tags: tags.sort(function (a, b) { return a.pct - b.pct || b.seen - a.seen || a.tag.localeCompare(b.tag); })
+  };
+}
+
+function practiceHistoryHtml() {
+  const report = practiceReport();
+  const metric = function (value, label) {
+    return '<div class="practice-metric"><b>' + (value == null ? '—' : value + '%') + '</b><span>' + label + '</span></div>';
+  };
+  return '<section class="practice-history section-gap" aria-labelledby="practiceHistoryTitle">'
+    + '<div class="practice-heading"><div><span class="studio-eyebrow">YOUR PRACTICE FOOTPRINT</span>'
+    + '<h2 id="practiceHistoryTitle">把练习，变成看得见的积累。</h2></div><span class="lifetime-label">累计记录</span></div>'
+    + '<div class="practice-panels"><article class="practice-panel"><span class="practice-icon" aria-hidden="true">Aa ↗</span>'
+    + '<h3>翻译 · 从理解到表达</h3>' + metric(report.translationPct, '平均参考句匹配度')
+    + '<p>' + (report.translationDone ? '已练 ' + report.translationDone + ' 句；揭晓答案按 0 分计入平均。' : '还没有翻译记录，试着独立写出第一句法语。') + '</p>'
+    + '<a class="btn sm ghost" href="#/translate">写几句法语 →</a></article>'
+    + '<article class="practice-panel"><span class="practice-icon" aria-hidden="true">≋</span>'
+    + '<h3>句子 · 放进真实语境</h3>' + metric(report.sentencePct, '句子练习正确率')
+    + '<p>' + (report.sentenceSeen ? '已答 ' + report.sentenceSeen + ' 题，覆盖 ' + report.tags.length + ' 类语境。' : '还没有句子记录，从填空或词序练习开始。') + '</p>'
+    + '<a class="btn sm ghost" href="#/sentences">练习真实句子 →</a></article></div>'
+    + (report.tags.length ? '<details class="practice-tags"><summary>看看已练语境 · 优先显示正确率较低的标签</summary>'
+      + report.tags.map(function (t) {
+        const known = SENT_TAGS.some(function (entry) { return entry[0] === t.tag && entry[0] !== 'all'; });
+        return '<div class="practice-tag-row"><span>' + esc(t.label) + '</span><small>' + t.correct + ' / ' + t.seen + ' 答对</small>'
+          + '<b>' + t.pct + '%</b>'
+          + (known ? '<button type="button" class="btn sm ghost" data-practice-tag="' + esc(t.tag) + '">再练 →</button>' : '') + '</div>';
+      }).join('') + '</details>' : '')
+    + '<p class="practice-footnote">翻译采用文字匹配参考；句子按答题结果统计。两者均不代表语法掌握度；独立练习不计入上方每日答题目标。</p></section>';
+}
+
+function learningRouteHtml(due, weak, nextLesson) {
+  const rows = [
+    { action: 'due', title: '复习到期内容', count: due, note: due ? due + ' 个已学知识点到期，先唤醒记忆。' : '暂无到期内容，今天可以轻装前进。' },
+    { action: 'weak', title: '巩固薄弱内容', count: weak, note: weak ? weak + ' 个已学知识点需要巩固。' : '暂无待巩固的薄弱知识点。' },
+    { action: 'new', title: '学习下一课', count: nextLesson ? 1 : 0, note: nextLesson ? (zhOf(nextLesson) || nextLesson.title) + ' · 约 3 分钟' : '当前级别的新课已介绍完，可以复习或调整起点。' }
+  ];
+  return '<div class="learning-route"><div class="ns-title">今天的学习路线</div>'
+    + rows.map(function (row, i) {
+      return '<button type="button" class="route-step" data-step="' + row.action + '"' + (row.count ? '' : ' disabled') + '>'
+        + '<span class="route-number">0' + (i + 1) + '</span><span class="route-body"><b>' + row.title + '</b><small>' + esc(row.note) + '</small></span>'
+        + '<span class="route-count">' + (row.count || '✓') + '</span></button>';
+    }).join('') + '<p class="route-note">按已学内容安排复习，再逐步引入新课。</p></div>';
+}
+
+function notebookPreviewHtml() {
+  const pending = Engine.notebookItems(state).filter(function (n) {
+    const kp = KP_BY_ID[n.kpId];
+    return !n.resolved && kp && findItem(kp, n.itemId);
+  });
+  if (!pending.length) return '';
+  const repeated = pending.filter(function (n) { return n.wrong >= 2; }).length;
+  return '<aside class="notebook-preview"><div><span class="studio-eyebrow">TURN MISTAKES INTO PROGRESS</span>'
+    + '<h2>' + pending.length + ' 道错题，等你重新拿下。</h2><p>'
+    + (repeated ? repeated + ' 道曾反复出错，优先巩固。' : '答案先折叠，先回忆，再用短练检验。')
+    + '</p></div><a class="btn sm ghost" href="#/notebook">进入错题修复站 →</a></aside>';
+}
+
 function renderDashboard() {
   const streak = state.streak.count;
   const today = Engine.todayCount(state);
@@ -885,68 +1017,47 @@ function renderDashboard() {
      full, weak, brainmap, learn-new) plus achievements and a level table, so
      nothing read as "do this next". ---- */
   const nextLesson = Engine.nextNewPoint(state);
-  const unseen = nextLesson ? 1 : 0;
   const inProgress = !!(session && session.session);
-  const steps = [];
-  /* Each step carries roughly how long it takes, so "do I have time for this"
-     is answerable without opening it. */
-  if (due) steps.push({ title: "Review what is due", sub: due + " point" + (due === 1 ? "" : "s"), mins: 4, action: "due" });
-  if (weak) steps.push({ title: "Drill your weak points", sub: weak + " below 50", mins: 4, action: "weak" });
-  /* The primary button already offers the next lesson when that is the
-     recommendation — listing it again underneath is the same sentence twice. */
   const outlook = Engine.practiceOutlook(state);
-  if (unseen && outlook.recommend !== "learn") {
-    steps.push({
-      title: "Learn next: " + nextLesson.title,
-      sub: nextLesson.level + " · " + Engine.lessonReason(state, nextLesson),
-      mins: 3,
-      action: "new"
-    });
-  }
-  const stepsHtml = steps.slice(0, 3).map(function (st) {
-    return '<button class="next-step" data-step="' + st.action + '">'
-      + '<span class="ns-body"><b>' + esc(st.title) + "</b><small>" + esc(st.sub)
-      + (st.mins ? " · ~" + st.mins + " min" : "") + "</small></span>"
-      + '<span class="ns-go">→</span></button>';
-  }).join("");
 
   const canPractise = outlook.canPractise;
   /* Nothing due and nothing weak? Then another pass over solid material is
      the wrong move — the next lesson is. Without this the primary button kept
      serving the same point for as long as the learner kept pressing it. */
   const primaryBtn = inProgress
-    ? '<button class="btn block" id="resumeBtn">Resume · ' + (session.index + 1) + " / " + session.session.items.length + " done</button>"
+    ? '<button class="btn block" id="resumeBtn">继续上次练习<small>已完成 ' + session.answers.length + ' / ' + session.session.items.length + ' 题</small></button>'
     : (outlook.recommend === "learn" && nextLesson)
-      ? '<button class="btn block" id="newPointBtn2">Learn: ' + esc(nextLesson.title)
-        + "<small>" + esc(nextLesson.level) + (canPractise ? " · nothing due right now" : " · next unlocked lesson") + "</small></button>"
-      : '<button class="btn block" data-start="3">Quick · 3 questions<small>about a minute</small></button>';
+      ? '<button class="btn block" id="newPointBtn2">开始学习：' + esc(zhOf(nextLesson) || nextLesson.title)
+        + '<small>' + esc(nextLesson.level) + ' · 约 3 分钟</small></button>'
+      : '<button class="btn block" data-start="3">' + (outlook.recommend === 'review' ? '开始复习 · 3 题' : '巩固新知识 · 3 题') + '<small>约 1 分钟</small></button>';
 
   app.innerHTML = '<div class="container">'
-    + '<div class="page-head"><h1>Your French Dashboard</h1>'
-    + '<p>' + KPS.length + ' points · A0 to B2 · stored on this device</p></div>'
+    + '<div class="page-head studio-head"><div><span class="studio-eyebrow">YOUR DAILY FRENCH</span><h1>今天，让法语再进一步。</h1>'
+    + '<p>' + KPS.length + ' points · A0 to B2 · 你的每日法语学习工作台</p></div><a class="btn sm ghost" href="#/library">探索课程 ↗</a></div>'
+    + releaseHtml(true)
 
     + '<div class="todaybar' + (today >= dailyGoal ? " done" : "") + '">'
     + '<div class="goal"><div class="goal-head">'
-    + '<span class="label">TODAY</span>'
-    + '<span class="goal-num">' + today + ' <small>/ ' + dailyGoal + ' questions</small></span>'
+    + '<span class="label">今日答题</span>'
+    + '<span class="goal-num">' + today + ' <small>/ ' + dailyGoal + ' 题</small></span>'
     + (today >= dailyGoal ? '<span class="goal-check">✓ Goal met</span>' : "")
     + '</div><div class="track"><span class="fill" style="width:' + Math.min(100, Math.round(today / dailyGoal * 100)) + '%"></span></div></div>'
     + '<div class="streak-box"><span class="streak-num">' + streak + '</span>'
-    + '<span class="streak-lbl">day streak</span></div>'
+    + '<span class="streak-lbl">连续学习</span></div>'
     + '</div>'
 
 
     + '<section class="card hero">'
     + '<div class="hero-left">'
     + '<div class="hero-top"><div class="avatar lvl">' + esc(Engine.guidedLevel(state)) + '</div><div class="hero-copy">'
-    + '<div class="hello">' + (today ? "Welcome back." : "Hello!") + "</div>"
+    + '<div class="hello">' + (today ? "欢迎回来，继续今天的学习。" : "从这一小步开始。") + "</div>"
     + "<p>" + (inProgress
-      ? "You left a session part-finished — pick it up where you stopped."
+      ? "上次的练习还在，接着完成就好。"
       : (outlook.recommend === "learn" && nextLesson
-        ? "Nothing is due. The next lesson takes about three minutes."
+        ? (outlook.introduced ? "已学内容暂时无需复习，可以开始下一课。" : "从基础规则开始；学过的知识才会进入日常练习。")
         : canPractise
-          ? "Short on time? Three questions takes about a minute."
-          : "Start with the next unlocked lesson. Quizzes will follow the material you learn.")) + "</p></div></div>"
+          ? (due ? '先复习到期内容：短测验会优先安排复习，并穿插已学知识。' : weak ? '先巩固薄弱内容，再继续前进。' : '刚学过的内容，先用几道题巩固一下。')
+          : "先学习已解锁的课程，练习会跟随你的学习进度。")) + "</p></div></div>"
     + (function () {
       /* Where this level ends. At three questions a day a level takes months,
          and "still A0" with no distance attached reads as "nothing changes". */
@@ -963,31 +1074,24 @@ function renderDashboard() {
     + primaryBtn
     + '<div class="hero-sub">'
     + (inProgress
-      ? '<button class="btn subtle" data-start="3">Start a fresh quick kwiz</button>'
+      ? '<button class="btn subtle" data-start="3">另开一轮 · 3 题</button>'
       : (outlook.recommend === "learn" && canPractise
-        ? '<button class="btn subtle" data-start="3">Quick · 3 questions</button>'
+        ? '<button class="btn subtle" data-start="3">快速巩固 · 3 题</button>'
         : ""))
-    + (canPractise ? '<button class="btn subtle" data-start="10">Full kwiz · 10</button>' : '')
+    + (canPractise ? '<button class="btn subtle" data-start="10">完整练习 · 10 题</button>' : '')
     + "</div>"
     + (state.attempts.length === 0 && !state.seeded && !state.placement
-      ? '<div class="firstrun"><div><b>First time here?</b> A 20-question placement test tells you where you are in about 5 minutes.</div>'
-        + '<span class="spacer"></span><button class="btn sm ghost" data-placement>Start placement</button>'
-        + '<a href="#/settings" class="small">or load demo data</a></div>'
+      ? '<div class="firstrun"><div><b>已有法语基础？</b> 用约 5 分钟找到学习起点。</div>'
+        + '<button class="btn sm ghost" data-placement>摸底测试 →</button></div>'
       : "")
     + "</div>"
     + '<div class="hero-side">'
-    + (stepsHtml
-      ? '<div class="next-steps"><div class="ns-title">Or, in order of urgency</div>' + stepsHtml
-        + (steps.length < 2 ? '<p class="ns-empty">Nothing else is due for review.</p>' : "") + "</div>"
-      : '<div class="next-steps"><div class="ns-title">' + (outlook.canPractise ? "All caught up" : "Nothing to quiz yet") + "</div>"
-        + '<p class="ns-empty">' + esc(outlook.canPractise
-          ? (outlook.recommend === "learn" ? "The next lesson is already the button above." : "Nothing is due and nothing is weak.")
-          : outlook.nextLesson
-            ? "Guided quizzes only cover lessons you have started. Learn " + outlook.nextLesson.title + " first."
-            : "Every point at your level is introduced. Review from the Notebook, or change your starting level in Settings.") + "</p></div>")
+    + learningRouteHtml(due, weak, nextLesson)
     + "</div>"
     + "</section>"
 
+    + notebookPreviewHtml()
+    + practiceHistoryHtml()
     + weeklyHtml()
 
     + '<div class="grid2 section-gap">'
@@ -1028,6 +1132,13 @@ function renderDashboard() {
     + "</div>";
 
   bindMap();
+  document.querySelectorAll('[data-practice-tag]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      sentTag = button.getAttribute('data-practice-tag');
+      sentLevel = 'all';
+      navigate('#/sentences');
+    });
+  });
   document.querySelectorAll("[data-start]").forEach(function (b) {
     b.addEventListener("click", function () {
       startSession(parseInt(b.getAttribute("data-start"), 10) || 10);
@@ -2032,6 +2143,7 @@ function renderKwiz() {
            you were right, useless when you were wrong. A miss gets the rule
            itself, in the place where it is needed. */
         + (item.topic ? "" : '<div class="rule-nudge"><b>The rule</b>' + frify(kp.rule) + "</div>")
+        + (!item.topic && !item.fromSentence ? coachingHtml(kp.id, true) : "")
         + (item.topic
           ? ""
           : '<div style="margin-top:6px"><a href="#/prelearn/' + kp.id + '" class="small" style="color:var(--blue);font-weight:600">Learn this point →</a></div>')
@@ -3201,6 +3313,7 @@ function renderPrelearn(kpId) {
 
     body = '<div class="rule-box"><b>One rule:</b> ' + frify(kp.rule) + "</div>"
       + contrastHtml(kp.id)
+      + coachingHtml(kp.id, false)
       + exHtml(firstEx)
       + (rows.length
         ? '<div class="mistakes-block"><div class="mb-title">The usual mix-up</div>' + rowHtml(rows[0]) + "</div>"
@@ -3259,6 +3372,7 @@ function renderPrelearn(kpId) {
           + ((fb === "ok" || reveal)
             ? '<div class="answer-line">' + esc(item.answer) + "</div>" + esc(item.explain)
             : "")
+          + (fb === "bad" ? coachingHtml(kp.id, true) : "")
           + "</div></div>" : "")
       + '<div class="kwiz-actions">'
       + (fb === "ok" || reveal
@@ -3322,7 +3436,7 @@ function renderPrelearn(kpId) {
             + (fb === "ok" ? accentNoteHtml(prelearn.match) : "")
             + '<div class="answer-line">' + esc(item.answer) + "</div>"
             + (fb === "bad" && item.type === "choice" ? whyWrongHtml(kp.id, prelearn.given) : "")
-            + esc(item.explain) + "</div></div>" : "")
+            + esc(item.explain) + (fb === "bad" ? coachingHtml(kp.id, true) : "") + "</div></div>" : "")
         + '<div class="kwiz-actions">'
         + (fb
           ? '<button class="btn" id="cNext">Continue</button>'
@@ -3488,11 +3602,31 @@ function bindPrelearn(kp) {
 
 /* ---------------- notebook ---------------- */
 
+let notebookView = { query: '', level: 'all', status: 'open', sort: 'missed' };
+
+function notebookMatches(note) {
+  const kp = KP_BY_ID[note.kpId];
+  const item = kp && findItem(kp, note.itemId);
+  if (!item) return false;
+  if (notebookView.status === 'open' && note.resolved) return false;
+  if (notebookView.status === 'resolved' && !note.resolved) return false;
+  if (notebookView.level !== 'all' && kp.level !== notebookView.level) return false;
+  const fold = function (text) { return String(text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); };
+  const text = [kp.title, kp.titleFr, zhOf(kp), item.prompt].join(' ');
+  return fold(text).includes(fold(notebookView.query).trim());
+}
+
 function renderNotebook() {
-  const everyNote = Engine.notebookItems(state);
+  const everyNote = Engine.notebookItems(state).filter(function (n) { const kp = KP_BY_ID[n.kpId]; return kp && findItem(kp, n.itemId); });
   /* Resolved entries keep their history but leave the review queue. */
   const nb = everyNote.filter(function (n) { return !n.resolved; });
   const done = everyNote.filter(function (n) { return n.resolved; });
+  const filtered = everyNote.filter(notebookMatches).sort(function (a, b) {
+    return notebookView.sort === 'recent'
+      ? (b.lastAt || b.at || 0) - (a.lastAt || a.at || 0)
+      : (b.wrong || 0) - (a.wrong || 0) || (b.lastAt || b.at || 0) - (a.lastAt || a.at || 0);
+  });
+  const review = filtered.filter(function (n) { return !n.resolved; }).slice(0, 5);
   const savedIds = (state.notebook && state.notebook.kps) || [];
   const savedKps = savedIds.map(function (id) { return KP_BY_ID[id]; }).filter(Boolean);
 
@@ -3505,18 +3639,19 @@ function renderNotebook() {
     return '<div class="nb-item' + (n.resolved ? " resolved" : "") + '">'
       + '<div class="nb-main">'
       + '<div class="nb-q">' + qHtml + "</div>"
-      + '<div class="nb-meta">' + esc(kp.title) + ' · missed <b class="nb-miss">' + n.wrong + "×</b>"
-      + (n.resolved ? ' · <span class="nb-ok">resolved</span>' : "") + "</div>"
-      + '<div class="nb-ans"><span>Answer</span><b>' + esc(item.answer) + "</b></div>"
+      + '<div class="nb-meta">' + esc(kp.level) + ' · ' + esc(zhOf(kp) || kp.title) + ' · 答错 <b class="nb-miss">' + esc(n.wrong) + " 次</b>"
+      + (n.resolved ? ' · <span class="nb-ok">已巩固</span>' : "") + "</div>"
+      + '<details class="nb-answer"><summary>先想一想，再看答案</summary><div class="nb-ans"><span>参考答案</span><b lang="fr">' + esc(item.answer) + '</b></div>'
+      + (item.explain ? '<p>' + esc(item.explain) + '</p>' : '') + '</details>'
       + "</div>"
       + '<div class="nb-acts">'
-      + '<button class="btn sm" data-nb-practice="' + n.itemId + '">Practise</button>'
-      + '<button class="btn sm subtle" data-nb-remove="' + n.itemId + '">Remove</button>'
+      + '<button class="btn sm" data-nb-practice="' + esc(n.itemId) + '">再练此题</button>'
+      + '<a class="btn sm ghost" href="#/prelearn/' + esc(kp.id) + '">重读讲解</a>'
+      + '<button class="btn sm subtle" data-nb-remove="' + esc(n.itemId) + '">移出错题本</button>'
       + "</div></div>";
   };
 
-  const rows = nb.map(rowHtml).join("");
-  const doneRows = done.map(rowHtml).join("");
+  const rows = filtered.map(rowHtml).join("");
 
   const savedHtml = savedKps.length
     ? '<div class="lib-grid" style="margin-top:10px">' + savedKps.map(function (kp) {
@@ -3528,42 +3663,58 @@ function renderNotebook() {
           + '<div class="fr">' + esc(kp.titleFr) + "</div>"
           + '<div class="foot"><span class="score" style="color:' + scoreColor(sc, s ? s.n : 0) + '">'
           + (s && s.n ? sc : "—") + "</span>"
-          + '<button class="btn sm ghost" data-nb-open="' + kp.id + '">Open</button></div></div>';
+          + '<button class="btn sm ghost" data-nb-open="' + kp.id + '">查看</button></div></div>';
       }).join("") + "</div>"
-    : '<div class="empty" style="margin-top:10px">No saved points yet. Open any point and choose “Save to Notebook”.</div>';
+    : '<div class="empty" style="margin-top:10px">还没有收藏。打开知识点，选择“Save to Notebook”即可收藏。</div>';
 
   app.innerHTML = '<div class="container">'
-    + '<div class="page-head"><h1>Notebook</h1>'
-    + '<p>Wrong answers land here. Two right answers retire one.</p></div>'
-    + '<div class="nb-actions">'
-    + (nb.length ? '<button class="btn" id="nbPractiseAll">Practise all ' + nb.length + "</button>" : "")
-    + (nb.length ? '<button class="btn subtle" id="nbClear">Clear mistakes</button>' : "")
-    + '<span class="spacer"></span>'
-    + '<span class="small">' + nb.length + " to review"
-    + (done.length ? " · " + done.length + " resolved" : "")
-    + " · " + savedKps.length + " saved point" + (savedKps.length === 1 ? "" : "s") + "</span>"
-    + "</div>"
-    + (nb.length
+    + '<div class="page-head"><span class="studio-eyebrow">YOUR MISTAKE WORKSHOP</span><h1>错题修复站</h1>'
+    + '<p>先回忆，再核对。一个知识点在两道不同题目上答对后，相关错题自动归入已巩固。</p></div>'
+    + '<section class="notebook-overview" aria-label="错题概览">'
+    + '<div><b>' + nb.length + '</b><span>待复习</span></div><div><b>' + done.length + '</b><span>已巩固</span></div>'
+    + '<div><b>' + nb.filter(function (n) { return n.wrong >= 2; }).length + '</b><span>反复出错</span></div></section>'
+    + '<div class="notebook-filters"><label>搜索错题<input id="nbSearch" type="search" placeholder="搜索知识点、中文标题或题干" value="' + esc(notebookView.query) + '"></label>'
+    + '<label>级别<select id="nbLevel"><option value="all">全部级别</option>' + LEVELS.map(function (l) { return '<option value="' + l.id + '"' + (notebookView.level === l.id ? ' selected' : '') + '>' + l.id + '</option>'; }).join('') + '</select></label>'
+    + '<label>状态<select id="nbStatus">' + [['open','待复习'],['resolved','已巩固'],['all','全部错题']].map(function (o) { return '<option value="' + o[0] + '"' + (notebookView.status === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>'
+    + '<label>排序<select id="nbSort"><option value="missed">答错次数优先</option><option value="recent"' + (notebookView.sort === 'recent' ? ' selected' : '') + '>最近出错优先</option></select></label></div>'
+    + '<div class="nb-actions notebook-review-bar">'
+    + '<button class="btn" id="nbPractiseAll"' + (review.length ? '' : ' disabled') + '>复习这 ' + review.length + ' 题 →</button>'
+    + '<span class="small" role="status">筛选出 ' + filtered.length + ' 题 · 每轮最多 5 道待复习题</span></div>'
+    + (rows
       ? '<div class="card"><div class="nb-list">' + rows + "</div></div>"
-      : '<div class="empty">' + (done.length
-        ? "Nothing left to review — every mistake here has been answered correctly since."
-        : "No mistakes yet. Finish a kwiz and anything you miss shows up here.") + "</div>")
-    + (done.length
-      ? "<details class=\"nb-done\"><summary>Resolved<span class=\"cnt\">" + done.length + "</span></summary>"
-        + '<div class="nb-list">' + doneRows + "</div></details>"
-      : "")
-    + '<h2 style="font-size:16px;margin:22px 0 2px">Saved points</h2>'
-    + '<p class="small">Points you bookmarked to come back to.</p>'
+      : '<div class="empty">' + (everyNote.length ? '当前筛选下没有错题，试试其他关键词或状态。' : '还没有错题。完成测验后，答错的语法题会自动收集到这里。') + '</div>')
+    + (everyNote.length ? '<details class="notebook-manage"><summary>管理全部错题</summary><button class="btn sm subtle" id="nbClear">清空全部错题</button></details>' : '')
+    + '<h2 style="font-size:16px;margin:22px 0 2px">收藏的知识点 · ' + savedKps.length + '</h2>'
+    + '<p class="small">先存起来，按自己的节奏回看。</p>'
     + savedHtml
     + "</div>";
 
   const all = document.getElementById("nbPractiseAll");
   if (all) all.addEventListener("click", function () {
-    startSessionFromItems(nb.map(function (n) { return { kpId: n.kpId, itemId: n.itemId }; }));
+    if (!review.length) return;
+    startSessionFromItems(review.map(function (n) { return { kpId: n.kpId, itemId: n.itemId }; }));
+  });
+  const updateSearch = function (event) {
+    if (event.isComposing) return;
+    const cursor = event.target.selectionStart;
+    notebookView.query = event.target.value;
+    renderNotebook();
+    const input = document.getElementById('nbSearch');
+    input.focus();
+    input.setSelectionRange(cursor, cursor);
+  };
+  document.getElementById('nbSearch').addEventListener('input', updateSearch);
+  document.getElementById('nbSearch').addEventListener('compositionend', updateSearch);
+  [['nbLevel','level'], ['nbStatus','status'], ['nbSort','sort']].forEach(function (pair) {
+    document.getElementById(pair[0]).addEventListener('change', function (event) {
+      notebookView[pair[1]] = event.target.value;
+      renderNotebook();
+      document.getElementById(pair[0]).focus();
+    });
   });
   const clear = document.getElementById("nbClear");
   if (clear) clear.addEventListener("click", function () {
-    if (!confirm("Clear all collected mistakes? Saved points stay.")) return;
+    if (!confirm("清空全部错题记录（包括已巩固）？收藏的知识点会保留。")) return;
     state.notebook.items = [];
     saveState();
     toast("Mistakes cleared");
@@ -3654,6 +3805,7 @@ function renderVocab() {
       + '<div class="vc-head"><span class="vc-word">' + esc(v.w) + "</span>"
       + '<span class="vc-pos">' + esc(v.pos) + (g ? " · " + g : "") + "</span>"
       + '<span class="vc-rank">' + esc(v.level || "") + " · #" + v.rank + "</span></div>"
+      + (v.note ? '<p class="vocab-note">' + esc(v.note) + '</p>' : "")
       + (ex
         ? '<div class="vc-ex"><div class="fr">' + esc(ex[0]) + '</div>'
           + '<div class="en" hidden>' + esc(ex[1]) + "</div></div>"
@@ -3781,6 +3933,7 @@ function renderVocabFlash() {
     + '<div class="flash-word">' + esc(v.w) + "</div>"
     + '<div class="flash-meta">' + esc(v.pos) + (g ? " · " + g : "")
     + (v.level ? " · " + esc(v.level) : "") + " · rank #" + v.rank + "</div>"
+    + (f.revealed && v.note ? '<p class="vocab-note">' + esc(v.note) + '</p>' : "")
     + (ex
       ? '<div class="flash-ex' + (f.revealed ? "" : " blur") + '">'
         + '<div class="fr">' + esc(ex[0]) + "</div>"
@@ -3821,7 +3974,7 @@ let vocabGender = null;
 
 function startGenderDrill() {
   const nouns = VOCAB_LIST.filter(function (v) {
-    return v.pos === "noun" && (v.g === "m" || v.g === "f");
+    return v.pos === "noun" && v.genderDrill !== false && (v.g === "m" || v.g === "f");
   });
   if (nouns.length < 6) { toast("Not enough nouns with gender data"); return; }
   vocabFlash = null;
@@ -4296,8 +4449,8 @@ function renderSentences() {
     renderSentencesMissing();
     return;
   }
-  if (sentDrill) { renderSentDrill(); return; }
-  if (trDrill) { renderTranslate(); return; }
+  /* Explicit navigation opens the overview. Suspended drills remain available
+     through a resume button, rather than hijacking a newly selected filter. */
 
   const counts = sentTagCounts();
   const chips = SENT_TAGS.filter(function (pair) {
@@ -4331,6 +4484,7 @@ function renderSentences() {
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Sentence practice</h1>'
     + '<p>' + total + " sentences · " + gaps + " gap-fill, " + (total - gaps) + " word order.</p></div>"
+    + (sentDrill ? '<div class="sentence-resume"><span>上次句子练习已答 ' + (sentDrill.correct + sentDrill.wrong) + ' / ' + sentDrill.queue.length + ' 题</span><button class="btn sm ghost" id="sentResume">继续上次练习 →</button></div>' : '')
     /* This page used to open on twenty filter chips and nothing else: the
        filters were the page. Now the drill is the page and the filters are a
        disclosure that says what is currently selected. */
@@ -4365,7 +4519,9 @@ function renderSentences() {
   });
   document.getElementById("sentStart").addEventListener("click", function () { startSentDrill(10); });
   document.getElementById("sentStart20").addEventListener("click", function () { startSentDrill(20); });
-  document.getElementById("trStart").addEventListener("click", function () { startTranslateDrill(10); });
+  document.getElementById("trStart").addEventListener("click", function () { navigate('#/translate'); });
+  const resumeSent = document.getElementById('sentResume');
+  if (resumeSent) resumeSent.addEventListener('click', renderSentDrill);
 }
 
 function startSentDrill(n) {
@@ -4906,8 +5062,11 @@ function renderLibrary() {
 /* ---------------- settings ---------------- */
 
 function renderSettings() {
+  let storedSize = "unavailable";
+  try { storedSize = Math.round((localStorage.getItem(LS_STATE) || "").length / 1024) + " KB"; } catch (_) {}
   app.innerHTML = '<div class="container" style="max-width:760px">'
     + '<div class="page-head"><h1>Settings</h1><p>Stored in this browser only.</p></div>'
+    + releaseHtml()
     + '<div class="card">'
     + '<div class="setting-row"><div class="txt"><b>TCF-style exam</b>'
     + '<span>20 timed questions, score out of 699 with a CEFR estimate.</span></div>'
@@ -4960,7 +5119,7 @@ function renderSettings() {
     + '<button class="btn sm subtle danger" id="resetBtn">Reset</button></div>'
     + "</div>"
     + '<p class="small" style="margin-top:16px">Stored in this browser under <code>' + LS_STATE + '</code>'
-    + " · " + Math.round((localStorage.getItem(LS_STATE) || "").length / 1024) + " KB"
+    + " · " + storedSize
     + " · no server copy, no sync between devices.</p>"
     + '<p class="small" style="margin-top:6px">Current data: ' + state.attempts.length + " attempts, "
     + state.sessions.length + " sessions, " + KPS.length + " knowledge points"

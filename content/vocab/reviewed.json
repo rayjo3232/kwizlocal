@@ -1,0 +1,28 @@
+{
+  "note": "Manually reviewed senses and original replacement examples. Preserve these overrides when regenerating vocab.js. Ambiguous bare nouns are excluded from the binary gender drill.",
+  "sources": ["https://www.dictionnaire-academie.fr/article/A9G0532", "https://www.cnrtl.fr/definition/livre", "https://www.cnrtl.fr/definition/tour", "https://www.cnrtl.fr/definition/geste", "https://www.cnrtl.fr/definition/aide"],
+  "items": {
+    "main": {"genre": "f"},
+    "maison": {"genre": "f"},
+    "voiture": {"genre": "f"},
+    "chance": {"genre": "f", "examples": [["Elle a de la chance.", "She is lucky."]]},
+    "part": {"genre": "f", "examples": [["Je prends une part de gâteau.", "I am having a slice of cake."]]},
+    "fin": {"genre": "f", "examples": [["La fin du film est triste.", "The end of the film is sad."]]},
+    "ombre": {"genre": "f"},
+    "poche": {"genre": "f"},
+    "gauche": {"genre": "f", "examples": [["La gauche est libre.", "The left side is clear."]]},
+    "cours": {"genre": "m", "examples": [["Le cours commence à neuf heures.", "The lesson starts at nine o’clock."]]},
+    "chéri": {"genre": "m", "note": "chéri：男性爱称；女性形式为 chérie。"},
+    "mort": {"genre": "f", "note": "la mort：死亡；un mort：死者。此词有不同性别的含义，暂不进入二选一性别练习。", "genderDrill": false, "examples": [["La mort fait partie de la vie.", "Death is part of life."]]},
+    "livre": {"genre": "m", "note": "un livre：书；une livre：磅。此卡例句使用“书”。", "genderDrill": false},
+    "tour": {"genre": "m", "note": "un tour：轮次、绕行；une tour：塔。此卡例句使用阳性含义。", "genderDrill": false},
+    "geste": {"genre": "m", "note": "un geste：动作、姿态；une geste：史诗中的英雄事迹。", "genderDrill": false},
+    "aide": {"genre": "f", "note": "une aide：帮助；指助手时可用 un aide 或 une aide。", "genderDrill": false, "examples": [["Merci pour votre aide.", "Thank you for your help."]]},
+    "merci": {"genre": "m", "note": "un merci：一句感谢；古义 la merci 见固定表达。", "genderDrill": false, "examples": [["Un grand merci à tous.", "A big thank you to everyone."]]},
+    "enfant": {"genre": "", "note": "可说 un enfant 或 une enfant，取决于所指孩子。", "genderDrill": false},
+    "chef": {"genre": "", "note": "指女性时可见 une chef / une cheffe，依使用地区而异；不作为单一性别题。", "genderDrill": false},
+    "gens": {"genre": "", "note": "只用于复数，形容词配合有特殊规则：les bonnes gens / les gens heureux。", "genderDrill": false},
+    "quoi": {"posLabel": "pronoun", "genre": ""},
+    "ton": {"genre": "m", "note": "此卡是名词 le ton（语气），不是 ton livre 中的主有形容词。", "examples": [["Son ton est calme.", "His or her tone is calm."]]}
+  }
+}

@@ -35,9 +35,11 @@
     </nav>
     <div class="topbar-right">
       <span class="streak-chip" id="streakChip">DAY STREAK 0</span>
+      <a href="#/settings" class="version-chip" id="versionChip" aria-label="版本与更新说明"></a>
     </div>
   </div>
 </header>
+<div class="save-status" id="saveStatus" role="status" aria-live="polite"></div>
 
 <main id="app"></main>
 
@@ -87,6 +89,8 @@
   </div>
 </div>
 
+<script src="release.js"></script>
+<script src="coaching.js"></script>
 <script src="data.js"></script>
 <script src="extra.js"></script>
 <script src="deep.js"></script>
@@ -108,6 +112,10 @@
    page offers a banner and the learner decides when to switch. */
 if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
   var updateBar = null;
+  var applyingUpdate = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (applyingUpdate) location.reload();
+  });
 
   function offerUpdate(worker) {
     if (!worker || !navigator.serviceWorker.controller) return;  // first install
@@ -120,8 +128,10 @@ if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
       + '<button type="button" class="sw-update-later" aria-label="Dismiss">Later</button>';
     document.body.appendChild(updateBar);
     updateBar.querySelector(".sw-update-go").addEventListener("click", function () {
+      applyingUpdate = true;
+      this.disabled = true;
+      this.textContent = "正在更新…";
       worker.postMessage({ type: "SKIP_WAITING" });
-      location.reload();
     });
     updateBar.querySelector(".sw-update-later").addEventListener("click", function () {
       updateBar.remove();
@@ -130,7 +140,7 @@ if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
   }
 
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("sw.js").then(function (reg) {
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(function (reg) {
       offerUpdate(reg.waiting);
       reg.addEventListener("updatefound", function () {
         var next = reg.installing;
@@ -142,6 +152,10 @@ if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
     }).catch(function () {});
   });
 }
+</script>
+<script>
+document.getElementById("versionChip").textContent = "V" + RELEASE.version + " · 更新说明";
+renderSaveStatus();
 </script>
 </body>
 </html>

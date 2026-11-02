@@ -20,6 +20,8 @@ DST = ROOT / "dist"
 ZIP = ROOT / "kwizlocal-site.zip"
 
 FILES = [
+    "release.js",
+    "coaching.js",
     "index.html",
     "styles.css",
     "app.js",
@@ -42,6 +44,8 @@ FILES = [
 
 
 def main() -> int:
+    if DST.resolve().parent != ROOT.resolve() or DST.name != "dist":
+        raise RuntimeError("Build target must be the workspace dist directory")
     if not SRC.exists():
         print("app/ not found — run this from the project root")
         return 1
@@ -96,7 +100,7 @@ def main() -> int:
         return 1
 
     print("\nUpload dist/ (or the zip) to your static host.")
-    print("If you changed app code, bump CACHE in app/sw.js first.")
+    print("For a new release, update the identity and notes in app/release.js.")
     return 0
 
 
