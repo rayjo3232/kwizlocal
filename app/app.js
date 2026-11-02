@@ -4190,6 +4190,7 @@ function renderVerbs() {
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Verb conjugations</h1>'
     + '<p>' + VERB_LIST.length + " verbs × " + VERB_TENSE_LIST.length + " tenses.</p></div>"
+    + referenceEntryHtml()
     + '<div class="verb-bar">'
     + '<button class="btn sm subtle" data-verb-nav="' + esc(prev) + '">←</button>'
     + '<select id="verbSelect" class="goal-select">' + options + "</select>"
@@ -5042,6 +5043,7 @@ function renderLibrary() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Library</h1><p>' + KPS.length + ' points. Filter, search, open.</p></div>'
+    + referenceEntryHtml()
     + themeEntryHtml()
     + '<div class="source-library-entry"><div><span class="studio-eyebrow">KWIZIQ · A0–C1</span><h2>原版语法讲解，带到你的学习工具里。</h2><p>按级别和语法分类查找精讲，保留原版例句、注意事项和相关课程，支持离线阅读。</p></div><a class="btn sm" href="#/sources">打开原版语法库 →</a></div>'
     + '<div class="foundation-library-entry"><div><b>基础内容，讲透再练。</b><p>首批 10 课中文精讲与 60 道新题，按步骤学习，再独立检测。</p></div><a class="btn sm" href="#/foundations">进入基础精讲 →</a></div>'
@@ -5314,7 +5316,7 @@ function route() {
   closeDrawer();
 
   const nav = parts[0] || "dashboard";
-  const navKey = ['foundations','sources','source','themes','theme','theme-practice'].includes(nav) ? 'library' : (nav === "result" || nav === "kwiz" || nav === "prelearn") ? "dashboard" : nav;
+  const navKey = ['foundations','sources','source','themes','theme','theme-practice','glossary','term'].includes(nav) ? 'library' : ['verb-reference','verb-table'].includes(nav) ? 'verbs' : (nav === "result" || nav === "kwiz" || nav === "prelearn") ? "dashboard" : nav;
   document.querySelectorAll(".nav a").forEach(function (a) {
     a.classList.toggle("active", a.getAttribute("data-nav") === navKey);
   });
@@ -5344,6 +5346,10 @@ function route() {
     case "foundations": return renderFoundations();
     case "sources": return renderSourceCatalog();
     case "source": return renderSourceLesson(parts[1]);
+    case "glossary": return renderReferenceCatalog("glossary");
+    case "term": return renderReferenceItem("glossary",parts[1]);
+    case "verb-reference": return renderReferenceCatalog("verbs");
+    case "verb-table": return renderReferenceItem("verbs",parts[1]);
     case "themes": return renderThemeCatalog();
     case "theme": return renderThemeLesson(parts[1]);
     case "theme-practice": return renderThemePractice(parts[1]);

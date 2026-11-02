@@ -162,6 +162,71 @@ const server = http.createServer((req, res) => {
     check(await page.locator('.nb-item').count() === 7 && await page.locator('#nbStatus').inputValue() === 'open', 'dashboard queue entry resets stale notebook filters');
     await page.evaluate(() => { state = window.beforeNotebookTest; session = null; saveState(); saveSession(); });
 
+    const beforeReferenceTest=await page.evaluate(()=>JSON.stringify(state));
+    await page.goto(url+'#/library');
+    await page.locator('.reference-entry a[href="#/glossary"]').click();
+    await page.locator('#referenceSearch').waitFor();
+    check(await page.evaluate(()=>referenceCatalog.glossary.length===152&&referenceCatalog.verbs.length===100),'reference manifests loaded');
+    await page.locator('#referenceSearch').fill('配合');
+    check(await page.locator('.source-card h2').allTextContents().then(t=>t.includes('Accord')),'Chinese terminology labels are searchable');
+    await page.locator('#referenceSearch').fill('Accord');
+    const termId=await page.evaluate(()=>referenceCatalog.glossary.find(r=>r.url.endsWith('/inflection/agreement')).id);
+    await page.locator('a[href="#/term/'+termId+'"]').click();
+    await page.locator('.reference-reader .source-content').waitFor();
+    check(await page.locator('.source-content').innerText().then(t=>t.includes('5 main types')),'full glossary definition preserved');
+    check(await page.locator('.source-credit a').getAttribute('href').then(h=>h.startsWith('https://')),'original source link stays external');
+    await page.locator('.source-content a[href$="/lexical-category-or-parts-of-speech/article"]').first().click();
+    await page.locator('.reference-reader h1').filter({hasText:'Article'}).waitFor();
+    check(await page.locator('.reference-reader h1').innerText().then(t=>t.includes('Article')),'glossary crosslinks stay local');
+    await page.goto(url+'#/verbs');
+    await page.locator('.reference-entry a[href="#/verb-reference"]').click();
+    await page.locator('#referenceSearch').waitFor();
+    await page.locator('#referenceSearch').fill('arriver');
+    const verbId=await page.evaluate(()=>referenceCatalog.verbs.find(r=>r.url.endsWith('/arriver')).id);
+    await page.locator('a[href="#/verb-table/'+verbId+'"]').click();
+    await page.locator('#referenceTense').waitFor();
+    check(await page.locator('#referenceTense option').count()===16,'all sixteen source blocks selectable');
+    check(await page.locator('.reference-form').first().innerText()==='suis arrivé(e)','source gender notation retained');
+    await page.locator('#referenceCover').click();
+    check(await page.locator('.reference-form:visible').count()===0&&await page.locator('.reference-reveal:visible').count()===9,'recall mode really hides answers');
+    await page.locator('.reference-reveal').first().click();
+    check(await page.locator('.reference-form:visible').count()===1,'each reveal exposes only one form');
+    await page.locator('#referenceTense').selectOption({index:3});
+    check(await page.locator('.reference-form-row').count()===3&&await page.locator('.reference-form:visible').count()===0,'tense switch keeps recall cover');
+    await page.locator('#referenceCover').click();
+    check(await page.locator('.reference-form:visible').count()===3,'show all restores forms');
+    check(await page.evaluate(snapshot=>JSON.stringify(state)===snapshot,beforeReferenceTest),'reference reading and recall never inflate mastery or modify progress');
+    await page.screenshot({path:path.join(output,'reference-desktop.png')});
+    await page.setViewportSize({width:390,height:844});
+    check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'reference table fits mobile');
+    await page.screenshot({path:path.join(output,'reference-mobile.png')});
+    await page.setViewportSize({width:1280,height:900});
+
+    const pouvoirId=await page.evaluate(()=>referenceCatalog.verbs.find(r=>r.url.endsWith('/pouvoir')).id);
+    await page.goto(url+'#/verb-table/'+pouvoirId);
+    await page.locator('#referenceTense').selectOption({index:3});
+    check(await page.locator('#referenceCover').isDisabled()&&await page.locator('#referenceForms').innerText().then(t=>t.includes('不适用')),'upstream n/a forms never become recall questions');
+    await page.locator('#referenceTense').selectOption({index:0});
+    check(await page.locator('#referenceCover').isEnabled(),'valid tense restores recall controls');
+
+    const legacyTarget=await page.evaluate(async()=>{
+      await loadSourceCatalog();
+      for(const lesson of sourceCatalog.lessons){
+        const template=document.createElement('template');template.innerHTML=lesson.html||'';
+        for(const link of template.content.querySelectorAll('a[href*="/my-languages/french/glossary/"]')){
+          const href=link.getAttribute('href'),route=referenceLocalRoute(href);
+          if(route)return {lesson:lesson.id,href,route};
+        }
+      }
+      return null;
+    });
+    check(!!legacyTarget,'legacy glossary links resolve to imported definitions');
+    await page.goto(url+'#/source/'+legacyTarget.lesson);
+    await page.locator('.source-content').waitFor();
+    await page.locator('.source-content a[href="'+legacyTarget.href+'"]').first().click();
+    await page.locator('.reference-reader').waitFor();
+    check(await page.evaluate(route=>location.hash===route,legacyTarget.route),'actual old lesson glossary link opens offline term');
+
     const beforeThemeTest=await page.evaluate(()=>JSON.stringify(state));
     await page.goto(url+'#/library');
     await page.locator('.theme-library-entry a').click();
@@ -294,6 +359,12 @@ const server = http.createServer((req, res) => {
     await filePage.goto(require('node:url').pathToFileURL(path.join(root,'index.html')).href+'#/themes');
     await filePage.locator('#themeSearch').waitFor();
     check(await filePage.evaluate(()=>themeCatalog.imported===225),'theme archive works from the local file app');
+    await filePage.goto(require('node:url').pathToFileURL(path.join(root,'index.html')).href+'#/glossary');
+    await filePage.locator('#referenceSearch').waitFor();
+    check(await filePage.evaluate(()=>referenceCatalog.glossary.length===152),'glossary loads from local file');
+    await filePage.goto(require('node:url').pathToFileURL(path.join(root,'index.html')).href+'#/verb-table/'+verbId);
+    await filePage.locator('#referenceCover').waitFor();
+    check(await filePage.locator('.reference-form-row').count()===9,'conjugation reference works from local file');
     await filePage.close();
 
     const beforeFoundationTest = await page.evaluate(() => JSON.stringify(state));
@@ -462,6 +533,12 @@ const server = http.createServer((req, res) => {
     await page.locator('#themeCards').click();
     await page.locator('#themeReveal').waitFor();
     check(await page.evaluate(()=>themeStudy.queue.length===10),'theme recall exercises work offline');
+    await page.goto(url+'#/glossary');
+    await page.locator('#referenceSearch').waitFor();
+    check(await page.evaluate(()=>referenceCatalog.glossary.length===152),'glossary is cached offline');
+    await page.goto(url+'#/verb-table/'+verbId);
+    await page.locator('#referenceCover').click();
+    check(await page.locator('.reference-form:visible').count()===0,'conjugation recall works offline');
     await context.setOffline(false);
     check(errors.length === 0, 'no browser errors: ' + errors.join(', '));
     console.log(`${checks} study-studio browser checks passed (including offline upgrade).`);

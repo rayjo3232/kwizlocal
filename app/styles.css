@@ -1876,3 +1876,14 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
  .theme-table th,.theme-table td{padding:12px}
  .theme-prompt-card{padding:20px 16px}
 }
+
+/* V52: reference tools beside the lesson, with deliberate cover-and-recall. */
+.reference-entry{display:flex;align-items:center;justify-content:space-between;gap:1.25rem;margin:1.25rem 0;padding:1.5rem;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:var(--radius);background:var(--card)}
+.reference-entry h2{font-size:var(--fs-4);margin:.5rem 0}.reference-entry p{color:var(--muted);margin:0;max-width:56ch}
+.reference-links,.reference-return{display:flex;gap:.75rem;flex-wrap:wrap}.reference-links{flex-shrink:0}.reference-return{margin-top:1.5rem}
+.reference-search{display:block;margin:1.25rem 0;max-width:48rem}.reference-search input{display:block;width:100%;margin-top:.5rem}
+.reference-controls{display:flex;align-items:end;gap:1rem;flex-wrap:wrap;padding:1.25rem;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-top:1.5rem}
+.reference-controls label{display:grid;gap:.5rem}.reference-controls select{max-width:100%;padding:.75rem}
+.reference-form-list{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}.reference-form-row{display:grid;grid-template-columns:minmax(5rem,1fr) 3fr;gap:.75rem;align-items:center;min-height:3.5rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--line)}
+.reference-form-row:last-child{border-bottom:0}.reference-form{font-size:var(--fs-4);font-family:var(--font-content)}.reference-reveal{justify-self:start}.reference-form[hidden],.reference-reveal[hidden]{display:none}
+@media(max-width:640px){.reference-entry{align-items:stretch;flex-direction:column}.reference-controls{align-items:stretch;flex-direction:column}.reference-controls select{width:100%}.reference-form-row{padding:.75rem}}
