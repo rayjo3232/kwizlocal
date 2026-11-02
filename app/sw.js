@@ -18,6 +18,8 @@ const ASSETS = [
   "./data.js",
   "./extra.js",
   "./foundations.js",
+  "./source-library.js",
+  "./kwiziq-lessons.js",
   "./deep.js",
   "./zh.js",
   "./contrast.js",

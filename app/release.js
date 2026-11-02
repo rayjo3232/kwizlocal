@@ -1,12 +1,12 @@
 /* One release identity shared by the UI and the offline worker. */
 const RELEASE = {
-  id: "v49-foundation-learning",
-  version: "49",
+  id: "v50-kwiziq-grammar-archive",
+  version: "50",
   date: "2026-11-02",
-  title: "基础精讲 · 学懂，再验证",
+  title: "原版语法精讲库 · A0–C1",
   changes: [
-    "10 个基础知识点新增分步中文精讲、学习目标与例句推理。",
-    "新增 60 道题：辨认规则、独立填空、整句纠错各 20 题。",
-    "学后检测整组答完再核对，分三类反馈，明确接下来该补什么。"
+    "按授权导入 KwizIQ 公开目录中的语法课程正文、例句与注意事项。",
+    "新增 A0–C1 原版精讲库，可按级别、分类、正文关键词筛选。",
+    "支持离线阅读、相关课程跳转与已读进度，保留原文来源及作者署名。"
   ]
 };

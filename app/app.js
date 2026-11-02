@@ -107,6 +107,12 @@ function coachingHtml(kpId, withPractice) {
 /* Delegation survives course and quiz rerenders. A correction can be retried
    without changing the main question, score, or saved session. */
 app.addEventListener("click", function (event) {
+  const sourceLevel = event.target.closest('[data-source-level]');
+  if (sourceLevel) {
+    sourceFilter = { query: '', level: sourceLevel.getAttribute('data-source-level'), category: 'all', read: 'all', page: 0 };
+    navigate('#/sources');
+    return;
+  }
   const foundationButton = event.target.closest('[data-foundation-check]');
   if (foundationButton) {
     startFoundationCheck(foundationButton.getAttribute('data-foundation-check'));
@@ -3382,6 +3388,7 @@ function renderPrelearn(kpId) {
     body = '<div class="rule-box"><b>One rule:</b> ' + frify(kp.rule) + "</div>"
       + contrastHtml(kp.id)
       + (FOUNDATIONS[kp.id] ? foundationLessonHtml(kp) : coachingHtml(kp.id, false))
+      + '<div class="source-lesson-entry"><span>需要更多讲解与例句？</span><button class="btn sm ghost" data-source-level="' + esc(kp.level) + '">阅读 ' + esc(kp.level) + ' 原版精讲 →</button></div>'
       + exHtml(firstEx)
       + (rows.length
         ? '<div class="mistakes-block"><div class="mb-title">The usual mix-up</div>' + rowHtml(rows[0]) + "</div>"
@@ -5034,6 +5041,7 @@ function renderLibrary() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Library</h1><p>' + KPS.length + ' points. Filter, search, open.</p></div>'
+    + '<div class="source-library-entry"><div><span class="studio-eyebrow">KWIZIQ · A0–C1</span><h2>原版语法讲解，带到你的学习工具里。</h2><p>按级别和语法分类查找精讲，保留原版例句、注意事项和相关课程，支持离线阅读。</p></div><a class="btn sm" href="#/sources">打开原版语法库 →</a></div>'
     + '<div class="foundation-library-entry"><div><b>基础内容，讲透再练。</b><p>首批 10 课中文精讲与 60 道新题，按步骤学习，再独立检测。</p></div><a class="btn sm" href="#/foundations">进入基础精讲 →</a></div>'
     + '<div class="lib-filters">' + chips + "</div>"
     + '<div class="lib-tools"><select id="catFilter">' + catOptions + "</select>"
@@ -5304,7 +5312,7 @@ function route() {
   closeDrawer();
 
   const nav = parts[0] || "dashboard";
-  const navKey = nav === 'foundations' ? 'library' : (nav === "result" || nav === "kwiz" || nav === "prelearn") ? "dashboard" : nav;
+  const navKey = ['foundations','sources','source'].includes(nav) ? 'library' : (nav === "result" || nav === "kwiz" || nav === "prelearn") ? "dashboard" : nav;
   document.querySelectorAll(".nav a").forEach(function (a) {
     a.classList.toggle("active", a.getAttribute("data-nav") === navKey);
   });
@@ -5332,6 +5340,8 @@ function route() {
     case "brainmap": return renderBrainmap();
     case "library": return renderLibrary();
     case "foundations": return renderFoundations();
+    case "sources": return renderSourceCatalog();
+    case "source": return renderSourceLesson(parts[1]);
     case "notebook": return renderNotebook();
     case "vocab": return renderVocab();
     case "verbs": return renderVerbs();
