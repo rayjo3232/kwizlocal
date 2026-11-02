@@ -33,6 +33,8 @@ FILES = [
     "foundations.js",
     "source-library.js",
     "kwiziq-lessons.js",
+    "theme-library.js",
+    "kwiziq-themes.js",
     "deep.js",
     "zh.js",
     "contrast.js",

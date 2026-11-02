@@ -162,6 +162,79 @@ const server = http.createServer((req, res) => {
     check(await page.locator('.nb-item').count() === 7 && await page.locator('#nbStatus').inputValue() === 'open', 'dashboard queue entry resets stale notebook filters');
     await page.evaluate(() => { state = window.beforeNotebookTest; session = null; saveState(); saveSession(); });
 
+    const beforeThemeTest=await page.evaluate(()=>JSON.stringify(state));
+    await page.goto(url+'#/library');
+    await page.locator('.theme-library-entry a').click();
+    await page.locator('#themeSearch').waitFor();
+    check(await page.evaluate(()=>themeCatalog.total===228&&themeCatalog.imported===225&&themeCatalog.entryCount===4339),'theme manifest exposes saved and unavailable content honestly');
+    await page.screenshot({path:path.join(output,'theme-catalog.png')});
+    await page.locator('#themeLevel').selectOption('A0');
+    check(await page.locator('.theme-card').count()===10,'theme level filter includes documented missing links');
+    await page.locator('#themeSearch').fill('le chat');
+    check(await page.locator('.theme-card').count()>0,'theme search includes actual French vocabulary');
+    await page.locator('#themeSearch').fill('no-such-vocabulary-123');
+    check(await page.locator('.theme-card').count()===0,'theme no-match state');
+    await page.locator('#themeReset').click();
+    await page.goto(url+'#/theme/128');
+    await page.locator('#themeHide').waitFor();
+    check(await page.locator('.theme-table tbody tr').count()===12,'theme preserves all bilingual word pairs');
+    await page.locator('#themeHide').click();
+    check(await page.locator('.theme-meaning').first().evaluate(el=>getComputedStyle(el).visibility==='hidden'),'translation can be hidden for recall');
+    await page.locator('#themeHide').click();
+    await page.screenshot({path:path.join(output,'theme-lesson.png')});
+    const themeMastery=await page.evaluate(()=>JSON.stringify({kps:state.kps,attempts:state.attempts,sessions:state.sessions}));
+    check(await page.evaluate(()=>themeNormalize('école')!==themeNormalize('ecole')&&themeNormalize('L’école!')===themeNormalize("l'école")),'reference matching preserves accents but normalizes punctuation and apostrophes');
+    check(await page.evaluate(()=>themePracticeGroups({entries:[{en:'car',fr:'une voiture'},{en:'car',fr:'une automobile'}]})[0].answers.length===2),'identical English prompts preserve all source French answers');
+    await page.locator('#themeCards').click();
+    await page.locator('#themeReveal').waitFor();
+    check(await page.locator('.theme-revealed').count()===0,'recall cards hide meanings initially');
+    for(let i=0;i<10;i++){await page.locator('#themeReveal').click();await page.locator('#themeKnow').click();}
+    await page.locator('.theme-result-score').waitFor();
+    check(await page.evaluate(()=>state.themePractice['128'].cardRounds===1),'completed card round is recorded separately');
+    await page.evaluate(()=>renderThemePractice('128'));
+    check(await page.evaluate(()=>state.themePractice['128'].cardRounds===1),'rerender does not double-count completed rounds');
+    await page.goto(url+'#/theme/128');
+    await page.locator('#themeWrite').click();
+    await page.locator('#themeInput').waitFor();
+    await page.locator('#themeInput').fill('c');
+    await page.locator('.accent-bar[data-for="themeInput"] [data-accent="ç"]').click();
+    check((await page.locator('#themeInput').inputValue()).includes('ç'),'theme spelling supports French accent keys');
+    await page.locator('#themeInput').fill('');
+    await page.locator('#themeCheck').click();
+    check(await page.evaluate(()=>themeStudy.responses.length===0),'empty spelling answer is not counted');
+    for(let i=0;i<10;i++){
+      if(i===2){await page.locator('#themeSkip').click();continue;}
+      const answer=i===1?'xyz':await page.evaluate(()=>themeStudy.queue[themeStudy.index].answers[0]);
+      await page.locator('#themeInput').fill(answer);await page.locator('#themeCheck').click();
+      await page.locator('#themeContinue').waitFor();
+      if(i===0){
+        await page.reload();await page.locator('#themeContinue').waitFor();
+        check(await page.evaluate(()=>themeStudy.index===0&&themeStudy.responses.length===1&&themeStudy.result.matched),'checked theme answer resumes after reload without scoring twice');
+        await page.screenshot({path:path.join(output,'theme-practice.png')});
+      }
+      await page.locator('#themeContinue').click();
+    }
+    await page.locator('.theme-result-score').waitFor();
+    check((await page.locator('.theme-result-score').innerText()).includes('8 / 10'),'spelling result distinguishes matched, unmatched and skipped words');
+    check(await page.evaluate(()=>state.themePractice['128'].writeRounds===1),'spelling round is recorded once');
+    check(themeMastery===await page.evaluate(()=>JSON.stringify({kps:state.kps,attempts:state.attempts,sessions:state.sessions})),'theme practice never fabricates grammar mastery or quiz attempts');
+    await page.setViewportSize({width:390,height:844});
+    await page.goto(url+'#/theme/128');
+    await page.locator('#themeHide').waitFor();
+    check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile theme word list fits');
+    await page.screenshot({path:path.join(output,'theme-mobile.png')});
+    await page.setViewportSize({width:1280,height:900});
+    await page.goto(url+'#/vocab');
+    await page.locator('.theme-library-entry a').waitFor();
+    check(await page.locator('.theme-library-entry a').getAttribute('href')==='#/themes','theme vocabulary is discoverable from the existing vocabulary page');
+    await page.goto(url+'#/source/90cab11663b9bd45');
+    await page.locator('.source-content').waitFor();
+    await page.locator('.source-content a[href="https://french.kwiziq.com/learn/theme/1512981"]').first().click();
+    await page.waitForFunction(()=>location.hash==='#/theme/1512981');
+    await page.locator('.theme-table').waitFor();
+    check(await page.locator('.theme-table').count()===1,'imported grammar lessons open their saved theme word lists locally');
+    await page.evaluate(snapshot=>{state=JSON.parse(snapshot);themeStudy=null;saveState();},beforeThemeTest);
+
     const beforeSourceTest = await page.evaluate(() => JSON.stringify(state));
     await page.goto(url + '#/library');
     await page.locator('.source-library-entry a').click();
@@ -218,6 +291,9 @@ const server = http.createServer((req, res) => {
     await filePage.goto(require('node:url').pathToFileURL(path.join(root, 'index.html')).href + '#/sources');
     await filePage.locator('#sourceSearch').waitFor();
     check(await filePage.locator('.source-card').count() === 24, 'source archive also loads when the local app is opened as a file');
+    await filePage.goto(require('node:url').pathToFileURL(path.join(root,'index.html')).href+'#/themes');
+    await filePage.locator('#themeSearch').waitFor();
+    check(await filePage.evaluate(()=>themeCatalog.imported===225),'theme archive works from the local file app');
     await filePage.close();
 
     const beforeFoundationTest = await page.evaluate(() => JSON.stringify(state));
@@ -379,6 +455,13 @@ const server = http.createServer((req, res) => {
     await page.goto(url + '#/source/' + offlineSourceId);
     await page.locator('.source-content').waitFor();
     check(await page.locator('.source-content').innerText().then(t => t.length > 120), 'imported lesson opens without a network connection');
+    await page.goto(url+'#/themes');
+    await page.locator('#themeSearch').waitFor();
+    check(await page.evaluate(()=>themeCatalog.imported===225),'theme vocabulary is available offline');
+    await page.goto(url+'#/theme/128');
+    await page.locator('#themeCards').click();
+    await page.locator('#themeReveal').waitFor();
+    check(await page.evaluate(()=>themeStudy.queue.length===10),'theme recall exercises work offline');
     await context.setOffline(false);
     check(errors.length === 0, 'no browser errors: ' + errors.join(', '));
     console.log(`${checks} study-studio browser checks passed (including offline upgrade).`);
