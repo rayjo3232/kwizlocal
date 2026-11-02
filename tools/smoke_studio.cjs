@@ -162,10 +162,66 @@ const server = http.createServer((req, res) => {
     check(await page.locator('.nb-item').count() === 7 && await page.locator('#nbStatus').inputValue() === 'open', 'dashboard queue entry resets stale notebook filters');
     await page.evaluate(() => { state = window.beforeNotebookTest; session = null; saveState(); saveSession(); });
 
+    const beforeFoundationTest = await page.evaluate(() => JSON.stringify(state));
+    await page.goto(url + '#/library');
+    await page.locator('.foundation-library-entry a').click();
+    await page.locator('.foundation-catalog').waitFor();
+    check(await page.locator('.foundation-course').count() === 10, 'core learning catalog exposes ten enhanced lessons');
+    await page.screenshot({ path: path.join(output, 'foundations-catalog.png') });
+    for (const id of await page.evaluate(() => Object.keys(FOUNDATIONS))) {
+      await page.goto(url + '#/prelearn/' + id);
+      check(await page.locator('.foundation-steps article').count() === 3 && await page.locator('.foundation-worked article').count() === 2, 'worked teaching steps: ' + id);
+    }
+    await page.goto(url + '#/prelearn/a0.articles.definite');
+    await page.screenshot({ path: path.join(output, 'foundation-lesson.png') });
+    check(await page.evaluate(() => !commonMistakes(KP_BY_ID['a0.articles.definite']).some(row => row.right.includes('fenêtre'))), 'independent check answers are not leaked in lesson mistake tables');
+    await page.locator('[data-foundation-check]').click();
+    await page.locator('.assessment-banner').waitFor();
+    check(await page.evaluate(() => session.foundationCheck.seenBefore === 0 && session.session.items.length === 6), 'assessment starts with exactly six unseen authored questions');
+    for (let index = 0; index < 6; index++) {
+      const item = await page.evaluate(() => getItem(session.session.items[session.index]).item);
+      if (index === 2) await page.locator('#skipBtn').click();
+      else if (item.type === 'choice') {
+        const answer = index === 0 ? item.options.find(o => o !== item.answer) : item.answer;
+        const option = page.locator('[data-option]').filter({ hasText: answer }).first();
+        await option.click(); await option.click();
+      } else {
+        await page.locator('#answerInput').fill(index === 4 ? 'xyz' : item.answer);
+        await page.locator('#checkBtn').click();
+      }
+      await page.locator('.assessment-recorded').waitFor();
+      check(await page.locator('.answer-line,.option.correct,.option.wrong,.score-move,.why-wrong').count() === 0, 'assessment withholds correctness and answers: question ' + index);
+      check(await page.evaluate(() => session.session.items.length === 6), 'assessment never adds immediate retries');
+      if (index === 0) {
+        await page.reload();
+        await page.locator('.assessment-recorded').waitFor();
+        check(await page.evaluate(() => !!session.foundationCheck && session.answers.length === 1), 'assessment mode survives reload without revealing first answer');
+      }
+      if (index === 1) {
+        await page.waitForTimeout(1200);
+        check(await page.evaluate(() => session.index === 1), 'assessment does not auto-advance a correct answer');
+      }
+      await page.locator('#continueBtn').click();
+    }
+    await page.locator('.foundation-report').waitFor();
+    check(await page.locator('.foundation-scores article b').allTextContents().then(a => a.join(',') === '1 / 2,1 / 2,1 / 2'), 'report separates recognition, production, correction and unanswered items');
+    check(await page.evaluate(() => state.sessions.at(-1).answers.length === 6 && state.attempts.filter(a => a.source === 'foundation-check').length === 5), 'assessment scores each answered question once and never scores skipped items');
+    await page.locator('.foundation-report').screenshot({ path: path.join(output, 'foundation-result.png') });
+    await page.evaluate(() => startFoundationCheck('a0.articles.definite'));
+    check(await page.evaluate(() => session.foundationCheck.seenBefore === 6), 'repeat assessments disclose previously seen and skipped questions');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(url + '#/prelearn/a0.articles.definite');
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'expanded lesson fits phone width');
+    await page.goto(url + '#/foundations');
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'foundation catalog fits phone width');
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.evaluate(snapshot => { state = JSON.parse(snapshot); session = null; saveState(); saveSession(); }, beforeFoundationTest);
+
     const coverage = await page.evaluate(() => Object.keys(COACHING).map(id => ({ id, exists: !!KP_BY_ID[id], fresh: !KP_BY_ID[id].items.some(i => i.prompt === COACHING[id].prompt), answerCount: COACHING[id].options.filter(o => o === COACHING[id].answer).length })));
     check(coverage.length === 10 && coverage.every(c => c.exists && c.fresh && c.answerCount === 1), 'ten valid fresh transfer exercises');
     for (const entry of coverage) {
       await page.goto(url + '#/prelearn/' + entry.id);
+      await page.locator('.coach-note').waitFor();
       check(await page.locator('.coach-note').count() === 1, 'primer teaching note: ' + entry.id);
     }
     await page.goto(url + '#/prelearn/a0.articles.definite');

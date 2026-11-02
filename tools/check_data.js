@@ -4,7 +4,7 @@ const path = require("path");
 const vm = require("vm");
 
 const APP = path.join(__dirname, "..", "app");
-const src = ["data.js", "extra.js"]
+const src = ["data.js", "extra.js", "foundations.js"]
   .map(function (f) { return fs.readFileSync(path.join(APP, f), "utf8"); })
   .join("\n;\n");
 const sandbox = { console };

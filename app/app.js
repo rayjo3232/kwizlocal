@@ -107,6 +107,11 @@ function coachingHtml(kpId, withPractice) {
 /* Delegation survives course and quiz rerenders. A correction can be retried
    without changing the main question, score, or saved session. */
 app.addEventListener("click", function (event) {
+  const foundationButton = event.target.closest('[data-foundation-check]');
+  if (foundationButton) {
+    startFoundationCheck(foundationButton.getAttribute('data-foundation-check'));
+    return;
+  }
   if (event.target.closest('[data-notebook-review]')) {
     notebookView = { query: '', level: 'all', status: 'open', sort: 'missed' };
     return;
@@ -119,6 +124,58 @@ app.addEventListener("click", function (event) {
   block.querySelector(".coach-result").textContent = (correct ? "✓ 答对了。" : "再想一想。") + note.why;
   if (correct) block.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
 });
+
+function foundationLessonHtml(kp) {
+  const lesson = FOUNDATIONS[kp.id];
+  if (!lesson) return '';
+  return '<section class="coach-note foundation-lesson"><span class="coach-kicker">基础精讲 · 学会怎么判断</span>'
+    + '<h2>学完这一课，你应该能做到</h2><p class="foundation-goal">' + esc(lesson.goal) + '</p>'
+    + '<div class="foundation-steps">' + lesson.steps.map(function (step, index) {
+      return '<article><span>0' + (index + 1) + '</span><div><h3>' + esc(step[0]) + '</h3><p>' + esc(step[1]) + '</p></div></article>';
+    }).join('') + '</div><h3>跟着例句走一遍</h3><div class="foundation-worked">'
+    + lesson.worked.map(function (example) { return '<article><p lang="fr">' + esc(example[0]) + '</p><p>' + esc(example[1]) + '</p><p class="worked-reason"><b>为什么这样写：</b>' + esc(example[2]) + '</p></article>'; }).join('')
+    + '</div><div class="foundation-check-entry"><div><b>能选对，也要能写对、改对。</b><p>6 道新编题：辨认规则、独立填空、整句纠错各 2 题。整组完成后统一核对。</p></div>'
+    + '<button class="btn sm ghost" data-foundation-check="' + esc(kp.id) + '">学后检测 · 6 题 →</button></div></section>';
+}
+
+function startFoundationCheck(kpId) {
+  const lesson = FOUNDATIONS[kpId];
+  if (!lesson) return;
+  const seenBefore = lesson.items.filter(function (item) { return state.attempts.some(function (a) { return a.itemId === item.id; }) || (state.skips || []).some(function (s) { return s.itemId === item.id; }); }).length;
+  startSessionFromItems(lesson.items.map(function (item) { return { kpId: kpId, itemId: item.id }; }));
+  session.foundationCheck = { kpId: kpId, seenBefore: seenBefore };
+  saveSession();
+  renderKwiz();
+}
+
+function renderFoundations() {
+  app.innerHTML = '<div class="container"><div class="page-head"><span class="studio-eyebrow">LEARN THE RULE · PROVE YOU CAN USE IT</span><h1>基础精讲与学后检测</h1>'
+    + '<p>10 个基础知识点 · 30 个判断步骤 · 20 组解析例句 · 60 道新编练习</p></div>'
+    + '<div class="foundation-intro"><b>先学会怎么判断，再检验能否独立完成。</b><p>每课先看中文精讲和推理过程，再做引导练习；最后用选择、填空、整句纠错三类题检测。检测结束后一次核对答案，不在中途提示对错。</p></div>'
+    + '<div class="foundation-catalog">' + Object.keys(FOUNDATIONS).map(function (id, index) {
+      const kp = KP_BY_ID[id], lesson = FOUNDATIONS[id];
+      return '<article class="foundation-course"><div class="foundation-course-top"><span>' + String(index + 1).padStart(2, '0') + '</span><span>' + esc(kp.level) + ' · 6 题检测</span></div>'
+        + '<h2>' + esc(zhOf(kp) || kp.title) + '</h2><p>' + esc(lesson.goal) + '</p>'
+        + '<div class="foundation-course-actions"><a class="btn sm" href="#/prelearn/' + esc(id) + '">学习精讲 →</a><button class="btn sm ghost" data-foundation-check="' + esc(id) + '">独立检测</button></div></article>';
+    }).join('') + '</div><p class="small section-gap">这是首批重点增强的基础课；<a href="#/library" class="small">全部知识点仍在课程库中</a>。</p></div>';
+}
+
+function foundationReportHtml(record) {
+  if (!record.foundationCheck) return '';
+  const kp = KP_BY_ID[record.foundationCheck.kpId];
+  if (!kp) return '';
+  return '<section class="foundation-report card section-gap"><span class="studio-eyebrow">LEARN → APPLY → VERIFY</span><h2>这次，你学到哪一步了？</h2>'
+    + '<div class="foundation-scores">' + FOUNDATION_SKILLS.map(function (skill, index) {
+      const answers = record.answers.filter(function (a) { const item = findItem(kp, a.itemId); return item && item.foundation && item.skill === index; });
+      const right = answers.filter(function (a) { return a.correct === true; }).length;
+      const skipped = answers.filter(function (a) { return a.correct === null; }).length;
+      return '<article><span>' + esc(skill) + '</span><b>' + right + ' / ' + answers.length + '</b><p>'
+        + (right === answers.length && answers.length ? '本次已答对；过几天再检验。' : '回看讲解中的判断步骤，再换语境练习。')
+        + (skipped ? '其中 ' + skipped + ' 题跳过，尚未验证。' : '') + '</p></article>';
+    }).join('') + '</div><p class="small">这是本组首次作答的结果；不插入重试题，也不把即时订正算作掌握。'
+    + (record.foundationCheck.seenBefore ? '本组有 ' + record.foundationCheck.seenBefore + ' 道题以前练过，因此不代表陌生题测试。' : '本组题目此前没有答题记录。')
+    + '</p><a class="btn sm ghost" href="#/prelearn/' + esc(kp.id) + '">回到本课精讲 →</a></section>';
+}
 
 function loadSession() {
   try {
@@ -2085,7 +2142,7 @@ function renderKwiz() {
     inputHtml = '<div class="options">' + item.options.map(function (o, oi) {
       let cls = "option";
       if (!answered && session.selected === o) cls += " selected";
-      if (answered) {
+      if (answered && !session.foundationCheck) {
         if (Engine.normalize(o) === Engine.normalize(item.answer)) cls += " correct";
         else if (session.selected === o) cls += " wrong";
       }
@@ -2121,7 +2178,9 @@ function renderKwiz() {
       : (l.noMastery
         ? '<div class="ctx-note">Context question — a real sentence from the bank. It counts towards this session but not towards your confidence score.</div>'
         : "");
-    if (l.skip) {
+    if (session.foundationCheck) {
+      feedback = '<div class="feedback assessment-recorded" role="status"><div class="mark">•</div><div class="body"><b>' + (l.skip ? '已跳过，标记为尚未验证。' : '已记录你的答案。') + '</b><p>完成全部 6 题后统一核对；先独立完成下一题。</p></div></div>';
+    } else if (l.skip) {
       /* Skipping the same point over and over means the question is not the
          problem — the lesson is. Say so instead of serving it a fourth time. */
       const skipped = kp && kp.id ? Engine.skipCount(state, kp.id) : 0;
@@ -2141,7 +2200,7 @@ function renderKwiz() {
       feedback = '<div class="feedback bad" role="status" aria-live="polite"><div class="mark">×</div><div class="body">'
         + "<b>Not quite.</b>" + moveHtml + ctxNote
         + '<div class="answer-line">' + esc(item.answer) + "</div>"
-        + (item.type === "choice" && !item.fromSentence && !item.topic ? whyWrongHtml(kp.id, l.given) : "")
+        + (item.distract && item.distract[l.given] ? '<div class="why-wrong">' + esc(item.distract[l.given]) + '</div>' : item.type === "choice" && !item.fromSentence && !item.topic ? whyWrongHtml(kp.id, l.given) : "")
         + esc(item.explain)
         /* The per-question explanation is a five-word restatement — enough when
            you were right, useless when you were wrong. A miss gets the rule
@@ -2164,6 +2223,7 @@ function renderKwiz() {
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
     + kwizTopHtml(session.index, total, headLabel)
+    + (session.foundationCheck ? '<div class="assessment-banner">学后检测 · ' + esc(FOUNDATION_SKILLS[item.skill]) + ' · 独立作答，最后统一核对</div>' : '')
     + '<div class="kwiz-card">'
     + '<div class="kwiz-kicker">' + (ref.retry ? '<span class="retry-badge">Retry</span> ' : "") + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
@@ -2332,7 +2392,7 @@ function checkAnswer() {
      counts. finishSession skips answers already marked applied. */
   const res = Engine.applyAttempt(state, {
     kpId: ref.kpId || null, itemId: item.id, correct: correct,
-    source: item.topic || (item.fromSentence ? "sentence" : "kwiz"),
+    source: session.foundationCheck ? 'foundation-check' : item.topic || (item.fromSentence ? "sentence" : "kwiz"),
     noMastery: !!item.fromSentence || !!item.topic,
     accent: m.status === "accent_only"
   });
@@ -2353,12 +2413,12 @@ function checkAnswer() {
     before: beforeScore, after: afterScore, delta: afterScore - beforeScore
   };
   session.phase = "feedback";
-  if (!correct) maybeQueueRetry(ref);
+  if (!correct && !session.foundationCheck) maybeQueueRetry(ref);
   saveSession();
   renderKwiz();
 
   /* Auto-advance only on a correct answer: a wrong one deserves a pause. */
-  if (correct && state.autoAdvance !== false) {
+  if (correct && state.autoAdvance !== false && !session.foundationCheck) {
     const token = session.last;
     setTimeout(function () {
       if (session && session.phase === "feedback" && session.last === token) continueSession();
@@ -2389,6 +2449,7 @@ function continueSession() {
   session.last = null;
   if (session.index >= session.session.items.length) {
     const record = Engine.finishSession(state, session.session, session.answers);
+    if (session.foundationCheck) record.foundationCheck = session.foundationCheck;
     record.before = session.before || {};
     /* Freeze the scores this session produced. Later practice must never
        rewrite an old report's "What changed". */
@@ -2463,6 +2524,7 @@ function renderResult(id) {
           ? (a.topic === "verbs" ? "Conjugation" : "Vocabulary") + " · counts in this session, not in your grammar score"
           : "Context question from the sentence bank · not scored") + "</div>"
         : "")
+      + (a.correct === false && item.distract && item.distract[a.given] ? '<div class="why-wrong">' + esc(item.distract[a.given]) + '</div>' : '')
       + (item.explain ? '<div class="res-exp">' + esc(item.explain) + "</div>" : "")
       + "</div>"
       + (a.kpId ? '<a class="res-study" href="#/prelearn/' + kp.id + '">Study</a>' : '<span class="res-study"></span>')
@@ -2537,6 +2599,7 @@ function renderResult(id) {
     + (record.durationMs ? " · " + fmtDuration(record.durationMs) : "") + "</div></div>"
     /* One solid button. The other three were equally weighted boxes, which is
        four decisions at the moment the learner wants one. */
+    + foundationReportHtml(record)
     + '<div class="res-actions">'
     + (wrong.length
       ? '<button class="btn block" id="mistakesBtn">Practise ' + wrong.length + ' mistake' + (wrong.length > 1 ? "s" : "") + "</button>"
@@ -3245,6 +3308,7 @@ function commonMistakes(kp) {
   const groups = {};
   const order = [];
   kp.items.forEach(function (it) {
+    if (it.foundation) return; // independent check answers are not lesson examples
     if (it.type !== "choice" || !it.options) return;
     const right = String(it.answer).trim();
     const prompt = String(it.prompt || "");
@@ -3317,12 +3381,12 @@ function renderPrelearn(kpId) {
 
     body = '<div class="rule-box"><b>One rule:</b> ' + frify(kp.rule) + "</div>"
       + contrastHtml(kp.id)
-      + coachingHtml(kp.id, false)
+      + (FOUNDATIONS[kp.id] ? foundationLessonHtml(kp) : coachingHtml(kp.id, false))
       + exHtml(firstEx)
       + (rows.length
         ? '<div class="mistakes-block"><div class="mb-title">The usual mix-up</div>' + rowHtml(rows[0]) + "</div>"
         : "")
-      + '<div style="margin-top:18px"><button class="btn block" id="step1Next">I am ready →</button>'
+      + '<div style="margin-top:18px"><button class="btn block" id="step1Next">开始引导练习 →</button>'
       + '<p class="small" style="text-align:center;margin:8px 0 0">Next: two guided questions, then three on your own.</p></div>'
       + '<div class="prelearn-more">'
       + (restEx.length
@@ -3411,7 +3475,8 @@ function renderPrelearn(kpId) {
         + (passed
           ? '<button class="btn" id="startPractice">Practice this point</button>'
             + '<a class="btn subtle" href="#/brainmap" style="margin-left:8px">Back to Brainmap</a>'
-          : '<button class="btn" id="retryGuided">Review again</button>');
+          : '<button class="btn" id="retryGuided">Review again</button>')
+        + (passed && FOUNDATIONS[kp.id] ? '<div class="foundation-check-entry"><p>引导练习完成。现在试试不提示对错的 6 题检测，看看能否独立运用。</p><button class="btn sm ghost" data-foundation-check="' + esc(kp.id) + '">学后检测 · 6 题 →</button></div>' : '');
     } else {
       const item = items[prelearn.c];
       const fb = prelearn.feedback;
@@ -4969,6 +5034,7 @@ function renderLibrary() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Library</h1><p>' + KPS.length + ' points. Filter, search, open.</p></div>'
+    + '<div class="foundation-library-entry"><div><b>基础内容，讲透再练。</b><p>首批 10 课中文精讲与 60 道新题，按步骤学习，再独立检测。</p></div><a class="btn sm" href="#/foundations">进入基础精讲 →</a></div>'
     + '<div class="lib-filters">' + chips + "</div>"
     + '<div class="lib-tools"><select id="catFilter">' + catOptions + "</select>"
     + '<select id="libSort">'
@@ -5238,7 +5304,7 @@ function route() {
   closeDrawer();
 
   const nav = parts[0] || "dashboard";
-  const navKey = (nav === "result" || nav === "kwiz" || nav === "prelearn") ? "dashboard" : nav;
+  const navKey = nav === 'foundations' ? 'library' : (nav === "result" || nav === "kwiz" || nav === "prelearn") ? "dashboard" : nav;
   document.querySelectorAll(".nav a").forEach(function (a) {
     a.classList.toggle("active", a.getAttribute("data-nav") === navKey);
   });
@@ -5265,6 +5331,7 @@ function route() {
   switch (parts[0]) {
     case "brainmap": return renderBrainmap();
     case "library": return renderLibrary();
+    case "foundations": return renderFoundations();
     case "notebook": return renderNotebook();
     case "vocab": return renderVocab();
     case "verbs": return renderVerbs();

@@ -414,3 +414,10 @@ well as a number.
 - The demo seed is synthetic; it is only there to make the map legible.
 - 140 points covers the core CEFR A1–B2 grammar syllabus (EAQUALS inventory).
 - The Brainmap category layer is a treemap approximation, not a Voronoi map.
+# 基础精讲与学后检测（V49）
+
+课程库中的“基础精讲”入口提供首批 10 个增强的 A0/A1 课。每课包含中文学习目标、3 个判断步骤、2 组解析例句，以及选择、填空、整句纠错各 2 道学后检测题。
+
+内容源为 `app/foundations.js`。60 道新题也进入常规练习池，总题量为 1,334。检测中不提示对错，整组完成后统一解析，并按三类任务反馈结果；再次检测会披露题目是否练过。跳过不计为答对，也不写入掌握度。
+
+验证：`node tools/check_foundations.cjs`（内容与答案匹配）以及 `node tools/smoke_studio.cjs`（浏览器完整流程）。新增课程需要同步维护发布缓存和构建清单。

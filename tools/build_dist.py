@@ -30,6 +30,7 @@ FILES = [
     "engine.js",
     "data.js",
     "extra.js",
+    "foundations.js",
     "deep.js",
     "zh.js",
     "contrast.js",

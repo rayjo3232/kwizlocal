@@ -1,12 +1,12 @@
 /* One release identity shared by the UI and the offline worker. */
 const RELEASE = {
-  id: "v48-mistake-workshop-queue-link",
-  version: "48",
+  id: "v49-foundation-learning",
+  version: "49",
   date: "2026-11-02",
-  title: "错题修复站 · Mistake workshop",
+  title: "基础精讲 · 学懂，再验证",
   changes: [
-    "错题本焕新：待复习、已巩固、反复出错，一眼看清。",
-    "按级别和关键词筛选，优先处理多次出错或最近出错的内容。",
-    "答案先折叠，筛选后最多 5 题短练；首页直接回到待复习错题。"
+    "10 个基础知识点新增分步中文精讲、学习目标与例句推理。",
+    "新增 60 道题：辨认规则、独立填空、整句纠错各 20 题。",
+    "学后检测整组答完再核对，分三类反馈，明确接下来该补什么。"
   ]
 };
