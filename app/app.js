@@ -328,11 +328,20 @@ function mosaic(items, W, H) {
       const gSum = g.reduce(function (a, b) { return a + b; }, 0) || 1;
       const rh = (gSum / total) * H;
 
+      /* Score the row on its honest proportions. The minimum width below makes
+         a sliver look acceptable (74px wide, 250 tall scores as a 3.4 aspect
+         ratio) and that pushed six areas into one row on a desktop. */
+      const raw = g.map(function (v) { return (v / gSum) * W; });
+      raw.forEach(function (cw) {
+        const ratio = Math.max(cw / Math.max(1, rh), rh / Math.max(1, cw));
+        if (ratio > worst) worst = ratio;
+      });
+
       /* A one-point category next to a seven-point one would get 39px, which
          holds nothing. Lift every cell to a floor and take the difference from
          the wider ones — the areas stay close enough to proportional to read. */
       const MIN_W = 74;
-      const widths = g.map(function (v) { return (v / gSum) * W; });
+      const widths = raw.slice();
       let deficit = 0;
       widths.forEach(function (cw) { if (cw < MIN_W) deficit += MIN_W - cw; });
       if (deficit > 0) {
@@ -349,10 +358,7 @@ function mosaic(items, W, H) {
       let x = 0;
       g.forEach(function (v, i) {
         const cw = widths[i];
-        const r = { x: x, y: y, w: cw, h: rh };
-        rects[order[vi]] = r;
-        const ratio = Math.max(r.w / Math.max(1, r.h), r.h / Math.max(1, r.w));
-        if (ratio > worst) worst = ratio;
+        rects[order[vi]] = { x: x, y: y, w: cw, h: rh };
         x += cw; vi++;
       });
       y += rh;
@@ -388,63 +394,27 @@ function groupByCategory(list) {
 }
 
 
-/* ---------- brainmap: card views ----------
-   The SVG map scales a 1000-wide viewBox down to a phone screen, which makes
-   every label unreadable. Levels and categories are therefore plain HTML
-   cards that reflow; only the innermost point grid stays vector. */
+/* ---------- brainmap: the dashboard's preview ---------- */
 
-function avgScoreOf(list) {
-  let sum = 0, n = 0;
-  list.forEach(function (k) {
-    const s = state.kps[k.id];
-    if (s && s.n) { sum += Engine.display(s.p, s.n); n++; }
-  });
-  return n ? Math.round(sum / n) : null;
-}
-
-function scoreTint(list) {
-  const avg = avgScoreOf(list);
-  const tested = list.filter(function (k) {
-    const s = state.kps[k.id];
-    return s && s.n;
-  }).length;
-  return Engine.colorFor(avg == null ? 0 : avg, tested);
-}
-
+/* The dashboard's preview strip. One number per level — the same "how much of
+   this have I mastered" the full map uses — and a bar that fills with it. It
+   used to show a confidence score next to a bar segmented by grammar area,
+   which meant the number and the bar were measuring different things. */
 function levelCardsHtml(compact) {
   return '<div class="bmap-levels' + (compact ? " compact" : "") + '">'
     + LEVELS.map(function (lv) {
       const list = KPS.filter(function (k) { return k.level === lv.id; });
       if (!list.length) return "";
-      /* The dashboard clamps level scores at 0; this card did not, so B2 could
-         read "-11" and look like a bug. */
-      const raw = avgScoreOf(list);
-      const score = raw == null ? null : Math.max(0, Math.round(raw));
-      const weak = list.filter(function (k) {
-        const s = state.kps[k.id];
-        return Engine.guidedEligible(state, k) && Engine.hasStarted(state, k) && s && s.n && Engine.display(s.p, s.n) < 50;
-      }).length;
-      const due = list.filter(function (k) {
-        const s = state.kps[k.id];
-        return s && s.dueAt && s.dueAt <= Date.now();
-      }).length;
-      const unseen = list.filter(function (k) {
-        const s = state.kps[k.id];
-        return !s || !s.n;
-      }).length;
-      const cats = groupByCategory(list);
-      const bar = cats.map(function (c) {
-        const w = Math.max(8, Math.round(c.kps.length / list.length * 100));
-        return '<i style="width:' + w + '%;background:' + scoreTint(c.kps) + '"></i>';
-      }).join("");
+      const st = regionStat(list);
+      const tone = mapTone(st.pct, st.total - st.unseen, st.review);
       return '<button class="bmap-lv" data-level="' + lv.id + '">'
         + '<span class="bmap-lv-top"><b>' + esc(lv.name) + "</b>"
-        + "<em>" + (score == null ? "—" : score) + "</em></span>"
-        + '<span class="bmap-lv-bar">' + bar + "</span>"
-        + '<span class="bmap-lv-meta">' + list.length + " points"
-        + (unseen ? ' · <b class="new">' + unseen + " new</b>" : "")
-        + (weak ? ' · <b class="weak">' + weak + " weak</b>" : "")
-        + (due ? ' · <b class="due">' + due + " due</b>" : "") + "</span>"
+        + "<em>" + (st.unseen === st.total ? "—" : st.pct + "%") + "</em></span>"
+        + '<span class="bmap-lv-bar"><i style="width:' + st.pct + "%;background:" + tone.bar + '"></i></span>'
+        + '<span class="bmap-lv-meta">' + st.mastered + " of " + st.total + " mastered"
+        + (st.unseen ? ' · <b class="new">' + st.unseen + " new</b>" : "")
+        + (st.weak ? ' · <b class="weak">' + st.weak + " weak</b>" : "")
+        + (st.due ? ' · <b class="due">' + st.due + " due</b>" : "") + "</span>"
         + "</button>";
     }).join("")
     + "</div>";
@@ -456,15 +426,58 @@ function levelCardsHtml(compact) {
    depth, so zooming in feels like zooming rather than like opening a list.
    Area carries the amount of material, colour carries how well it is known. */
 
-/* Background tint and ink for a score. Solid colour blocks would shout; these
-   are the same hues the legend uses, softened so text stays readable. */
-function mapTone(score, n) {
-  if (!n) return { bg: "#EDEFF2", ink: "#5F6873", bar: "#C9CFD6" };
-  if (score < 0) return { bg: "#F8E4E4", ink: "#8A2A2A", bar: "#D51C1B" };
-  if (score < 50) return { bg: "#FBF2D4", ink: "#6A5000", bar: "#E0B92B" };
-  if (score < 75) return { bg: "#E9F4EB", ink: "#2C5A38", bar: "#8FCB9B" };
-  if (score < 90) return { bg: "#DCEEE0", ink: "#23502D", bar: "#5FB56F" };
+/* How much of a region you have actually mastered, as a percentage.
+
+   Every point contributes its display score clamped to 0–100, and a point you
+   have never opened contributes 0. That is what "62% of A0" has to mean: a
+   level you have answered twelve questions in is not two-thirds known. The
+   average is weighted by each point's teaching weight, so a heavy point moves
+   the number more than a footnote does. */
+function regionStat(list) {
+  let wsum = 0, sum = 0;
+  /* Four buckets that add up to `total` — the summary bar draws them as
+     widths, so they must not overlap. */
+  const st = { pct: 0, mastered: 0, learning: 0, weak: 0, neg: 0, due: 0, unseen: 0, total: list.length };
+  list.forEach(function (kp) {
+    const w = Math.max(1, kp.weight || 1);
+    const s = state.kps[kp.id];
+    const n = s ? s.n : 0;
+    const d = n ? Engine.display(s.p, s.n) : 0;
+    const m = n ? Math.max(0, Math.min(100, d)) : 0;
+    sum += m * w;
+    wsum += w;
+    if (!n) st.unseen++;
+    else if (m >= 75) st.mastered++;
+    else if (d < 50) st.weak++;
+    else st.learning++;
+    if (n && d < 0) st.neg++;
+    if (s && s.dueAt && s.dueAt <= Date.now()) st.due++;
+  });
+  st.pct = wsum ? Math.round(sum / wsum) : 0;
+  /* One shaky point out of thirty-eight is not "this level needs review". Red
+     is for a region where a quarter of the attempts are going wrong. */
+  const tested = st.total - st.unseen;
+  st.review = st.neg >= 2 && st.neg / Math.max(1, tested) >= 0.25;
+  return st;
+}
+
+/* Background tint and ink for a mastery percentage. Solid colour blocks would
+   shout; these are the same hues the legend uses, softened so text stays
+   readable. `weak` turns the tile red: an area where you are getting things
+   wrong is worth more attention than one you have simply not opened. */
+function mapTone(pct, tested, weak) {
+  if (!tested) return { bg: "#EDEFF2", ink: "#5F6873", bar: "#C9CFD6" };
+  if (weak) return { bg: "#F8E4E4", ink: "#8A2A2A", bar: "#D51C1B" };
+  if (pct < 40) return { bg: "#FBF2D4", ink: "#6A5000", bar: "#E0B92B" };
+  if (pct < 70) return { bg: "#E9F4EB", ink: "#2C5A38", bar: "#8FCB9B" };
+  if (pct < 90) return { bg: "#DCEEE0", ink: "#23502D", bar: "#5FB56F" };
   return { bg: "#CEE7D3", ink: "#1C4524", bar: "#2E7D32" };
+}
+
+/* A tile's percentage is the number people ask for, so every level of the map
+   says "%" rather than a bare score. The sign is added once, by tileHtml. */
+function pctText(pct, tested) {
+  return tested ? pct : null;
 }
 
 /* One-word labels for cells too narrow for the full name. A clipped word reads
@@ -487,17 +500,28 @@ function tileHtml(t, cell) {
   const showScore = cell.score != null && w >= 64 && h >= 46;
   const showMeta = !!cell.meta && w >= 104 && h >= 62;
   const showSub = !!cell.sub && w >= 128 && h >= 76;
+  const name = w < 104 && cell.short ? cell.short : cell.name;
+  const scoreHtml = showScore
+    ? '<span class="mt-score">' + cell.score + (cell.pct ? "%" : "") + "</span>" : "";
+  const metaHtml = showMeta ? '<span class="mt-meta">' + esc(cell.meta) + "</span>" : "";
+
+  /* Two layouts. A big cell puts the number beside the title and can afford a
+     subtitle and a meta line. A small one stacks the title and pins a single
+     foot row to the bottom: the number and the status share one line, so a
+     three-line title can never push them out of the cell. */
+  const body = size === "full"
+    ? '<span class="mt-top"><span class="mt-name">' + esc(name) + "</span>" + scoreHtml + "</span>"
+      + (showSub ? '<span class="mt-sub">' + esc(cell.sub) + "</span>" : "")
+      + metaHtml
+    : '<span class="mt-top"><span class="mt-name">' + esc(name) + "</span></span>"
+      + '<span class="mt-foot">' + scoreHtml + metaHtml + "</span>";
+
   return '<button class="map-tile d-' + size + (cell.cls ? " " + cell.cls : "") + '"'
     + (cell.attrs || "")
     + ' style="left:' + x + "px;top:" + y + "px;width:" + w + "px;height:" + h + "px;"
     + "background:" + cell.tone.bg + ";color:" + cell.tone.ink + ";padding:" + pad + 'px"'
     + ' aria-label="' + esc(cell.label) + '">'
-    + '<span class="mt-top">'
-    + '<span class="mt-name">' + esc(w < 104 && cell.short ? cell.short : cell.name) + "</span>"
-    + (showScore ? '<span class="mt-score">' + cell.score + "</span>" : "")
-    + "</span>"
-    + (showSub ? '<span class="mt-sub">' + esc(cell.sub) + "</span>" : "")
-    + (showMeta ? '<span class="mt-meta">' + esc(cell.meta) + "</span>" : "")
+    + body
     + "</button>";
 }
 
@@ -516,7 +540,8 @@ function mapCanvasHtml(cells) {
 /* The canvas height: roughly square on a phone, a wide band on a desktop, and
    never taller than the number of cells needs. */
 function mapHeight(W, n) {
-  const base = W < 560 ? Math.round(W * 0.92) : 250;
+  /* A desktop band of 250px made six areas into one row of slivers. */
+  const base = W < 560 ? Math.round(W * 0.92) : 330;
   return Math.max(150, Math.min(base, Math.round(96 * Math.ceil(n / 2))));
 }
 
@@ -525,24 +550,13 @@ function levelTiles(W) {
   LEVELS.forEach(function (lv) {
     const list = KPS.filter(function (k) { return k.level === lv.id; });
     if (!list.length) return;
-    const raw = avgScoreOf(list);
-    const score = raw == null ? null : Math.max(0, Math.round(raw));
-    const seen = list.filter(function (k) { const s = state.kps[k.id]; return s && s.n; });
-    const tested = seen.length;
-    const weak = list.filter(function (k) {
-      const s = state.kps[k.id];
-      return Engine.guidedEligible(state, k) && Engine.hasStarted(state, k) && s && s.n && Engine.display(s.p, s.n) < 50;
-    }).length;
-    const due = list.filter(function (k) {
-      const s = state.kps[k.id];
-      return s && s.dueAt && s.dueAt <= Date.now();
-    }).length;
-    const unseen = list.length - tested;
+    const st = regionStat(list);
+    const tested = st.total - st.unseen;
 
     const meta = [];
-    if (weak) meta.push(weak + " weak");
-    if (due) meta.push(due + " due");
-    if (unseen) meta.push(unseen + " new");
+    if (st.weak) meta.push(st.weak + " weak");
+    if (st.due) meta.push(st.due + " due");
+    if (st.unseen) meta.push(st.unseen + " new");
 
     /* The code is the label, the descriptor is the subtitle: "A0" fits in a
        74px cell, "A0 · Entry" does not. */
@@ -552,11 +566,16 @@ function levelTiles(W) {
       cls: "lvl",
       attrs: ' data-level="' + lv.id + '"',
       name: lv.id,
-      score: score == null ? null : score,
+      score: pctText(st.pct, tested),
+      pct: true,
       sub: (parts[1] || "").trim() || null,
-      meta: list.length + " pts" + (meta.length ? " · " + meta.join(" · ") : ""),
-      tone: mapTone(score, tested),
-      label: lv.name + ", " + list.length + " points" + (score == null ? "" : ", score " + score)
+      /* "0 of 38 mastered" next to "54%" read as a contradiction: one is a
+         count of finished points, the other is how far through the whole level
+         you are. The tile keeps the percentage and the amount of material; the
+         breakdown lives in the band you see after tapping in. */
+      meta: st.total + " points" + (meta.length ? " · " + meta.join(" · ") : ""),
+      tone: mapTone(st.pct, tested, st.review),
+      label: lv.name + ", " + st.pct + "% mastered, " + st.mastered + " of " + st.total + " points"
     });
   });
   return { items: items, W: W, H: mapHeight(W, items.length) };
@@ -566,19 +585,23 @@ function categoryTiles(W, levelId) {
   const list = KPS.filter(function (k) { return k.level === levelId; });
   const cats = groupByCategory(list);
   const items = cats.map(function (c) {
-    const score = avgScoreOf(c.kps);
-    const tested = c.kps.filter(function (k) { const s = state.kps[k.id]; return s && s.n; }).length;
+    const st = regionStat(c.kps);
+    const tested = st.total - st.unseen;
     return {
       value: c.kps.length,
       cls: "cat",
       attrs: ' data-cat="' + c.cat + '" data-cat-level="' + levelId + '"',
       name: CATEGORIES[c.cat] || c.cat,
       short: CAT_TILE_SHORT[c.cat] || null,
-      score: score == null ? null : Math.max(0, Math.round(score)),
+      score: pctText(st.pct, tested),
+      pct: true,
       sub: null,
-      meta: c.kps.length + " point" + (c.kps.length === 1 ? "" : "s"),
-      tone: mapTone(score == null ? 0 : Math.max(0, Math.round(score)), tested),
-      label: (CATEGORIES[c.cat] || c.cat) + ", " + c.kps.length + " points"
+      meta: c.kps.length + " point" + (c.kps.length === 1 ? "" : "s")
+        + (st.unseen ? " · " + st.unseen + " new" : "")
+        + (st.weak ? " · " + st.weak + " weak" : ""),
+      tone: mapTone(st.pct, tested, st.review),
+      label: (CATEGORIES[c.cat] || c.cat) + ", " + st.pct + "% mastered, "
+        + st.mastered + " of " + c.kps.length + " points"
     };
   });
   return { items: items, W: W, H: mapHeight(W, items.length) };
@@ -589,7 +612,8 @@ function pointTiles(W, levelId, cat) {
   const items = list.map(function (kp) {
     const s = state.kps[kp.id];
     const n = s ? s.n : 0;
-    const sc = n ? Engine.display(s.p, s.n) : 0;
+    const d = n ? Engine.display(s.p, s.n) : 0;
+    const pct = n ? Math.max(0, Math.min(100, Math.round(d))) : 0;
     const parts = kp.title.split(":");
     const name = parts[0];
     const sub = parts.slice(1).join(":").trim();
@@ -599,11 +623,15 @@ function pointTiles(W, levelId, cat) {
       cls: "pt",
       attrs: ' data-kp="' + kp.id + '"',
       name: name,
-      score: n ? Math.max(0, Math.round(sc)) : null,
+      score: n ? pct : null,
+      pct: true,
       sub: sub || null,
-      meta: st === "due" ? "due" : st === "weak" ? "weak" : st === "solid" ? "solid" : (n ? "practising" : "not started"),
-      tone: mapTone(sc, n),
-      label: kp.title + (n ? ", score " + Math.max(0, Math.round(sc)) : ", not started")
+      /* Only the two states the number cannot express. "practising" next to
+         67% is the same sentence twice, and in a 95px cell it truncates to
+         "practisi…". */
+      meta: !n ? "new" : st === "due" ? "due" : st === "weak" ? "weak" : null,
+      tone: mapTone(pct, n, n && d < 0),
+      label: kp.title + (n ? ", " + pct + "% mastered" : ", not started")
     };
   });
   return { items: items, W: W, H: mapHeight(W, items.length) };
@@ -625,7 +653,13 @@ function weeklyReport() {
   const verbs = attempts.filter(function (a) { return a.source === "verbs"; });
   const questions = attempts.length;
   const correct = grammar.filter(function (a) { return a.correct; }).length;
-  const minutes = Math.round(sessions.reduce(function (n, s) { return n + (s.durationMs || 0); }, 0) / 60000);
+  /* Capped on read as well as on write: profiles recorded before the cap
+     existed still carry sessions measured in days, and one of them reported
+     2,908 minutes for a week of 43 questions. */
+  const minutes = Math.round(sessions.reduce(function (n, s) {
+    const cap = Math.max(1, s.total || s.answered || 1) * 120000;
+    return n + Math.min(s.durationMs || 0, cap);
+  }, 0) / 60000);
 
   const byCat = {};
   KPS.forEach(function (k) {
@@ -678,17 +712,25 @@ function activityBars() {
   });
   const max = Math.max(1, Math.max.apply(null, days.map(function (d) { return d.n; })));
   const thin = n > 7;
+  /* Heights in pixels, measured against the track. A percentage height on a
+     flex item inside this column resolved to the column's height, not the
+     track's, so an empty day came out 74px tall and covered the heading. */
+  const TRACK = thin ? 34 : 46;
   const bars = days.map(function (d, i) {
     const today = i === days.length - 1;
     /* Height is volume. Colour used to be accuracy as well, which put red and
        yellow slabs on a card that already states the accuracy — it read as a
        page of errors. One bar per day, one colour, today marked. */
-    const h = d.n ? Math.max(8, Math.round(d.n / max * 100)) : 3;
+    const h = d.n ? Math.max(5, Math.round(d.n / max * TRACK)) : 3;
     const acc = d.n ? Math.round(d.c / d.n * 100) : 0;
-    const cls = !d.n ? "empty" : today ? "today" : "on";
+    /* Not "empty": there is a global .empty empty-state card with 36px of
+       padding, and the bar inherited it — every day without practice rendered
+       74px tall and covered the heading above it. */
+    const cls = !d.n ? "zero" : today ? "today" : "on";
     const tip = d.n ? d.n + " questions · " + acc + "% correct" : "no practice";
     return '<div class="act-col" title="' + tip + '">'
-      + '<div class="act-track"><span class="act-bar ' + cls + '" style="height:' + h + '%"></span></div>'
+      + '<div class="act-track" style="height:' + TRACK + 'px">'
+      + '<span class="act-bar ' + cls + '" style="height:' + h + 'px"></span></div>'
       + (thin ? "" : '<span class="act-day' + (today ? " today" : "") + '">' + (today ? "Today" : d.label) + "</span>")
       + "</div>";
   }).join("");
@@ -750,15 +792,17 @@ function renderDashboard() {
   })[0] || LEVELS[0];
 
   let levelRows = LEVELS.map(function (l) {
-    const sc = Math.max(0, Math.round(Engine.levelScore(state, l.id)));
-    const bar = Math.min(100, sc);
+    /* Same number as the map: share of the level's points mastered. The old
+       confidence score was a different scale in the same column, so the table
+       and the map disagreed about the same level. */
+    const st = regionStat(KPS.filter(function (k) { return k.level === l.id; }));
+    const bar = st.pct;
     const isCurrent = l.id === recommended.id;
     return '<div class="level-row' + (isCurrent ? " current" : "") + '">'
       + '<span class="name">' + esc(l.name) + '</span>'
       + '<span class="mini-bar"><span style="width:' + bar + '%"></span></span>'
-      /* A display score, not a percentage — labelling it "%" made it read as
-         an accuracy rate. */
-      + '<span class="pct' + (sc < 40 ? " low" : "") + '" title="Confidence score, −100 to 100">' + sc + '</span>'
+      + '<span class="pct' + (st.pct < 40 ? " low" : "") + '" title="Share of this level\'s points you have mastered">'
+      + (st.unseen === st.total ? "—" : st.pct + "%") + '</span>'
       + '<button class="btn sm ghost" data-kwiz-level="' + l.id + '">Kwiz</button>'
       + "</div>";
   }).join("");
@@ -917,7 +961,8 @@ function renderDashboard() {
     + legendHtml() + "</section>"
 
     + '<section class="card section-gap"><h2 style="font-size:15px;margin-bottom:4px">Your Studyplan</h2>'
-    + '<p class="small">Guided path · " + esc(Engine.guidedLevel(state)) + " · review due points, then learn unlocked lessons.</p>'
+    + '<p class="small">Guided path · ' + esc(Engine.guidedLevel(state))
+    + " · review due points, then learn unlocked lessons.</p>"
     + '<div class="plan-list">' + planRows + "</div></section>"
     + "</div>";
 
@@ -959,19 +1004,21 @@ function renderDashboard() {
 }
 
 /* The legend swatches are the tiles' own tints, so the key and the map speak
-   the same colour rather than a brighter cousin of it. */
+   the same colour rather than a brighter cousin of it. The bands are the
+   percentages on the tiles, not words like "weak" — the map says 34%, the key
+   has to say what 34% looks like. */
 function legendHtml() {
-  const swatch = function (score, n) {
-    const t = mapTone(score, n);
+  const swatch = function (pct, tested, weak) {
+    const t = mapTone(pct, tested, weak);
     return '<i style="background:' + t.bg + ";border-color:" + t.bar + '"></i>';
   };
   return '<div class="legend">'
-    + "<span>" + swatch(0, 0) + "Not seen</span>"
-    + "<span>" + swatch(-20, 4) + "Needs review</span>"
-    + "<span>" + swatch(30, 4) + "Weak</span>"
-    + "<span>" + swatch(60, 4) + "Getting there</span>"
-    + "<span>" + swatch(80, 4) + "Strong</span>"
-    + "<span>" + swatch(95, 4) + "Mastered</span>"
+    + "<span>" + swatch(0, 0) + "Not started</span>"
+    + "<span>" + swatch(30, 4, true) + "Needs review</span>"
+    + "<span>" + swatch(30, 4) + "Under 40%</span>"
+    + "<span>" + swatch(55, 4) + "40–69%</span>"
+    + "<span>" + swatch(80, 4) + "70–89%</span>"
+    + "<span>" + swatch(95, 4) + "90%+</span>"
     + "</div>";
 }
 
@@ -991,6 +1038,50 @@ function crumbsHtml() {
     + "</div>";
 }
 
+/* The band above the canvas when you are inside a level or an area.
+
+   A percentage on its own is a score; what people actually want to know when
+   they open A0 is "how much of this have I got, and what is left". The bar
+   splits the points into mastered / getting there / needs work / not started,
+   so the shape answers that before the numbers do. */
+function mapSummaryHtml() {
+  if (!mapFocus) return "";
+  const list = KPS.filter(function (k) {
+    return k.level === mapFocus.level && (!mapFocus.category || k.category === mapFocus.category);
+  });
+  if (!list.length) return "";
+  const st = regionStat(list);
+  const lv = LEVELS.filter(function (l) { return l.id === mapFocus.level; })[0];
+  const title = mapFocus.category
+    ? (CATEGORIES[mapFocus.category] || mapFocus.category)
+    : (lv ? lv.name : mapFocus.level);
+  const sub = mapFocus.category ? mapFocus.level + " · " + list.length + " points" : list.length + " points";
+
+  const seg = function (cls, n) {
+    if (!n) return "";
+    return '<i class="' + cls + '" style="width:' + (n / st.total * 100) + '%"></i>';
+  };
+  const parts = [];
+  parts.push("<b>" + (st.total - st.unseen) + "</b> of " + st.total + " started");
+  if (st.weak) parts.push('<b class="w">' + st.weak + "</b> needs work");
+  if (st.unseen) parts.push("<b>" + st.unseen + "</b> not started");
+  if (st.due) parts.push('<b class="d">' + st.due + " due</b>");
+
+  return '<div class="map-sum">'
+    + '<div class="ms-head">'
+    + '<span class="ms-title">' + esc(title) + "<small>" + esc(sub) + "</small></span>"
+    + '<span class="ms-pct">' + st.pct + "%<small>mastery</small></span>"
+    + "</div>"
+    + '<div class="ms-bar">'
+    + seg("m-mastered", st.mastered) + seg("m-learning", st.learning)
+    + seg("m-weak", st.weak) + seg("m-unseen", st.unseen)
+    + "</div>"
+    + '<div class="ms-meta">' + parts.join(" · ") + "</div>"
+    + '<button class="btn sm subtle ms-go" data-practise-region="1">'
+    + "Practise this " + (mapFocus.category ? "area" : "level") + "</button>"
+    + "</div>";
+}
+
 function renderBrainmap() {
   const shown = mapFocus
     ? KPS.filter(function (k) { return k.level === mapFocus.level && (!mapFocus.category || k.category === mapFocus.category); }).length
@@ -998,13 +1089,14 @@ function renderBrainmap() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Your Brainmap</h1>'
-    + '<p>Area is how much there is; colour is how well you know it. Tap to zoom in.</p></div>'
+    + '<p>Area is how much there is; the percentage is how much of it you have mastered. Tap to zoom in.</p></div>'
     + '<div class="map-wrap"><div class="map-toolbar">'
     + '<span class="small"><b>' + shown + '</b> points shown · <b>' + KPS.length + '</b> total</span>'
     + '<span class="spacer"></span>'
     + '<span class="small">' + Engine.dueCount(state) + ' due · ' + Engine.weakCount(state) + ' weak</span>'
     + "</div>"
-    + crumbsHtml() + '<div id="mapHost" class="map-host"></div>' + legendHtml() + "</div>"
+    + crumbsHtml() + mapSummaryHtml()
+    + '<div id="mapHost" class="map-host"></div>' + legendHtml() + "</div>"
     + '<div class="section-gap" style="text-align:center">'
     + '<button class="btn" data-start="1">Start a 10-question kwiz</button></div>'
     + "</div>";
@@ -1019,17 +1111,46 @@ function renderBrainmap() {
 /* The canvas is laid out in pixels, so it needs a measured width. Measuring
    after the markup is in place keeps it correct at every viewport; jsdom
    reports 0, so there is a sensible fallback for tests. */
+let mapObserver = null;
+let mapPaintedAt = 0;
+
 function paintMap() {
   const host = document.getElementById("mapHost");
   if (!host) return;
   /* Capped so a wide desktop does not stretch five cells into ribbons. */
   const W = Math.max(260, Math.min(820, Math.round(host.clientWidth || 340)));
+  mapPaintedAt = W;
   const cells = !mapFocus ? levelTiles(W)
     : mapFocus.category ? pointTiles(W, mapFocus.level, mapFocus.category)
       : categoryTiles(W, mapFocus.level);
   host.innerHTML = mapCanvasHtml(cells);
   bindMapTiles();
   bindMap();
+
+  /* The canvas is laid out in pixels, so it has to be repainted when the box
+     changes — including the 10px the page loses when the content grows tall
+     enough to need a scrollbar, which fires no resize event. */
+  /* The first paint happens before the page is tall enough to need a
+     scrollbar; when it appears the viewport narrows by 10px and the canvas is
+     already too wide. One frame later the box is final. */
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(function () {
+      const el = document.getElementById("mapHost");
+      if (el && el.firstChild && Math.abs(Math.round(el.clientWidth || 0) - mapPaintedAt) >= 2) paintMap();
+    });
+  }
+  if (typeof ResizeObserver !== "undefined") {
+    if (!mapObserver) {
+      mapObserver = new ResizeObserver(function () {
+        const el = document.getElementById("mapHost");
+        if (!el || !el.firstChild) return;
+        const w = Math.round(el.clientWidth || 340);
+        if (Math.abs(w - mapPaintedAt) >= 2) paintMap();
+      });
+    }
+    mapObserver.disconnect();
+    mapObserver.observe(host);
+  }
 }
 
 /* Zooming. Kept apart from the crumb binding because the canvas is repainted
@@ -1052,6 +1173,16 @@ function bindMapTiles() {
 }
 
 function bindMapNav() {
+  /* The percentage is a diagnosis; this is the prescription. Drilling exactly
+     the region you just looked at saves going back to the dashboard. */
+  document.querySelectorAll("[data-practise-region]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      const list = KPS.filter(function (k) {
+        return k.level === mapFocus.level && (!mapFocus.category || k.category === mapFocus.category);
+      });
+      if (list.length) startSessionFromKps(list, Math.min(10, list.length));
+    });
+  });
   document.querySelectorAll("[data-crumb]").forEach(function (b) {
     b.addEventListener("click", function () {
       mapFocus = b.getAttribute("data-crumb") === "level" && mapFocus
@@ -1063,6 +1194,15 @@ function bindMapNav() {
 }
 
 function bindMap() {
+  /* The level cards on the dashboard look like buttons and were not wired to
+     anything: tapping A0 did nothing. They now open the map already zoomed
+     into that level, which is what the card is a preview of. */
+  document.querySelectorAll(".bmap-lv[data-level]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      mapFocus = { level: b.getAttribute("data-level"), category: null };
+      navigate("#/brainmap");
+    });
+  });
   document.querySelectorAll(".map-tile[data-kp]").forEach(function (cell) {
     const kpId = cell.getAttribute("data-kp");
     cell.addEventListener("mousemove", function (e) {
@@ -1961,7 +2101,13 @@ function continueSession() {
     /* Freeze the scores this session produced. Later practice must never
        rewrite an old report's "What changed". */
     record.after = snapshotScores(session.session.items);
-    record.durationMs = Math.max(0, Date.now() - (session.startedAt || Date.now()));
+    /* Time on task, not wall-clock. A session left open over lunch used to
+       report the whole gap: one real profile showed 2,908 minutes for 43
+       questions because the tab stayed open for two days. Two minutes per
+       question is the ceiling — a quick kwiz question takes ten seconds. */
+    const wall = Math.max(0, Date.now() - (session.startedAt || Date.now()));
+    const ceiling = Math.max(1, session.answers.length) * 120000;
+    record.durationMs = Math.min(wall, ceiling);
     state.plan = null;
     saveState();
 

@@ -26,6 +26,11 @@
   src:url("fonts/Poppins-ExtraBold.woff2") format("woff2");
 }
 
+/* Reserve the scrollbar's width whether or not the page is tall enough to need
+   one. The map is laid out in pixels from a measured width, so a scrollbar
+   appearing after the first paint used to leave the canvas 10px too wide. */
+html{scrollbar-gutter:stable}
+
 :root{
   --brand:#ff6a00;          /* decoration only: dots, bars, borders */
   --brand-action:#C25200;   /* button fill — 4.67:1 with white text */
@@ -365,24 +370,62 @@ p{margin:0 0 12px}
 /* ---------- brainmap ---------- */
 .map-wrap{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px}
 
+/* The band above the canvas when you are inside a level: one percentage, and
+   a bar that splits the points into mastered / getting there / needs work /
+   not started. The number answers "how much", the bar answers "what is left". */
+.map-sum{
+  border:1px solid var(--line);border-radius:12px;background:#fff;
+  padding:13px 15px;margin:2px 0 12px;
+}
+.ms-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ms-title{font-size:var(--fs-3);font-weight:700;color:var(--ink);line-height:1.25;letter-spacing:-.01em}
+.ms-title small{
+  display:block;font-size:var(--fs-1);font-weight:600;color:var(--faint);
+  letter-spacing:.03em;margin-top:2px;
+}
+.ms-pct{
+  flex:none;font-size:var(--fs-5);font-weight:800;color:var(--ink);
+  font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1;text-align:right;
+}
+.ms-pct small{
+  display:block;font-size:var(--fs-1);font-weight:700;color:var(--faint);
+  letter-spacing:.05em;text-transform:uppercase;margin-top:3px;
+}
+.ms-bar{
+  display:flex;height:9px;border-radius:999px;overflow:hidden;
+  background:var(--line2);margin:11px 0 9px;
+}
+.ms-bar i{display:block;flex:none;height:100%}
+.ms-bar .m-mastered{background:#2E7D32}
+.ms-bar .m-learning{background:#8FCB9B}
+.ms-bar .m-weak{background:#E0B92B}
+.ms-bar .m-unseen{background:#DDE1E6}
+.ms-meta{font-size:var(--fs-1);color:var(--muted);line-height:1.45}
+.ms-meta b{color:var(--ink2);font-weight:800}
+.ms-meta b.w{color:var(--red)}
+.ms-meta b.d{color:var(--yellow)}
+.ms-go{margin-top:10px}
+
 /* ---------- brainmap: level and category cards ---------- */
 .bmap-levels{display:grid;gap:10px}
 .bmap-levels.compact{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 .bmap-lv{
-  display:flex;flex-direction:column;gap:7px;width:100%;text-align:left;
+  display:flex;flex-direction:column;gap:7px;width:100%;min-width:0;text-align:left;
   padding:13px 15px;border:1px solid var(--line);border-radius:9px;background:#fff;
   font-family:inherit;cursor:pointer;transition:border-color .12s,background .12s;
 }
 .bmap-lv:hover,.bmap-lv:focus-visible{border-color:var(--brand);background:#FFFCFA}
 .bmap-lv-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.bmap-lv-top b{font-size:var(--fs-3);font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.bmap-lv-top b{
+  flex:1;min-width:0;font-size:var(--fs-3);font-weight:700;color:var(--ink);letter-spacing:-.01em;
+}
 .bmap-lv-top em{
   font-style:normal;font-size:var(--fs-5);font-weight:800;color:var(--ink2);
   font-variant-numeric:tabular-nums;letter-spacing:-.02em;
 }
 .bmap-lv-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--line2)}
 .bmap-lv-bar i{display:block;height:100%}
-.bmap-lv-meta{font-size:var(--fs-1);color:var(--faint)}
+.bmap-lv-meta{font-size:var(--fs-1);color:var(--faint);overflow-wrap:anywhere}
 .bmap-lv-meta .weak{color:var(--red);font-weight:700}
 .bmap-lv-meta .new{color:var(--blue);font-weight:700}
 .bmap-lv-meta .due{color:var(--yellow);font-weight:700}
@@ -398,7 +441,7 @@ p{margin:0 0 12px}
    Cells are positioned in pixels by a squarified treemap, so the page needs a
    measured width — paintMap() does that after the markup is in place. Area is
    proportional to the amount of material, colour is the score. */
-.map-host{position:relative}
+.map-host{position:relative;overflow:hidden}
 .map-canvas{
   position:relative;border-radius:10px;
   background:#F7F8FA;overflow:hidden;margin:0 auto;
@@ -417,6 +460,9 @@ p{margin:0 0 12px}
 .map-tile .mt-name{
   flex:1;min-width:0;font-weight:700;line-height:1.22;letter-spacing:-.01em;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  /* A 55px cell cannot hold "Expressions" on one line, and a word that will not
+     wrap is clipped mid-word — which reads as a different word. */
+  overflow-wrap:anywhere;
 }
 .map-tile .mt-score{flex:none;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
 .map-tile .mt-sub,
@@ -428,6 +474,17 @@ p{margin:0 0 12px}
    cut to "22 pts · 1 wea…". */
 .map-tile .mt-meta{
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+/* The foot row of a small cell: number on the left, status on the right, one
+   line, pinned to the bottom so a long title cannot push it out. */
+.map-tile .mt-foot{
+  display:flex;align-items:baseline;gap:6px;margin-top:auto;min-height:0;width:100%;
+}
+.map-tile .mt-foot .mt-score{flex:none}
+.map-tile .mt-foot .mt-meta{
+  display:block;flex:1;min-width:0;margin-top:0;text-align:right;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  -webkit-line-clamp:none;
 }
 .map-tile .mt-meta{margin-top:2px}
 
@@ -444,10 +501,13 @@ p{margin:0 0 12px}
    basis the height, collapsing two lines into one. */
 .map-tile.d-small .mt-name,
 .map-tile.d-mid .mt-name{flex:none}
-.map-tile.d-small .mt-name{font-size:var(--fs-1);-webkit-line-clamp:1}
+/* Two lines even in a narrow cell: "Passé…" says nothing, "Passé\ncomposé" does. */
+.map-tile.d-small .mt-name{font-size:var(--fs-1);-webkit-line-clamp:2}
 .map-tile.d-small .mt-score,
 .map-tile.d-mid .mt-score{font-size:var(--fs-2);margin-top:1px}
-.map-tile.d-mid .mt-name{-webkit-line-clamp:2}
+/* Point titles are long ("Reflexive verbs in the present"); two lines cut
+   most of them to an ellipsis. */
+.map-tile.d-mid .mt-name{-webkit-line-clamp:3}
 
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--fs-1);color:var(--muted);align-items:center;margin-top:10px}
 .legend i{
@@ -1032,16 +1092,21 @@ p{margin:0 0 12px}
 .act-bars.thin .act-bar{border-radius:2px 2px 0 0}
 .act-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
 /* No grey slab behind every day: the bars stand on a baseline instead, which
-   is quieter and leaves the one colour meaning "you practised". */
+   is quieter and leaves the one colour meaning "you practised".
+   The bar is absolutely positioned rather than a flex item: as a flex item its
+   inline height was ignored and every empty day stretched to the height of the
+   column, covering the "Last 7 days" heading. Positioned from the bottom of
+   the track, the height in the markup is the height you get. */
 .act-track{
-  width:100%;height:46px;display:flex;align-items:flex-end;background:none;
+  position:relative;width:100%;height:46px;background:none;
 }
 .act-bar{
-  display:block;width:100%;max-width:26px;margin:0 auto;
+  position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+  width:100%;max-width:26px;
   border-radius:4px 4px 2px 2px;background:var(--brand);opacity:.72;
 }
 .act-bar.today{opacity:1;background:var(--brand-action)}
-.act-bar.empty{background:var(--line);opacity:1}
+.act-bar.zero{background:var(--line);opacity:1}
 .act-day{font-size:var(--fs-1);font-weight:700;color:var(--faint);letter-spacing:.04em}
 .act-day.today{color:var(--brand-ink);font-weight:800;letter-spacing:.02em}
 
@@ -1187,6 +1252,9 @@ p{margin:0 0 12px}
 .danger{color:var(--red)}
 
 /* ---------- misc ---------- */
+/* Named with a prefix because `.empty` is a name components reach for: the
+   activity bars used it and inherited 36px of padding. */
+.empty-state,
 .empty{
   text-align:center;padding:36px 16px;color:var(--muted);font-size:var(--fs-2);
   border:1px dashed var(--line);border-radius:10px;background:#FCFCFB;

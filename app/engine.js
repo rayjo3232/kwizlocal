@@ -945,6 +945,9 @@ const Engine = (function () {
       state.sessions.push({
         id: "seed" + i, at: Date.now() - i * 86400000,
         total: 10, correct: c, skipped: 0,
+        /* Without a duration the weekly card showed "— minutes" next to 434
+           questions, which reads as a bug rather than as demo data. */
+        durationMs: (5 + Math.floor(Math.random() * 9)) * 60000,
         stars: c === 10 ? 5 : c >= 8 ? 4 : c >= 6 ? 3 : 2, answers: []
       });
     }

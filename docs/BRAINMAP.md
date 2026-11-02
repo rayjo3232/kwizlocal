@@ -19,13 +19,62 @@ Level        5 regions, area = how many points the level holds
 
 Tapping zooms in. A point tile opens the drawer, which is where Practise lives.
 
-Two variables carry the whole picture:
+Three variables carry the whole picture:
 
 - **area** — how much material is in a region
-- **colour** — how well it is known, on the same six-step scale as the legend
+- **the percentage** — how much of that material you have mastered
+- **colour** — the same percentage, as a band
 
 That is the point of a map: you should be able to answer "where am I weak"
 without reading a single number.
+
+## What the number means
+
+`regionStat()` in `app.js`. Every point contributes its display score clamped to
+0–100, a point you have never opened contributes 0, and the average is weighted
+by the point's teaching weight.
+
+That last part is the whole design: **an untouched point counts as zero**. A
+level you answered twelve questions in is not two-thirds known, and a
+percentage that ignores the material you have not met yet is not a percentage of
+anything. So `A0 62%` means "you have mastered 62% of A0", not "your average
+confidence in the parts of A0 you happened to touch".
+
+The first version of this screen showed a confidence score next to a count of
+points at 75+, and the two contradicted each other: `54%` above `0 of 38
+mastered`. Both numbers were right and the sentence they made was nonsense. The
+tiles now carry one number and the amount of material; the breakdown lives in
+the band you get after tapping in.
+
+### The band
+
+Opening a level or an area puts a summary above the canvas:
+
+```
+A0 · Entry                                          67%
+22 points                                          MASTERY
+[###############################··········]
+22 of 22 started · 2 needs work · 8 due
+[ Practise this level ]
+```
+
+The bar splits the points into mastered / getting there / needs work / not
+started, in that order, so the shape answers "what is left" before the numbers
+do. `Practise this level` drills exactly the region you are looking at.
+
+### Colour bands
+
+| Band | Meaning |
+|---|---|
+| grey | not started |
+| red | needs review — a quarter of what you attempted here is going wrong |
+| yellow | under 40% mastered |
+| light green | 40–69% |
+| green | 70–89% |
+| dark green | 90%+ |
+
+Red is deliberately hard to reach: one shaky point out of thirty-eight painted
+the whole level red in the first pass, which is a warning nobody can act on.
 
 ## The layout
 

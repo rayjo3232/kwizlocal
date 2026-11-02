@@ -43,7 +43,7 @@ collapses to one column.
 1. Take the **placement test** from the dashboard banner (20 questions across A0–B2, no feedback until the end).
    It estimates your level and fills the Brainmap in one go, aligned to the CEFR grammar progression.
    Prefer a shortcut? **Load demo progress** in Settings fills the map with synthetic scores.
-2. Open **Brainmap** and tap any tile: it zooms one level in, and a point tile opens its drawer with the rule, examples and a practice button.
+2. Open **Brainmap** and tap a level: it shows what you have mastered inside it, area by area, with a summary band on top and a button to drill exactly that region. Tapping an area zooms again; tapping a point opens its drawer with the rule, examples and a practice button.
 3. Click **Kwiz your Studyplan** on the dashboard: 10 questions, mixed points, instant feedback.
 4. Finish the set to see the results table and how the map changes.
 5. Open **Library**, pick a point marked `NEW`, and try the **Pre-learn** flow:
@@ -61,7 +61,8 @@ collapses to one column.
 | **A0 vocabulary**: one word question per session at A0, from words already met in Vocab; conjugation still unlocks at A1 | done |
 | **Every control looks like one**: `tools/check_controls.js` fails if a button or link ends up with no border, no fill and no underline — the three things that separate a control from a sentence | done |
 | **Library view switch**: cards for browsing, one-line rows for scanning 162 points; the choice is remembered | done |
-| **Activity strip**: one bar per day, one colour, today labelled — accuracy lives in the stat above it | done |
+| **Activity strip**: one bar per day, one colour, today labelled — accuracy lives in the stat above it. Bar heights are pixels, and the "no practice" modifier is `.zero`, not `.empty`: that name belongs to the empty-state card, and the bars inherited its 36px of padding and covered the heading | done |
+| **Time on task, not wall clock**: a session's duration is capped at two minutes per question, on write and again on read — a tab left open over two days reported 2,908 minutes for 43 questions | done |
 | **Two taps to answer a choice**: the first tap selects, the second confirms and submits — no Check button. Double-clicking is the same two taps; the number keys follow the same rule. Placement advances the same way; the timed exam keeps an explicit Next | done |
 | **Skips are remembered**: a skipped question is never evidence, but it is not served again either — and after three skips on one point the feedback offers the lesson | done |
 | **Accent keys**: é è ê ë à â ù û ç ï î ô œ under every typed French input; tapping one after its base letter replaces it | done |
@@ -87,7 +88,9 @@ collapses to one column.
 | Display score −100…100 with evidence shrinkage | done |
 | Level score aggregation (weighted, can go negative) | done |
 | 10-question session builder (weak / due / new, difficulty ramp) | done |
-| Brainmap mosaic: one canvas per zoom level (level → grammar area → points), area = amount of material, colour = score, drawer on tap | done |
+| Brainmap mosaic: one canvas per zoom level (level → grammar area → points), area = amount of material, **percentage = share of it mastered**, colour = the same percentage as a band, drawer on tap | done |
+| **Mastery percentage**: every tile says how much of that region you have mastered; untouched points count as 0, so 62% of A0 means 62% of A0 | done |
+| **Level summary band**: opening a level shows the percentage, a bar split into mastered / getting there / needs work / not started, and a "Practise this level" button | done |
 | Pre-learn state machine (Primer → Guided → Check) | done |
 | Results table with per-answer explanation + practise-mistakes | done |
 | **Result page "What changed"**: score delta per point vs. session start | done |
