@@ -1,6 +1,6 @@
 /* One release identity shared by the UI and the offline worker. */
 const RELEASE = {
-  id: "v48-mistake-workshop",
+  id: "v48-mistake-workshop-queue-link",
   version: "48",
   date: "2026-11-02",
   title: "错题修复站 · Mistake workshop",

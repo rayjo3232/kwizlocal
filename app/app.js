@@ -107,6 +107,10 @@ function coachingHtml(kpId, withPractice) {
 /* Delegation survives course and quiz rerenders. A correction can be retried
    without changing the main question, score, or saved session. */
 app.addEventListener("click", function (event) {
+  if (event.target.closest('[data-notebook-review]')) {
+    notebookView = { query: '', level: 'all', status: 'open', sort: 'missed' };
+    return;
+  }
   const button = event.target.closest("[data-coach-answer]");
   if (!button) return;
   const block = button.closest("[data-coach]");
@@ -961,7 +965,7 @@ function notebookPreviewHtml() {
   return '<aside class="notebook-preview"><div><span class="studio-eyebrow">TURN MISTAKES INTO PROGRESS</span>'
     + '<h2>' + pending.length + ' 道错题，等你重新拿下。</h2><p>'
     + (repeated ? repeated + ' 道曾反复出错，优先巩固。' : '答案先折叠，先回忆，再用短练检验。')
-    + '</p></div><a class="btn sm ghost" href="#/notebook">进入错题修复站 →</a></aside>';
+    + '</p></div><a class="btn sm ghost" href="#/notebook" data-notebook-review>进入错题修复站 →</a></aside>';
 }
 
 function renderDashboard() {

@@ -156,6 +156,10 @@ const server = http.createServer((req, res) => {
     await page.goto(url + '#/');
     await page.locator('.notebook-preview').waitFor();
     check(await page.locator('.notebook-preview h2').innerText().then(t => t.includes('7')), 'dashboard links to the pending mistake queue');
+    await page.evaluate(() => { notebookView = { query: 'no-match', level: 'B2', status: 'resolved', sort: 'recent' }; });
+    await page.locator('[data-notebook-review]').click();
+    await page.locator('#nbSearch').waitFor();
+    check(await page.locator('.nb-item').count() === 7 && await page.locator('#nbStatus').inputValue() === 'open', 'dashboard queue entry resets stale notebook filters');
     await page.evaluate(() => { state = window.beforeNotebookTest; session = null; saveState(); saveSession(); });
 
     const coverage = await page.evaluate(() => Object.keys(COACHING).map(id => ({ id, exists: !!KP_BY_ID[id], fresh: !KP_BY_ID[id].items.some(i => i.prompt === COACHING[id].prompt), answerCount: COACHING[id].options.filter(o => o === COACHING[id].answer).length })));
