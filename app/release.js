@@ -1,12 +1,12 @@
 /* One release identity shared by the UI and the offline worker. */
 const RELEASE = {
-  id: "v55-placement-word-support",
-  version: "55",
+  id: "v56-trilingual-inspiration",
+  version: "56",
   date: "2026-11-03",
-  title: "先测水平 · 看懂题目再练",
+  title: "一句法语 · 一点力量",
   changes: [
-    "首页常驻水平评测入口：20 题摸底 A0–B2，也可直接选择学习起点。",
-    "评测按连续级别和有效作答推荐起点，一键采用；跳过过多时不会随意定级。",
-    "A0 题目直接显示中文词汇提示，覆盖常规、引导、评测及专项练习，避开语法答案。"
+    "首页新增 10 条法英中三语箴言，刷新换句、手动换句，同轮不重复，断网也可使用。",
+    "每句附核对出处、表达拆解和相关语法入口，让灵感也成为一点学习。",
+    "首页集中显示未完成的专项、主题词汇与水平评测，直接回到暂停的进度。"
   ]
 };

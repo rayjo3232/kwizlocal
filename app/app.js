@@ -1155,6 +1155,8 @@ function renderDashboard() {
     + "</div>"
     + "</section>"
 
+    + homeSayingHtml()
+    + pausedLearningHtml()
     + notebookPreviewHtml()
     + practiceHistoryHtml()
     + weeklyHtml()
@@ -1234,6 +1236,8 @@ function renderDashboard() {
   document.querySelectorAll("[data-weak]").forEach(function (b) {
     b.addEventListener("click", startWeakSession);
   });
+  wireHomeSaying();
+  wirePausedLearning();
   const pBtn = document.querySelector("[data-placement]");
   if (pBtn) pBtn.addEventListener("click", function(){navigate("#/level-check");});
   const resumeBtn = document.getElementById("resumeBtn");

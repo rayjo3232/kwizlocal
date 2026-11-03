@@ -439,3 +439,12 @@ well as a number.
 A0 题目直接显示中文词汇提示，避免生词妨碍语法判断。词汇在 `app/learning-support.js` 维护，按明确词形匹配，过滤正在考查的答案词。词表可继续扩充；并非自动整句翻译。
 
 验证：`node tools/check_learning_support.cjs` 与 `node tools/smoke_studio.cjs`。
+
+
+## 首页三语箴言与续做入口（V56）
+
+首页展示法国传统谚语的法语、英文和中文学习译文。刷新或“换一句”轮换，一轮不重复；正常切换页面和首页重绘不会额外抽句。10 条内容、出处与表达说明在 `app/home-extras.js`，扩充时须核对原文，不把谚语随意归给名人。每句可展开简短表达说明并进入相关语法课。
+
+轮换偏好独立保存在 `kwizlocal.home-sayings.v1`，不修改掌握度、错题或学习记录；浏览器拒绝保存偏好时，当次页面仍可换句，但跨刷新无法保存轮换历史。全部卡片可离线显示，查看外部词典出处需要联网。
+
+首页也能续做未完成的知识点专项、主题词汇和摸底评测，保留原进度。已完成项不显示。验证：`node tools/check_home_extras.cjs` 和 `node tools/smoke_studio.cjs`。

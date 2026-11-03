@@ -38,6 +38,7 @@ const ASSETS = [
   "./answer-matcher.js",
   "./engine.js",
   "./learning-support.js",
+  "./home-extras.js",
   "./app.js",
   "./manifest.json",
   "./icons/icon-192.png",

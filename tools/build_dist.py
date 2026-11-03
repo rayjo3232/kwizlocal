@@ -25,6 +25,7 @@ FILES = [
     "index.html",
     "styles.css",
     "learning-support.js",
+    "home-extras.js",
     "app.js",
     "curriculum.js",
     "answer-matcher.js",
