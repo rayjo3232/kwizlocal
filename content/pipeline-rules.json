@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "present": {
+    "a0.etre.present": ["être"],
+    "a0.avoir.present": ["avoir"],
+    "a0.verbs.aller": ["aller"],
+    "a0.verbs.faire": ["faire"],
+    "a0.verbs.venir": ["venir"],
+    "a0.verbs.prendre": ["prendre"],
+    "a0.er.present": ["aimer", "ajouter", "arriver", "chanter", "chercher", "compter", "demander", "donner", "écouter", "étudier", "expliquer", "garder", "jouer", "laisser", "laver", "marcher", "montrer", "occuper", "oublier", "parler", "penser", "porter", "pousser", "quitter", "regarder", "rester", "retourner", "retrouver", "sembler", "tomber", "tourner", "travailler", "trouver"],
+    "a1.verbs.modals": ["pouvoir", "vouloir", "devoir"],
+    "a1.verbs.irregular_ir": ["partir", "dormir", "sortir"],
+    "a1.verbs.stem_changing": ["acheter", "appeler", "jeter", "lever", "rappeler"],
+    "a1.verbs.ir_regular": ["finir", "choisir", "agir"],
+    "a1.verbs.re_regular": ["vendre", "attendre", "entendre", "rendre", "répondre", "perdre"],
+    "a1.verbs.irregular_oir": ["voir", "croire", "boire"],
+    "a2.verbs.venir_tenir": ["venir", "tenir", "devenir", "revenir"]
+  },
+  "tenses": {
+    "L'Imparfait (Indicatif)": "a2.imparfait.formation",
+    "L'Impératif Présent": "a1.verbs.imperative",
+    "Le Futur Proche (Indicatif)": "a1.verbs.futur_proche",
+    "Le Conditionnel Passé": "b1.verbs.conditional_past",
+    "Le Plus-que-Parfait (Indicatif)": "b1.verbs.plus_que_parfait",
+    "Le Conditionnel Présent": "b1.conditional.present",
+    "Le Subjonctif Présent": "b1.subjunctive.present",
+    "Le Futur Simple (Indicatif)": "b1.future.simple",
+    "Le Passé Simple (Indicatif)": "b1.verbs.passe_simple",
+    "Le Passé Antérieur (Indicatif)": "b2.verbs.passe_anterieur",
+    "Le Subjonctif Passé": "b2.verbs.subjonctif_passe",
+    "Le Futur Antérieur (Indicatif)": "b1.verbs.futur_anterieur"
+  }
+}

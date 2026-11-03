@@ -3389,6 +3389,7 @@ function renderPrelearn(kpId) {
       + contrastHtml(kp.id)
       + (FOUNDATIONS[kp.id] ? foundationLessonHtml(kp) : coachingHtml(kp.id, false))
       + '<div class="source-lesson-entry"><span>需要更多讲解与例句？</span><button class="btn sm ghost" data-source-level="' + esc(kp.level) + '">阅读 ' + esc(kp.level) + ' 原版精讲 →</button></div>'
+      + '<div class="batch-lesson-link"><b>学完这一点，换一组题核对。</b><a class="btn sm ghost" href="#/practice-point/'+esc(kp.id)+'">打开本课专项与例句 →</a></div>'
       + exHtml(firstEx)
       + (rows.length
         ? '<div class="mistakes-block"><div class="mb-title">The usual mix-up</div>' + rowHtml(rows[0]) + "</div>"
@@ -4190,6 +4191,7 @@ function renderVerbs() {
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Verb conjugations</h1>'
     + '<p>' + VERB_LIST.length + " verbs × " + VERB_TENSE_LIST.length + " tenses.</p></div>"
+    + batchEntryHtml()
     + referenceEntryHtml()
     + '<div class="verb-bar">'
     + '<button class="btn sm subtle" data-verb-nav="' + esc(prev) + '">←</button>'
@@ -5043,6 +5045,7 @@ function renderLibrary() {
 
   app.innerHTML = '<div class="container">'
     + '<div class="page-head"><h1>Library</h1><p>' + KPS.length + ' points. Filter, search, open.</p></div>'
+    + batchEntryHtml()
     + referenceEntryHtml()
     + themeEntryHtml()
     + '<div class="source-library-entry"><div><span class="studio-eyebrow">KWIZIQ · A0–C1</span><h2>原版语法讲解，带到你的学习工具里。</h2><p>按级别和语法分类查找精讲，保留原版例句、注意事项和相关课程，支持离线阅读。</p></div><a class="btn sm" href="#/sources">打开原版语法库 →</a></div>'
@@ -5316,7 +5319,7 @@ function route() {
   closeDrawer();
 
   const nav = parts[0] || "dashboard";
-  const navKey = ['foundations','sources','source','themes','theme','theme-practice','glossary','term'].includes(nav) ? 'library' : ['verb-reference','verb-table'].includes(nav) ? 'verbs' : (nav === "result" || nav === "kwiz" || nav === "prelearn") ? "dashboard" : nav;
+  const navKey = ['foundations','sources','source','themes','theme','theme-practice','glossary','term','practice-bank','practice-point','practice-round'].includes(nav) ? 'library' : ['verb-reference','verb-table'].includes(nav) ? 'verbs' : (nav === "result" || nav === "kwiz" || nav === "prelearn") ? "dashboard" : nav;
   document.querySelectorAll(".nav a").forEach(function (a) {
     a.classList.toggle("active", a.getAttribute("data-nav") === navKey);
   });
@@ -5343,6 +5346,9 @@ function route() {
   switch (parts[0]) {
     case "brainmap": return renderBrainmap();
     case "library": return renderLibrary();
+    case "practice-bank": return renderBatchCatalog();
+    case "practice-point": return renderBatchPoint(parts[1]);
+    case "practice-round": return renderBatchRound(parts[1]);
     case "foundations": return renderFoundations();
     case "sources": return renderSourceCatalog();
     case "source": return renderSourceLesson(parts[1]);

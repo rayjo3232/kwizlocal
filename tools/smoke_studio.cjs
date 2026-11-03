@@ -162,6 +162,85 @@ const server = http.createServer((req, res) => {
     check(await page.locator('.nb-item').count() === 7 && await page.locator('#nbStatus').inputValue() === 'open', 'dashboard queue entry resets stale notebook filters');
     await page.evaluate(() => { state = window.beforeNotebookTest; session = null; saveState(); saveSession(); });
 
+    const beforeBatchTest=await page.evaluate(()=>JSON.stringify(state));
+    const beforeBatchMastery=await page.evaluate(()=>JSON.stringify([state.kps,state.attempts,state.sessions]));
+    await page.goto(url+'#/library');
+    await page.locator('.batch-entry a').click();
+    await page.locator('#batchSearch').waitFor();
+    check(await page.evaluate(()=>batchCatalog.points.length===162&&batchCatalog.counts.form===11565&&batchCatalog.counts.seed===1334),'full compiled practice catalog separates new and existing tasks');
+    check(await page.locator('.source-card').count()===162,'all real points are visible');
+    await page.locator('#batchCoverage').selectOption('new');
+    check(await page.locator('.source-card').count()===139,'new coverage is honestly filtered');
+    await page.locator('#batchCoverage').selectOption('all');
+    await page.locator('#batchSearch').fill('être');
+    check(await page.locator('.source-card').count()>0,'knowledge search works');
+    await page.goto(url+'#/prelearn/a0.etre.present');
+    await page.locator('.batch-lesson-link a').click();
+    await page.locator('[data-batch-start="form"]').waitFor();
+    check(await page.locator('.batch-examples').count()===1,'lesson connects to examples and targeted practice');
+    await page.locator('[data-batch-start="form"]').click();
+    await page.locator('#batchAnswerForm').waitFor();
+    check(await page.evaluate(()=>batchStudy.ids.length===8&&batchStudy.ids.every(id=>batchIndex[id].kind==='form')),'new-form round draws only generated tasks');
+    check(await page.locator('.batch-spec').count()===1&&await page.locator('.batch-answer-card').count()===0,'person and tense explicit; answers withheld');
+    await page.screenshot({path:path.join(output,'batch-round-desktop.png')});
+    await page.setViewportSize({width:390,height:844});
+    check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'batch form round fits mobile');
+    await page.screenshot({path:path.join(output,'batch-round-mobile.png')});
+    await page.setViewportSize({width:1280,height:900});
+    await page.locator('#batchAnswer').fill('xyz');
+    await page.locator('#batchAnswerForm button[type="submit"]').click();
+    check(await page.evaluate(()=>batchStudy.answers.length===1),'submitted response is saved');
+    check(await page.locator('.batch-answer-card').count()===0,'no feedback leaked before final submission');
+    await page.reload();
+    await page.locator('#batchAnswerForm').waitFor();
+    check(await page.evaluate(()=>batchStudy.answers.length===1&&batchStudy.ids.length===8),'round resumes on reload');
+    for(let i=1;i<8;i++){
+      const answer=await page.evaluate(()=>batchIndex[batchStudy.ids[batchStudy.answers.length]].answer);
+      await page.locator('#batchAnswer').fill(answer);
+      await page.locator('#batchAnswerForm button[type="submit"]').click();
+    }
+    await page.locator('.batch-result').waitFor();
+    check(await page.locator('.batch-summary b').innerText()==='7 / 8','generated tasks are truly answer-checked');
+    check(await page.locator('.batch-answer-card').count()===8,'each result has source feedback');
+    check(await page.evaluate(()=>state.batchPractice.length===1),'finished round is recorded once');
+    await page.reload();await page.locator('.batch-result').waitFor();
+    check(await page.evaluate(()=>state.batchPractice.length===1),'result reload never duplicates completion');
+    await page.goto(url+'#/practice-point/a0.etre.present');
+    await page.locator('[data-batch-start="check"]').click();
+    await page.locator('#batchAnswerForm').waitFor();
+    check(await page.evaluate(()=>batchStudy.ids.filter(id=>batchIndex[id].kind==='seed').length===4&&batchStudy.ids.filter(id=>batchIndex[id].kind==='form').length===4),'mixed detection balances existing and new tasks');
+    for(let i=0;i<8;i++){
+      const item=await page.evaluate(()=>batchIndex[batchStudy.ids[batchStudy.answers.length]]);
+      if(item.type==='choice')await page.locator('input[name="batchChoice"]').nth(item.options.indexOf(item.answer)).check();
+      else await page.locator('#batchAnswer').fill(item.answer);
+      await page.locator('#batchAnswerForm button[type="submit"]').click();
+    }
+    await page.locator('.batch-result').waitFor();
+    check(await page.locator('.batch-summary article').count()===2,'existing and generated answers have separate scores');
+    await page.goto(url+'#/practice-point/a0.articles.definite');
+    await page.locator('[data-batch-start="recall"]').click();
+    await page.locator('#batchAnswerForm').waitFor();
+    check(await page.evaluate(()=>batchStudy.ids.every(id=>batchIndex[id].kind==='recall')),'example recall never enters independent-detection pool');
+    const recallCount=await page.evaluate(()=>batchStudy.ids.length);
+    for(let i=0;i<recallCount;i++){
+      await page.locator('#batchAnswer').fill(await page.evaluate(()=>batchIndex[batchStudy.ids[batchStudy.answers.length]].answer));
+      await page.locator('#batchAnswerForm button[type="submit"]').click();
+    }
+    await page.locator('.batch-result').waitFor();
+    check(await page.locator('.batch-summary').innerText().then(t=>t.includes('例句回忆')&&!t.includes('新增变位')),'recall has its own result');
+    check(await page.evaluate(snapshot=>JSON.stringify([state.kps,state.attempts,state.sessions])===snapshot,beforeBatchMastery),'bulk practice never changes adaptive mastery or regular sessions');
+    await page.evaluate(()=>{
+      state.batchPractice=Array.from({length:20},(_,i)=>({id:'old'+i,kpId:'a0.etre.present'}));
+      batchStudy={id:'bounded-test',buildId:batchCatalog.buildId,answerMode:'strict',kpId:'a0.etre.present',mode:'form',ids:[batchCatalog.items.find(i=>i.kind==='form'&&i.kpIds.includes('a0.etre.present')).id],answers:['xyz'],recorded:false};
+      renderBatchResult();
+    });
+    check(await page.evaluate(()=>state.batchPractice.length===20&&state.batchPractice.at(-1).id==='bounded-test'),'practice history is bounded to twenty rounds');
+    await page.evaluate(()=>{state.batchStudy={buildId:'old-content',ids:['missing']};batchStudy=null;renderBatchRound('a0.etre.present');});
+    check(await page.locator('.empty').innerText().then(t=>t.includes('重新开一轮')),'invalid or stale saved rounds fail safely');
+    await page.evaluate(()=>{state.batchStudy={id:'bad',buildId:batchCatalog.buildId,answerMode:'strict',kpId:'a0.etre.present',mode:'form',ids:['constructor'],answers:[]};batchStudy=null;renderBatchRound('a0.etre.present');});
+    check(await page.locator('.empty').count()===1,'malformed saved ids do not access inherited properties');
+    await page.evaluate(snapshot=>{state=JSON.parse(snapshot);batchStudy=null;saveState();},beforeBatchTest);
+
     const beforeReferenceTest=await page.evaluate(()=>JSON.stringify(state));
     await page.goto(url+'#/library');
     await page.locator('.reference-entry a[href="#/glossary"]').click();
@@ -365,6 +444,9 @@ const server = http.createServer((req, res) => {
     await filePage.goto(require('node:url').pathToFileURL(path.join(root,'index.html')).href+'#/verb-table/'+verbId);
     await filePage.locator('#referenceCover').waitFor();
     check(await filePage.locator('.reference-form-row').count()===9,'conjugation reference works from local file');
+    await filePage.goto(require('node:url').pathToFileURL(path.join(root,'index.html')).href+'#/practice-bank');
+    await filePage.locator('#batchSearch').waitFor();
+    check(await filePage.evaluate(()=>batchCatalog.items.length===13188),'compiled practice bank works from local file');
     await filePage.close();
 
     const beforeFoundationTest = await page.evaluate(() => JSON.stringify(state));
@@ -539,6 +621,10 @@ const server = http.createServer((req, res) => {
     await page.goto(url+'#/verb-table/'+verbId);
     await page.locator('#referenceCover').click();
     check(await page.locator('.reference-form:visible').count()===0,'conjugation recall works offline');
+    await page.goto(url+'#/practice-point/a0.etre.present');
+    await page.locator('[data-batch-start="form"]').click();
+    await page.locator('#batchAnswerForm').waitFor();
+    check(await page.evaluate(()=>batchStudy.ids.length===8),'new generated exercises start offline');
     await context.setOffline(false);
     check(errors.length === 0, 'no browser errors: ' + errors.join(', '));
     console.log(`${checks} study-studio browser checks passed (including offline upgrade).`);

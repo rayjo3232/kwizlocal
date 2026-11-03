@@ -22,6 +22,8 @@ const ASSETS = [
   "./kwiziq-lessons.js",
   "./reference-library.js",
   "./kwiziq-reference.js",
+  "./batch-practice.js",
+  "./generated-practice.js",
   "./theme-library.js",
   "./kwiziq-themes.js",
   "./deep.js",
