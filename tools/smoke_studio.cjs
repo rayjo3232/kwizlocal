@@ -162,6 +162,35 @@ const server = http.createServer((req, res) => {
     check(await page.locator('.nb-item').count() === 7 && await page.locator('#nbStatus').inputValue() === 'open', 'dashboard queue entry resets stale notebook filters');
     await page.evaluate(() => { state = window.beforeNotebookTest; session = null; saveState(); saveSession(); });
 
+    const beforeManualTest=await page.evaluate(()=>JSON.stringify(state));
+    await page.evaluate(()=>{
+      state.autoAdvance=true; // A live old preference must not restart timers.
+      const kp=KP_BY_ID['a0.articles.definite'];
+      startSessionFromItems(kp.items.slice(0,2).map(item=>({kpId:kp.id,itemId:item.id})));
+    });
+    await page.locator('#skipBtn').waitFor();
+    await page.evaluate(()=>{const pair=getItem(session.session.items[session.index]);session.selected=pair.item.answer;checkAnswer();});
+    await page.locator('.feedback.ok').waitFor();
+    check(await page.locator('.manual-step-note').isVisible(),'correct-answer feedback explicitly promises manual Continue');
+    await page.waitForTimeout(1800);
+    check(await page.evaluate(()=>session.index===0&&session.phase==='feedback'&&session.answers.length===1),'correct answer remains beyond the former auto-advance delay');
+    await page.locator('#continueBtn').dispatchEvent('keydown',{key:'Enter',repeat:true,bubbles:true});
+    check(await page.evaluate(()=>session.index===0&&session.phase==='feedback'),'held Enter cannot skip explanation');
+    await page.reload();await page.locator('#continueBtn').waitFor();
+    await page.waitForTimeout(1400);
+    check(await page.evaluate(()=>session.index===0&&session.phase==='feedback'&&state.autoAdvance===false),'old setting migrates and feedback survives refresh');
+    await page.screenshot({path:path.join(output,'manual-continue.png')});
+    await page.locator('#continueBtn').click();
+    await page.locator('#skipBtn').waitFor();
+    check(await page.evaluate(()=>session.index===1&&session.phase==='question'&&session.answers.length===1),'clicking Continue advances exactly one question');
+    await page.evaluate(()=>{const item=getItem(session.session.items[session.index]).item;session.selected=item.options.find(o=>o!==item.answer);checkAnswer();});
+    await page.locator('.feedback.bad').waitFor();
+    await page.waitForTimeout(1400);
+    check(await page.evaluate(()=>session.index===1&&session.phase==='feedback'),'wrong-answer explanation also waits for Continue');
+    await page.goto(url+'#/settings');
+    check(await page.locator('#autoBtn').count()===0&&await page.locator('.setting-row').filter({hasText:'答题后手动继续'}).count()===1,'settings accurately describe manual continuation');
+    await page.evaluate(snapshot=>{state=JSON.parse(snapshot);session=null;saveState();saveSession();},beforeManualTest);
+
     const beforeBatchTest=await page.evaluate(()=>JSON.stringify(state));
     const beforeBatchMastery=await page.evaluate(()=>JSON.stringify([state.kps,state.attempts,state.sessions]));
     await page.goto(url+'#/library');

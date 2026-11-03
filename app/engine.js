@@ -47,7 +47,7 @@ const Engine = (function () {
          false means every diacritic must be typed. */
       accentLenient: true,
       plan: null,
-      autoAdvance: true,
+      autoAdvance: false,
       libView: "grid",
       /* Notebook: mistakes collected automatically + points saved by hand. */
       notebook: { items: [], kps: [] },
@@ -102,7 +102,9 @@ const Engine = (function () {
     /* Settings added after this profile was saved: default them the way a new
        profile would be, not the way `undefined` happens to behave. */
     out.accentLenient = out.accentLenient !== false;
-    out.autoAdvance = out.autoAdvance !== false;
+    /* Legacy profiles also use explicit Continue; old true flags cannot
+       restore timed advancement after importing a backup. */
+    out.autoAdvance = false;
 
     /* A point record with a missing or broken p / n makes display() return
        NaN, which then spreads through every score on the Brainmap. */

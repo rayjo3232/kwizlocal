@@ -129,6 +129,15 @@ ok("an object with only attempts is", Engine.migrateState({ attempts: [] }) !== 
   eq("auto-advance stays off", m.autoAdvance, false);
 }
 
+/* All historical toggle values now require explicit Continue. */
+for (const oldValue of [true, false, undefined]) {
+  const source = {kps:{}, attempts:[], autoAdvance:oldValue, goal:30, goalSet:true};
+  const migrated = Engine.migrateState(source);
+  eq("manual continue for old toggle " + oldValue, migrated.autoAdvance, false);
+  eq("manual migration keeps chosen goal " + oldValue, migrated.goal, 30);
+}
+eq("new profiles use manual continue", Engine.newState().autoAdvance, false);
+
 /* ---------- migration is idempotent ---------- */
 {
   const once = Engine.migrateState({ version: 1, kps: { a: { p: 0.5, n: 2 } }, attempts: [] });

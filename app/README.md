@@ -82,7 +82,7 @@ collapses to one column.
 | **Question depth**: `app/extra.js` adds three practice questions to every non-reading point, appended as kwiz-stage items so the guided pair and the check trio never move | done |
 | **Quick kwiz**: 3-question (~1 min) and 10-question modes | done |
 | **Per-answer score movement**: every answer shows the exact delta for that point | done |
-| **Auto-advance**: jumps to the next question after a correct answer (toggle in Settings) | done |
+| **Manual Continue**: keeps answer explanations visible until the learner continues | done |
 | Session timer + duration on the result page | done |
 | BKT mastery update per point | done |
 | Display score −100…100 with evidence shrinkage | done |

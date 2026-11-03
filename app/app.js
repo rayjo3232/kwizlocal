@@ -2235,9 +2235,10 @@ function renderKwiz() {
     + passageHtml(item)
     + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
     + inputHtml + hint + feedback
+    + (answered && !session.foundationCheck ? '<p class="small manual-step-note">可以慢慢查看讲解；点击 Continue 后才会继续。</p>' : "")
     + '<div class="kwiz-actions">'
     + (answered
-      ? '<button class="btn" id="continueBtn">' + (session.index + 1 >= total ? "See results" : "Continue") + "</button>"
+      ? '<button class="btn" id="continueBtn">' + (session.index + 1 >= total ? "Continue · See results" : "Continue") + "</button>"
       : item.type === "choice"
         /* No Check button: a choice answers itself on the second tap. */
         ? '<button class="btn subtle" id="skipBtn">Skip</button>'
@@ -2423,13 +2424,8 @@ function checkAnswer() {
   saveSession();
   renderKwiz();
 
-  /* Auto-advance only on a correct answer: a wrong one deserves a pause. */
-  if (correct && state.autoAdvance !== false && !session.foundationCheck) {
-    const token = session.last;
-    setTimeout(function () {
-      if (session && session.phase === "feedback" && session.last === token) continueSession();
-    }, 1100);
-  }
+  /* Feedback remains until an explicit Continue action. */
+
 }
 
 function skipAnswer() {
@@ -5185,9 +5181,8 @@ function renderSettings() {
       return '<option value="' + g + '"' + ((state.goal || 10) === g ? " selected" : "") + ">" + g + " / day</option>";
     }).join("")
     + "</select></div>"
-    + '<div class="setting-row"><div class="txt"><b>Auto-advance</b>'
-    + '<span>Jump to the next question right after a correct answer.</span></div>'
-    + '<button class="btn sm subtle" id="autoBtn">' + (state.autoAdvance !== false ? "On" : "Off") + "</button></div>"
+    + '<div class="setting-row"><div class="txt"><b>答题后手动继续</b>'
+    + '<span>答对或答错都会保留讲解，点击 Continue 后才进入下一题。</span></div><span class="badge">手动</span></div>'
     + '<div class="setting-row"><div class="txt"><b>Lenient French accents</b>'
     + '<span>Typing <i>etre</i> passes when the answer is <i>être</i>, and the feedback shows the standard spelling. '
     + 'Off means every accent must be typed. Spelling still has to be right either way.</span></div>'
@@ -5289,11 +5284,6 @@ function renderSettings() {
     saveState();
     document.getElementById("accentBtn").textContent = state.accentLenient !== false ? "On" : "Off";
     toast(state.accentLenient !== false ? "Lenient accents on" : "Strict accents on");
-  });
-  document.getElementById("autoBtn").addEventListener("click", function () {
-    state.autoAdvance = state.autoAdvance === false;
-    saveState();
-    document.getElementById("autoBtn").textContent = state.autoAdvance ? "On" : "Off";
   });
   document.getElementById("resetBtn").addEventListener("click", function () {
     if (!confirm("Reset all progress?")) return;
@@ -5478,9 +5468,9 @@ document.addEventListener("keydown", function (e) {
       e.preventDefault();
       skipAnswer();
     }
-  } else if (e.key === "Enter" && session.phase === "feedback") {
+  } else if (e.key === "Enter" && session.phase === "feedback" && e.target.id === "continueBtn") {
     e.preventDefault();
-    continueSession();
+    if (!e.repeat) continueSession();
   }
 });
 
