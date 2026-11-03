@@ -1147,10 +1147,8 @@ function renderDashboard() {
         : ""))
     + (canPractise ? '<button class="btn subtle" data-start="10">完整练习 · 10 题</button>' : '')
     + "</div>"
-    + (state.attempts.length === 0 && !state.seeded && !state.placement
-      ? '<div class="firstrun"><div><b>已有法语基础？</b> 用约 5 分钟找到学习起点。</div>'
-        + '<button class="btn sm ghost" data-placement>摸底测试 →</button></div>'
-      : "")
+    + '<div class="firstrun placement-entry"><div><b>从适合你的级别开始</b><br>当前学习起点 '+esc(Engine.startingLevel(state))+' · 先做摸底评测，或自行选择 A0–B2。</div>'
+    + '<button class="btn sm ghost" data-placement>评测与选择起点 →</button></div>'
     + "</div>"
     + '<div class="hero-side">'
     + learningRouteHtml(due, weak, nextLesson)
@@ -1237,7 +1235,7 @@ function renderDashboard() {
     b.addEventListener("click", startWeakSession);
   });
   const pBtn = document.querySelector("[data-placement]");
-  if (pBtn) pBtn.addEventListener("click", startPlacement);
+  if (pBtn) pBtn.addEventListener("click", function(){navigate("#/level-check");});
   const resumeBtn = document.getElementById("resumeBtn");
   if (resumeBtn) resumeBtn.addEventListener("click", function () { navigate("#/kwiz"); });
 }
@@ -2234,6 +2232,7 @@ function renderKwiz() {
     + '<div class="kwiz-kicker">' + (ref.retry ? '<span class="retry-badge">Retry</span> ' : "") + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
     + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
+    + wordSupportHtml(kp,item)
     + inputHtml + hint + feedback
     + (answered && !session.foundationCheck ? '<p class="small manual-step-note">可以慢慢查看讲解；点击 Continue 后才会继续。</p>' : "")
     + '<div class="kwiz-actions">'
@@ -2644,21 +2643,18 @@ function renderResult(id) {
 
 /* ---------------- placement ---------------- */
 
+function renderPlacementIntro() {
+  const current=Engine.startingLevel(state);
+  const resumable=placement&&placement.phase==='question'&&placement.items&&placement.index<placement.items.length;
+  app.innerHTML='<div class="container level-check-intro"><a class="small" href="#/">← 返回首页</a><div class="page-head"><span class="studio-eyebrow">FIND YOUR STARTING POINT</span><h1>先测水平，再开始学习。</h1><p>当前学习起点：<b>'+esc(current)+'</b>。已有基础的人可以从更合适的级别开始。</p></div>'
+    +'<section class="card placement-guide"><h2>20 题摸底 · A0–B2</h2><p>每级 4 题，覆盖不同知识点。选择题再次点击确认，填空题提交后继续；不会提前显示对错，完成后统一推荐起点。不会的可以跳过，途中离开也能继续。</p><p>这是课程起点诊断，不是正式语言等级认证。选择较高级别不会把低级知识点标成已掌握；以后仍可返回补基础。</p><div class="batch-actions"><button class="btn" id="beginPlacement">'+(resumable?'重新开始 20 题评测':'开始 20 题评测')+'</button>'+(resumable?'<a class="btn ghost" href="#/placement">继续未完成的评测 →</a>':'')+(placement&&placement.phase==='result'?'<a class="btn ghost" href="#/placement">查看上次结果</a>':'')+'</div></section>'
+    +'<section class="card placement-guide"><h2>也可以自行选择起点</h2><p>如果你已经知道自己的程度，可以直接选择。之前的作答、错题和知识点记录都会保留。</p><label for="entryLevelSelect">学习起点</label><select id="entryLevelSelect" class="goal-select">'+LEVELS.map(function(l){return '<option value="'+l.id+'"'+(l.id===current?' selected':'')+'>'+esc(l.name)+'</option>';}).join('')+'</select><button class="btn ghost" id="applyEntryLevel">采用这个起点 →</button></section></div>';
+  document.getElementById('beginPlacement').onclick=startPlacement;
+  document.getElementById('applyEntryLevel').onclick=function(){state.learningLevel=document.getElementById('entryLevelSelect').value;state.plan=null;saveState();navigate('#/');};
+}
+
 function startPlacement() {
-  const items = [];
-  LEVELS.forEach(function (l) {
-    const pool = [];
-    KPS.filter(function (k) { return k.level === l.id; }).forEach(function (k) {
-      k.items.filter(function (i) { return i.stage !== "guided"; }).forEach(function (i) {
-        pool.push({ kpId: k.id, itemId: i.id, d: i.difficulty });
-      });
-    });
-    pool.sort(function (a, b) { return a.d - b.d; });
-    const step = Math.max(1, Math.floor(pool.length / 4));
-    for (let i = 0; i < 4 && i * step < pool.length; i++) {
-      items.push({ kpId: pool[i * step].kpId, itemId: pool[i * step].itemId });
-    }
-  });
+  const items = LearningSupport.selectPlacement(KPS, LEVELS);
   placement = { items: items, index: 0, answers: [], phase: "question", selected: null, result: null };
   savePlacement();
   navigate("#/placement");
@@ -2684,7 +2680,7 @@ function renderPlacement() {
         + '<span class="opt-confirm">tap again</span></button>';
     }).join("") + "</div>";
   } else {
-    inputHtml = '<input class="answer-input" id="pInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer">';
+    inputHtml = '<input class="answer-input" id="pInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer">'+accentBarHtml('pInput');
   }
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
@@ -2693,6 +2689,7 @@ function renderPlacement() {
     + '<div class="kwiz-kicker">Find your level · ' + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
     + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
+    + wordSupportHtml(kp,item)
     + inputHtml
     + '<div class="kwiz-actions">'
     + (item.type === "choice"
@@ -2725,6 +2722,7 @@ function renderPlacement() {
       if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); placementNext(false); }
     });
   }
+  wireAccentBars();
   const pNext = document.getElementById("pNext");
   if (pNext) pNext.addEventListener("click", function () { placementNext(false); });
   document.getElementById("pSkip").addEventListener("click", function () { placementNext(true); });
@@ -2761,24 +2759,9 @@ function placementNext(skip) {
 }
 
 function finishPlacement() {
-  const counts = {}, hits = {};
-  LEVELS.forEach(function (l) { counts[l.id] = 0; hits[l.id] = 0; });
-
-  /* Skipped questions are not evidence: they do not enter the denominator. */
-  placement.answers.forEach(function (a) {
-    if (a.correct === null) return;
-    const kp = KP_BY_ID[a.kpId];
-    counts[kp.level] += 1;
-    if (a.correct) hits[kp.level] += 1;
-  });
-
-  const pct = {};
-  LEVELS.forEach(function (l) {
-    pct[l.id] = counts[l.id] ? hits[l.id] / counts[l.id] : null;
-  });
-
-  let est = "A0";
-  LEVELS.forEach(function (l) { if (pct[l.id] != null && pct[l.id] >= 0.6) est = l.id; });
+  if (placement.phase === "result") {renderPlacementResult();return;}
+  const diagnostic = LearningSupport.summarize(placement.answers,KP_BY_ID,LEVELS);
+  const counts=diagnostic.counts,hits=diagnostic.hits,pct=diagnostic.pct,est=diagnostic.level;
 
   /* Only the questions actually answered become evidence. A 20-question test
      cannot speak for every point in the course, so everything else stays
@@ -2789,14 +2772,14 @@ function finishPlacement() {
     });
   });
 
-  state.placement = {
+  if(diagnostic.sufficient) state.placement = {
     at: Date.now(), level: est, scores: pct, counts: counts, hits: hits,
     answered: placement.answers.filter(function (a) { return a.correct !== null; }).length
   };
   state.plan = null;
   saveState();
 
-  placement.result = { level: est, pct: pct, counts: counts, hits: hits };
+  placement.result = { level: est, pct: pct, counts: counts, hits: hits, sufficient:diagnostic.sufficient };
   placement.phase = "result";
   savePlacement();
   renderPlacement();
@@ -2804,6 +2787,7 @@ function finishPlacement() {
 
 function renderPlacementResult() {
   const r = placement.result;
+  const sufficient=r.sufficient!==undefined?r.sufficient:(r.counts.A0||0)>=3;
   const rows = LEVELS.map(function (l) {
     const seen = r.counts[l.id] || 0;
     if (!seen) {
@@ -2824,17 +2808,19 @@ function renderPlacementResult() {
   const skipped = placement.answers.length - answered;
 
   app.innerHTML = '<div class="container"><div class="kwiz-wrap">'
-    + '<div class="result-head"><div class="tiny" style="letter-spacing:.12em">YOUR ESTIMATED LEVEL</div>'
-    + '<h1 style="font-size:52px;margin:4px 0">' + esc(r.level) + "</h1>"
-    + '<p class="small">Based on ' + answered + " answered question" + (answered === 1 ? "" : "s")
-    + (skipped ? " (" + skipped + " skipped)" : "")
-    + ". Only those points were measured — the rest of your Brainmap is still blank on purpose.</p></div>"
+    + '<div class="result-head"><div class="tiny" style="letter-spacing:.12em">建议学习起点</div>'
+    + '<h1 style="font-size:52px;margin:4px 0">' + esc(sufficient?r.level:"证据不足") + "</h1>"
+    + '<p class="small">已作答 '+answered+' 题，跳过 '+skipped+' 题。每级 4 题，至少答对 3 题且较低级别连续达到标准，才提高建议起点。'
+    + (sufficient?'结果只反映这次抽样，不是正式 CEFR 认证；未测试的知识点不会标成已掌握。':'A0 有效作答不足 3 题，暂不更改原学习起点。')+'</p></div>'
     + '<div class="card">' + rows + "</div>"
     + '<div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap">'
-    + '<a class="btn" href="#/">Start learning</a>'
+    + (sufficient?'<button class="btn" id="applyPlacement">从 '+esc(r.level)+' 开始学习 →</button>':'<a class="btn" href="#/">保留原起点</a>')
+    + '<a class="btn ghost" href="#/level-check">自行调整起点</a>'
     + '<button class="btn subtle" id="retakePlacement">Retake</button>'
     + "</div></div></div>";
 
+  const apply=document.getElementById('applyPlacement');
+  if(apply)apply.onclick=function(){state.learningLevel=r.level;state.plan=null;saveState();navigate('#/');};
   document.getElementById("retakePlacement").addEventListener("click", function () {
     placement = null; savePlacement(); startPlacement();
   });
@@ -2904,7 +2890,7 @@ function renderExam() {
   const ref = exam.items[exam.index];
   const pair = getItem(ref);
   if (!pair) { exam = null; saveExam(); navigate("#/"); return; }
-  const item = pair.item;
+  const kp = pair.kp, item = pair.item;
 
   let inputHtml = "";
   if (item.type === "choice") {
@@ -2924,6 +2910,7 @@ function renderExam() {
     + '<div class="kwiz-kicker">TCF-style · ' + esc(typeLabel(item)) + "</div>"
     + passageHtml(item)
     + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
+    + wordSupportHtml(kp,item)
     + inputHtml
     + '<div class="kwiz-actions">'
     + '<button class="btn" id="eNext">Next</button>'
@@ -3417,6 +3404,7 @@ function renderPrelearn(kpId) {
     body = '<div class="check-progress">Guided practice · ' + (prelearn.g + 1) + " of 2</div>"
       + passageHtml(item)
       + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
+      + wordSupportHtml(kp,item)
       + (item.type === "choice"
         ? '<div class="options">' + item.options.map(function (o) {
             let cls = "option";
@@ -3488,6 +3476,7 @@ function renderPrelearn(kpId) {
         + " · " + prelearn.checkCorrect + " correct so far</div>"
         + passageHtml(item)
         + '<div class="kwiz-prompt">' + esc(item.prompt).replace(/_{3,}/g, '<span class="blank">____</span>') + "</div>"
+      + wordSupportHtml(kp,item)
         + (item.type === "choice"
           ? '<div class="options">' + item.options.map(function (o) {
               let cls = "option";
@@ -5211,7 +5200,7 @@ function renderSettings() {
     exam = null; saveExam(); startExam();
   });
   document.getElementById("placementBtn").addEventListener("click", function () {
-    placement = null; savePlacement(); startPlacement();
+    navigate("#/level-check");
   });
   document.getElementById("seedBtn").addEventListener("click", function () {
     Engine.seedDemo(state);
@@ -5360,6 +5349,7 @@ function route() {
     case "kwiz": return renderKwiz();
     case "result": return renderResult(parts[1]);
     case "prelearn": return renderPrelearn(parts[1]);
+    case "level-check": return renderPlacementIntro();
     case "placement": return renderPlacement();
     case "exam": return renderExam();
     default: return renderDashboard();

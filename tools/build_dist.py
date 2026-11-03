@@ -24,6 +24,7 @@ FILES = [
     "coaching.js",
     "index.html",
     "styles.css",
+    "learning-support.js",
     "app.js",
     "curriculum.js",
     "answer-matcher.js",

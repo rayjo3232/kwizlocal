@@ -59,6 +59,7 @@ function renderBatchRound(id){
   app.innerHTML='<div class="container batch-round"><a class="small" href="#/practice-point/'+id+'">← 暂停并返回知识点</a><div class="page-head"><span class="studio-eyebrow">'+esc(batchLabel(item.kind))+' · '+(index+1)+' / '+study.ids.length+'</span><h1>'+esc(zhOf(kp)||kp.title)+'</h1><p>完成本轮后统一查看答案与解释。</p></div>'
     +(item.passage?'<div class="batch-passage" lang="fr">'+esc(item.passage)+'</div>':'')+'<div class="kwiz-prompt batch-prompt">'+esc(item.prompt)+'</div>'
     +(item.kind==='form'?'<dl class="batch-spec"><div><dt>动词</dt><dd lang="fr">'+esc(item.inf)+'</dd></div><div><dt>时态 / 语式</dt><dd>'+esc(item.tense)+'</dd></div><div><dt>主语 / 人称</dt><dd lang="fr">'+esc(item.person)+'</dd></div></dl>':'')
+    +wordSupportHtml(kp,item)
     +(item.translation?'<p>'+esc(item.translation)+'</p>':'')
     +'<form id="batchAnswerForm">'+(item.type==='choice'?'<fieldset class="batch-options"><legend>选择一个答案</legend>'+item.options.map(function(option,i){return '<label><input type="radio" name="batchChoice" value="'+i+'" required><span>'+esc(option)+'</span></label>';}).join('')+'</fieldset>':'<label>你的答案<input id="batchAnswer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="2000" required></label>'+accentBarHtml('batchAnswer'))+'<button class="btn" type="submit">'+(index+1===study.ids.length?'提交并查看结果':'保存答案 · 下一题')+'</button></form></div>';
   wireAccentBars();const input=document.getElementById('batchAnswer');if(input)input.focus();

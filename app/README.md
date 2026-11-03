@@ -430,3 +430,12 @@ well as a number.
 一键重建与验证：`node tools/update_practice.cjs`。
 
 流程、数据来源、覆盖与限制见 [批量内容工具说明](../docs/CONTENT_PIPELINE.md)。
+
+
+## 水平评测与 A0 词汇提示（V55）
+
+首页“评测与选择起点”进入 `#/level-check`：20 题 A0–B2 课程诊断，支持继续未完成测试。完成后点击“从建议级别开始学习”，或直接选择级别，均保留既有记录。采用结果会更新真正的引导学习起点，低级知识点不会被伪造为已掌握。跳过过多时不强行定级；结果不是正式 CEFR 认证。
+
+A0 题目直接显示中文词汇提示，避免生词妨碍语法判断。词汇在 `app/learning-support.js` 维护，按明确词形匹配，过滤正在考查的答案词。词表可继续扩充；并非自动整句翻译。
+
+验证：`node tools/check_learning_support.cjs` 与 `node tools/smoke_studio.cjs`。

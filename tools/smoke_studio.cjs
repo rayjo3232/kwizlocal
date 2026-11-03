@@ -162,6 +162,52 @@ const server = http.createServer((req, res) => {
     check(await page.locator('.nb-item').count() === 7 && await page.locator('#nbStatus').inputValue() === 'open', 'dashboard queue entry resets stale notebook filters');
     await page.evaluate(() => { state = window.beforeNotebookTest; session = null; saveState(); saveSession(); });
 
+    const beforeLevelTest=await page.evaluate(()=>JSON.stringify(state));
+    await page.evaluate(()=>{state=Engine.newState();state.learningLevel='A0';state.attempts=[{kpId:'a0.articles.definite',itemId:'existing-witness',correct:true,at:Date.now()}];placement=null;saveState();savePlacement();});
+    await page.goto(url+'#/');
+    await page.locator('[data-placement]').click();
+    await page.locator('#beginPlacement').waitFor();
+    check(await page.locator('#entryLevelSelect option').count()===5,'placement and manual entry available to existing learners');
+    await page.locator('#entryLevelSelect').selectOption('B1');
+    await page.locator('#applyEntryLevel').click();
+    check(await page.evaluate(()=>Engine.startingLevel(state)==='B1'&&state.attempts.some(a=>a.itemId==='existing-witness')),'manual entry changes level without resetting prior learning');
+    await page.locator('[data-placement]').click();
+    await page.locator('#beginPlacement').click();
+    await page.locator('#pSkip').waitFor();
+    check(await page.evaluate(()=>placement.items.length===20&&new Set(placement.items.map(i=>i.kpId)).size===20),'placement samples twenty distinct points');
+    check(await page.locator('.word-support').count()===1,'A0 assessment includes direct Chinese vocabulary support');
+    for(let i=0;i<20;i++){
+      const q=await page.evaluate(()=>{const p=getItem(placement.items[placement.index]);return {type:p.item.type,answer:p.item.answer,options:p.item.options,correct:['A0','A1','A2'].includes(p.kp.level)};});
+      if(q.type==='choice'){
+        const chosen=q.correct?q.answer:q.options.find(o=>o!==q.answer);
+        const b=page.locator('[data-p-option]').nth(q.options.indexOf(chosen));await b.click();await b.click();
+      }else{
+        await page.locator('#pInput').fill(q.correct?q.answer:'xyz');await page.locator('#pNext').click();
+      }
+      if(i===2){await page.reload();await page.locator('#pSkip').waitFor();check(await page.evaluate(()=>placement.index===3&&placement.answers.length===3),'unfinished placement resumes after refresh');}
+    }
+    await page.locator('#applyPlacement').waitFor();
+    check(await page.evaluate(()=>placement.result.level==='A2'&&placement.result.sufficient),'diagnostic proposes supported A2 entry');
+    check(await page.evaluate(()=>state.learningLevel==='B1'),'manual preference remains until result is explicitly adopted');
+    await page.screenshot({path:path.join(output,'placement-result.png')});
+    await page.locator('#applyPlacement').click();
+    check(await page.evaluate(()=>Engine.startingLevel(state)==='A2'&&Engine.guidedLevel(state)==='A2'),'adopting result really changes guided learning start');
+    check(await page.evaluate(()=>state.attempts.filter(a=>a.source==='placement').length===20&&Object.values(state.kps).every(k=>k.n<=1)),'only sampled points receive evidence; no invented lower-level mastery');
+    await page.evaluate(()=>{placement={items:LearningSupport.selectPlacement(KPS,LEVELS),index:20,answers:LearningSupport.selectPlacement(KPS,LEVELS).map(r=>({...r,correct:null,given:''})),phase:'question'};finishPlacement();});
+    check(await page.locator('#applyPlacement').count()===0&&await page.evaluate(()=>Engine.startingLevel(state)==='A2'),'all-skip diagnostic cannot reset current entry');
+    await page.goto(url+'#/prelearn/a0.articles.definite');
+    await page.locator('#step1Next').click();
+    check(await page.locator('.word-support').innerText().then(t=>t.includes('书')),'guided A0 questions show Chinese content-word meanings');
+    await page.evaluate(()=>{const kp=KP_BY_ID['a0.articles.definite'];const item=kp.items.find(i=>i.prompt.includes('fenêtre de la cuisine'));startSessionFromItems([{kpId:kp.id,itemId:item.id}]);});
+    await page.locator('.word-support').waitFor();
+    check(await page.locator('.word-support').innerText().then(t=>t.includes('窗户')&&t.includes('厨房')),'difficult words are translated directly during a normal A0 question');
+    check(await page.locator('.word-support dt').allTextContents().then(t=>!t.includes('la')),'word support does not disclose article answer');
+    await page.setViewportSize({width:390,height:844});
+    check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Chinese word support fits mobile');
+    await page.screenshot({path:path.join(output,'word-support-mobile.png')});
+    await page.setViewportSize({width:1280,height:900});
+    await page.evaluate(snapshot=>{state=JSON.parse(snapshot);placement=null;session=null;prelearn=null;saveState();savePlacement();saveSession();},beforeLevelTest);
+
     const beforeManualTest=await page.evaluate(()=>JSON.stringify(state));
     await page.evaluate(()=>{
       state.autoAdvance=true; // A live old preference must not restart timers.
@@ -476,6 +522,9 @@ const server = http.createServer((req, res) => {
     await filePage.goto(require('node:url').pathToFileURL(path.join(root,'index.html')).href+'#/practice-bank');
     await filePage.locator('#batchSearch').waitFor();
     check(await filePage.evaluate(()=>batchCatalog.items.length===13188),'compiled practice bank works from local file');
+    await filePage.goto(require('node:url').pathToFileURL(path.join(root,'index.html')).href+'#/level-check');
+    await filePage.locator('#beginPlacement').waitFor();
+    check(await filePage.locator('#entryLevelSelect option').count()===5,'placement entry works from local files');
     await filePage.close();
 
     const beforeFoundationTest = await page.evaluate(() => JSON.stringify(state));
@@ -654,6 +703,11 @@ const server = http.createServer((req, res) => {
     await page.locator('[data-batch-start="form"]').click();
     await page.locator('#batchAnswerForm').waitFor();
     check(await page.evaluate(()=>batchStudy.ids.length===8),'new generated exercises start offline');
+    check(await page.locator('.word-support').count()===1,'A0 generated-form vocabulary support works offline');
+    await page.goto(url+'#/level-check');
+    await page.locator('#beginPlacement').click();
+    await page.locator('#pSkip').waitFor();
+    check(await page.evaluate(()=>placement.items.length===20),'level diagnostic starts offline');
     await context.setOffline(false);
     check(errors.length === 0, 'no browser errors: ' + errors.join(', '));
     console.log(`${checks} study-studio browser checks passed (including offline upgrade).`);

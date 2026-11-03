@@ -1,12 +1,12 @@
 /* One release identity shared by the UI and the offline worker. */
 const RELEASE = {
-  id: "v54-manual-continue",
-  version: "54",
+  id: "v55-placement-word-support",
+  version: "55",
   date: "2026-11-03",
-  title: "讲解停留 · 手动继续",
+  title: "先测水平 · 看懂题目再练",
   changes: [
-    "答对后不再定时跳题；答对、答错都可停下来阅读讲解。",
-    "点击 Continue 才继续，反馈区增加明确提示；设置页同步说明手动模式。",
-    "旧记录与导入备份同样采用手动继续，保留既有学习进度。"
+    "首页常驻水平评测入口：20 题摸底 A0–B2，也可直接选择学习起点。",
+    "评测按连续级别和有效作答推荐起点，一键采用；跳过过多时不会随意定级。",
+    "A0 题目直接显示中文词汇提示，覆盖常规、引导、评测及专项练习，避开语法答案。"
   ]
 };
